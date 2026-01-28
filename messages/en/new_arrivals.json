@@ -1,0 +1,19 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "products": "Products",
+        "newArrivals": "New Arrivals"
+    },
+    "Header": {
+        "badge": "Just Landed",
+        "title": "New Arrivals",
+        "description": "Be the first to explore our latest gadgets and gear. Fresh stock added daily."
+    },
+    "Content": {
+        "showing": "Showing {count} of {total} new arrivals",
+        "errorTitle": "Unable to load new products.",
+        "errorDesc": "Please try again later or contact support if the problem persists.",
+        "noProducts": "No new arrivals available",
+        "noProductsDesc": "Check back soon for fresh new products."
+    }
+}

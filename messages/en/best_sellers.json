@@ -1,0 +1,19 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "products": "Products",
+        "bestSellers": "Best Sellers"
+    },
+    "Header": {
+        "badge": "Customer Favorites",
+        "title": "Top Trending Products",
+        "description": "Shop the most popular items loved by our community this week. Verified quality, proven satisfaction."
+    },
+    "Content": {
+        "showing": "Showing {count} of {total} best sellers",
+        "errorTitle": "Unable to load best sellers at this moment.",
+        "errorDesc": "Please try again later or contact support if the problem persists.",
+        "noProducts": "No best sellers available",
+        "noProductsDesc": "Check back soon for our top trending products."
+    }
+}

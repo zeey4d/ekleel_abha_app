@@ -1,0 +1,27 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "brands": "Brands"
+    },
+    "Header": {
+        "title": "Our Premium Brands",
+        "description": "Discover products from top global manufacturers. Quality and authenticity guaranteed."
+    },
+    "Featured": {
+        "title": "Featured Partners"
+    },
+    "Alphabet": {
+        "title": "Browse by Letter"
+    },
+    "AllBrands": {
+        "title": "All Brands",
+        "noBrands": "No brands found.",
+        "error": "Failed to load brands. Please try again."
+    },
+    "BrandHeader": {
+        "officialPartner": "Official Partner",
+        "description": "Shop the latest collection from {brandName}. Discover premium quality products backed by official warranty and support.",
+        "productsAvailable": "Products Available"
+    },
+    "browseByLetter": "Browse by Letter"
+}

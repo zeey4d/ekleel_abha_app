@@ -1,0 +1,34 @@
+{
+    "Breadcrumbs": {
+        "home": "الرئيسية",
+        "wishlist": "قائمة الرغبات"
+    },
+    "Header": {
+        "title": "قائمة رغباتي",
+        "itemCount": "{count} منتج"
+    },
+    "EmptyWishlist": {
+        "title": "قائمة رغباتك فارغة",
+        "description": "استكشف مجموعاتنا واضغط على زر القلب لحفظ المنتجات التي تعجبك لوقت لاحق.",
+        "explore": "استكشف المنتجات"
+    },
+    "Actions": {
+        "share": "مشاركة",
+        "addAll": "إضافة الكل للسلة",
+        "noStock": "لا توجد منتجات متوفرة للإضافة.",
+        "movedCount": "تم نقل {count} منتج إلى السلة",
+        "failedAdd": "فشل إضافة بعض المنتجات للسلة",
+        "shareSuccess": "تم نسخ رابط القائمة للحافظة!"
+    },
+    "Item": {
+        "outOfStock": "غير متوفر",
+        "inStock": "متوفر",
+        "addToCart": "إضافة للسلة",
+        "unavailable": "غير متاح",
+        "movedToCart": "تم النقل للسلة",
+        "failedToCart": "فشل الإضافة للسلة",
+        "removed": "تمت الإزالة من القائمة",
+        "removeFailed": "فشل إزالة العنصر",
+        "removeTitle": "إزالة من القائمة"
+    }
+}

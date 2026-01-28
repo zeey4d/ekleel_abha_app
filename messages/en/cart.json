@@ -1,0 +1,55 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "cart": "Shopping Cart"
+    },
+    "Header": {
+        "title": "Shopping Cart",
+        "items": "Items"
+    },
+    "SecureProps": {
+        "title": "Secure Shopping Guarantee:",
+        "description": "Your payments are secure with 256-bit encryption. You can return items within 30 days for a full refund."
+    },
+    "CartCoupon": {
+        "label": "Have a coupon?",
+        "placeholder": "Enter code",
+        "apply": "Apply",
+        "applied": "Applied",
+        "validating": "Validating coupon...",
+        "success": "Coupon \"{code}\" applied!",
+        "error": "Invalid coupon code",
+        "discountNote": "Discount will be calculated at checkout."
+    },
+    "CartItem": {
+        "model": "Model: {model}",
+        "remove": "Remove",
+        "each": "{price} each",
+        "updateFailed": "Failed to update quantity",
+        "removed": "Item removed",
+        "removeFailed": "Failed to remove item"
+    },
+    "CartSummary": {
+        "title": "Order Summary",
+        "subtotal": "Subtotal",
+        "taxEstimated": "Tax (Estimated)",
+        "shipping": "Shipping",
+        "shippingNote": "Calculated at Checkout",
+        "total": "Total",
+        "checkoutNow": "Checkout Now",
+        "secureCheckout": "Secure Checkout",
+        "freeShippingProgress": "Free Shipping Progress",
+        "freeShippingUnlocked": "🎉 Free Shipping Unlocked!",
+        "freeShippingMessage": "Your order qualifies for free shipping",
+        "awayFromFreeShipping": "away from free shipping",
+        "free": "FREE"
+    },
+    "EmptyCart": {
+        "title": "Your Cart is Empty",
+        "description": "Looks like you haven't added anything to your cart yet. Browse our categories and find something you like!",
+        "startShopping": "Start Shopping"
+    },
+    "CartRecommendations": {
+        "title": "You might also like"
+    }
+}

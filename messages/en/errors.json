@@ -1,0 +1,26 @@
+{
+    "network": {
+        "title": "Connection Lost",
+        "description": "We couldn't reach our servers. Please check your internet connection and try again."
+    },
+    "server": {
+        "title": "Server Error",
+        "description": "Something went wrong on our end. Our team has been notified and is working on it."
+    },
+    "general": {
+        "title": "Unable to load content",
+        "description": "We're having trouble loading this content. Please try again in a moment."
+    },
+    "actions": {
+        "tryAgain": "Try Again",
+        "backToHome": "Back to Home",
+        "retry": "Retry"
+    },
+    "global": {
+        "title": "System Error",
+        "description": "A critical error occurred and the application cannot be rendered. Please try reloading the page.",
+        "reload": "Reload Application",
+        "referenceId": "Reference ID",
+        "brand": "Ekleel"
+    }
+}

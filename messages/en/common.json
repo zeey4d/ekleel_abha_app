@@ -1,0 +1,51 @@
+{
+    "Unauthorized": {
+        "code": "403",
+        "title": "Access Denied",
+        "message": "You don't have permission to access this area",
+        "adminRequired": "Admin Access Required",
+        "adminMessage": "This page is restricted to administrators only. If you believe you should have access, please contact your system administrator.",
+        "reasons": {
+            "notLoggedIn": "You must be logged in with an administrator account",
+            "noPrivileges": "Your current account does not have admin privileges",
+            "contactSupport": "Contact support if you need admin access"
+        },
+        "whatToDo": {
+            "title": "What you can do:",
+            "home": "Return to the homepage and continue shopping",
+            "login": "Log in with an administrator account if you have one",
+            "contact": "Contact support to request admin access"
+        },
+        "buttons": {
+            "home": "Go to Homepage",
+            "login": "Login as Admin",
+            "back": "Go Back"
+        },
+        "support": "Need help?",
+        "contactSupport": "Contact Support"
+    },
+    "MapPicker": {
+        "selectedLocation": "Selected Location",
+        "addressNotFound": "Address not found",
+        "locationNotFound": "Location not found",
+        "searchError": "Error searching for location",
+        "searchPlaceholder": "Search for city, street...",
+        "searching": "Searching...",
+        "search": "Search",
+        "loadingMap": "Loading Maps...",
+        "mapError": "Error loading maps"
+    },
+    "Currency": {
+        "SAR": "SAR"
+    },
+    "Pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "morePages": "More pages"
+    },
+    "Command": {
+        "title": "Command Palette",
+        "searchPlaceholder": "Search for a command to run...",
+        "noResults": "No results found."
+    }
+}

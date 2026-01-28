@@ -1,0 +1,127 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "sellers": "Sellers"
+    },
+    "Benefits": {
+        "title": "Why Sell With Us?",
+        "description": "We provide the tools and support you need to grow your business.",
+        "items": {
+            "reachMillions": {
+                "title": "Reach Millions",
+                "description": "Access our growing customer base and increase your sales potential immediately."
+            },
+            "analytics": {
+                "title": "Powerful Analytics",
+                "description": "Get insights into your sales performance and customer behavior."
+            },
+            "global": {
+                "title": "Sell Globally",
+                "description": "We handle the logistics, you focus on creating great products for the world."
+            },
+            "support": {
+                "title": "Dedicated Support",
+                "description": "Our seller support team is here 24/7 to help you succeed."
+            }
+        },
+        "note": {
+            "label": "Note:",
+            "text": "Approval usually takes 24-48 hours. Please ensure your contact details are correct."
+        }
+    },
+    "Card": {
+        "locationNA": "Location N/A",
+        "new": "New",
+        "products": "Products",
+        "joined": "Joined",
+        "visitStore": "Visit Store"
+    },
+    "Header": {
+        "share": "Share",
+        "follow": "Follow",
+        "following": "Following",
+        "verified": "Verified",
+        "locationHidden": "Location hidden",
+        "title": "Our Verified Sellers",
+        "description": "Discover top-rated sellers and exclusive products.",
+        "becomeSeller": "Become a Seller"
+    },
+    "Content": {
+        "error": "Failed to load sellers. Please try again later.",
+        "noSellers": "No Sellers Found",
+        "noSellersDesc": "There are no active sellers at the moment."
+    },
+    "Info": {
+        "title": "About The Store",
+        "noDescription": "This seller has not provided a description yet. Contact them for more information regarding their products and services.",
+        "noAddress": "No address provided",
+        "memberSince": "Member since {date}",
+        "identityVerified": "Identity Verified"
+    },
+    "Products": {
+        "title": "Store Products",
+        "filters": "Filters",
+        "failedLoad": "Failed to load products.",
+        "noProducts": "This seller has no products listed yet.",
+        "previous": "Previous",
+        "next": "Next",
+        "pageOf": "Page {current} of {total}"
+    },
+    "BecomeSeller": {
+        "title": "Become a Seller",
+        "subtitle": "Join our marketplace and reach millions of customers",
+        "steps": {
+            "business": "Business Information",
+            "contact": "Contact Information",
+            "social": "Social Media (Optional)",
+            "documents": "Verification Documents"
+        },
+        "fields": {
+            "storeName": "Store Name *",
+            "storeNamePlaceholder": "e.g. Tech Haven",
+            "businessType": "Business Type",
+            "selectType": "Select type",
+            "types": {
+                "retail": "Retail Store",
+                "wholesale": "Wholesale",
+                "manufacturer": "Manufacturer",
+                "individual": "Individual Seller"
+            },
+            "description": "Description *",
+            "descriptionPlaceholder": "Tell us about your business and what you sell...",
+            "descriptionHint": "This will be displayed on your seller profile.",
+            "phone": "Phone Number *",
+            "phonePlaceholder": "+1 234 567 8900",
+            "address": "Business Address *",
+            "addressPlaceholder": "Street, City, Country",
+            "facebookPlaceholder": "Facebook Page URL",
+            "instagramPlaceholder": "Instagram Profile URL",
+            "twitterPlaceholder": "Twitter Profile URL",
+            "license": "Business License / ID"
+        },
+        "upload": {
+            "clickToUpload": "Click to upload or drag and drop",
+            "formats": "SVG, PNG, JPG or PDF (max. 5MB)",
+            "note": "* Uploading documents helps speed up the verification process. You can skip this for now."
+        },
+        "success": {
+            "title": "Application Received!",
+            "message": "Thank you for applying. Our team will review your details and contact you within 24-48 hours.",
+            "returnHome": "Return Home"
+        },
+        "buttons": {
+            "submit": "Submit Application",
+            "submitting": "Submitting..."
+        },
+        "messages": {
+            "success": "Application submitted successfully!",
+            "error": "Failed to submit application. Please try again."
+        },
+        "validation": {
+            "nameMin": "Business name must be at least 3 characters",
+            "descMin": "Description must be at least 10 characters",
+            "phoneInvalid": "Please enter a valid phone number",
+            "addressRequired": "Address is required"
+        }
+    }
+}

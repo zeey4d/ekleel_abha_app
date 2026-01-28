@@ -1,0 +1,18 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "brands": "Brands",
+        "label": "Starting with {letter}"
+    },
+    "Header": {
+        "title": "Brands starting with \"{letter}\"",
+        "browsing": "Browsing {count} brands",
+        "back": "Back to All Brands"
+    },
+    "Content": {
+        "error": "Unable to load brands. Please try again later.",
+        "noBrands": "No brands found",
+        "noBrandsDesc": "We couldn't find any brands starting with the letter",
+        "viewAll": "View All Brands"
+    }
+}

@@ -1,0 +1,84 @@
+{
+  "title": "الرئيسية",
+  "welcome": "مرحباً بك",
+  "welcomeMessage": "هذه هي الصفحة الرئيسية للتطبيق. يمكنك التنقل بين الصفحات باستخدام القائمة السفلية.",
+  "features": "✨ مميزات التطبيق",
+  "feature1": "• تصميم احترافي وعصري",
+  "feature2": "• قائمة تنقل سفلية سهلة الاستخدام",
+  "feature3": "• دعم الوضع الليلي والنهاري",
+  "feature4": "• أيقونات جميلة ومعبرة",
+  "feature5": "• دعم متعدد اللغات مع RTL/LTR",
+  "newArrivals": {
+    "title": "وصل حديثاً",
+    "viewAll": "عرض الكل"
+  },
+  "topSelling": {
+    "title": "الأكثر مبيعاً",
+    "viewAll": "عرض الكل"
+  },
+  "Error": {
+    "title": "تعذر تحميل المحتوى",
+    "description": "يرجى التحقق من اتصالك والمحاولة مرة أخرى."
+  },
+  "Promos": {
+    "summerSaleTitle": "تخفيضات الصيف بدأت!",
+    "summerSaleSubtitle": "خصم يصل إلى 50% على الإلكترونيات"
+  },
+  "DealsOfTheDay": {
+    "limitedTimeOffer": "عرض لفترة محدودة",
+    "title": "عروض اليوم",
+    "description": "لا تفوت هذه الفرص المحدودة الوقت.",
+    "viewAllDeals": "عرض جميع العروض",
+    "hours": "ساعة",
+    "minutes": "دقيقة",
+    "seconds": "ثانية"
+  },
+  "FeaturedBrands": {
+    "title": "علاماتنا التجارية"
+  },
+  "FeaturedCategories": {
+    "title": "تسوق حسب الفئة",
+    "viewAll": "عرض الكل",
+    "noImage": "لا توجد صورة"
+  },
+  "HeroSlider": {
+    "bigSale": "تخفيضات كبيرة",
+    "upTo50Off": "خصم يصل إلى 50%",
+    "description": "اكتشف أحدث مجموعتنا من المنتجات الفاخرة بأسعار لا تقبل المنافسة.",
+    "shopNow": "تسوق الآن",
+    "noImage": "لا توجد صورة"
+  },
+  "NewArrivals": {
+    "title": "وصل حديثاً",
+    "viewAll": "عرض الكل"
+  },
+  "TopSellingProducts": {
+    "title": "الأكثر مبيعاً",
+    "viewAll": "عرض الكل"
+  },
+  "NewsletterSignup": {
+    "title": "اشترك في نشرتنا الإخبارية",
+    "description": "احصل على أحدث التحديثات حول المنتجات الجديدة والعروض القادمة مباشرة في بريدك الإلكتروني.",
+    "placeholder": "أدخل بريدك الإلكتروني",
+    "subscribe": "اشترك",
+    "termsNote": "بالاشتراك فإنك توافق على الشروط والأحكام وسياسة الخصوصية.",
+    "successMessage": "تم الاشتراك بـ {email}"
+  },
+  "PromoGrid": {
+    "noImage": "لا توجد صورة"
+  },
+  "Testimonials": {
+    "title": "ماذا يقول عملاؤنا",
+    "subtitle": "تعليقات حقيقية من عملائنا المعتمدين"
+  },
+  "TrustBadges": {
+    "freeShipping": "شحن مجاني",
+    "freeShippingDesc": "على جميع الطلبات فوق 100$",
+    "securePayment": "دفع آمن",
+    "securePaymentDesc": "دفع آمن 100%",
+    "support": "دعم 24/7",
+    "supportDesc": "دعم مخصص",
+    "easyReturns": "إرجاع سهل",
+    "easyReturnsDesc": "سياسة إرجاع 30 يوم"
+  }
+}

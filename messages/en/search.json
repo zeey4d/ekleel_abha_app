@@ -1,0 +1,43 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "search": "Search"
+    },
+    "Toolbar": {
+        "filterResults": "Filter Results"
+    },
+    "Content": {
+        "error": "Search service unavailable. Please try again."
+    },
+    "SearchHeader": {
+        "title": "Results for",
+        "foundCount": "Found {count} products",
+        "foundTime": "in {time} seconds"
+    },
+    "NoResults": {
+        "title": "No results found for \"{query}\"",
+        "description": "We couldn't find what you're looking for. Try checking for typos or using more generic terms.",
+        "suggestionsTitle": "Suggestions",
+        "checkSpelling": "Check your spelling",
+        "tryGeneral": "Try more general keywords",
+        "tryDifferent": "Try different keywords",
+        "browseCategory": "Browse by category instead",
+        "browseCategoriesBtn": "Browse Categories"
+    },
+    "PopularSearches": {
+        "title": "Popular Searches"
+    },
+    "SearchFacets": {
+        "filters": "Filters",
+        "clearAll": "Clear All",
+        "showResults": "Show Results",
+        "categories": "Categories",
+        "priceRange": "Price Range",
+        "promotions": "Promotions",
+        "brands": "Brands",
+        "availability": "Availability"
+    },
+    "SearchSuggestions": {
+        "relatedTo": "Related to \"{query}\""
+    }
+}

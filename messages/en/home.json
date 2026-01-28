@@ -1,0 +1,84 @@
+{
+  "title": "Home",
+  "welcome": "Welcome",
+  "welcomeMessage": "This is the home page of the application. You can navigate between pages using the bottom menu.",
+  "features": "✨ App Features",
+  "feature1": "• Professional and modern design",
+  "feature2": "• Easy-to-use bottom navigation menu",
+  "feature3": "• Dark and light mode support",
+  "feature4": "• Beautiful and expressive icons",
+  "feature5": "• Multi-language support with RTL/LTR",
+  "newArrivals": {
+    "title": "New Arrivals",
+    "viewAll": "View All"
+  },
+  "topSelling": {
+    "title": "Top Selling",
+    "viewAll": "View All"
+  },
+  "Error": {
+    "title": "Unable to load content",
+    "description": "Please check your connection and try again."
+  },
+  "Promos": {
+    "summerSaleTitle": "Summer Sale is Live!",
+    "summerSaleSubtitle": "Up to 50% off on Electronics"
+  },
+  "DealsOfTheDay": {
+    "limitedTimeOffer": "Limited Time Offer",
+    "title": "Deals of the Day",
+    "description": "Don't miss out on these limited time opportunities.",
+    "viewAllDeals": "View All Deals",
+    "hours": "Hrs",
+    "minutes": "Mins",
+    "seconds": "Secs"
+  },
+  "FeaturedBrands": {
+    "title": "Our Brands"
+  },
+  "FeaturedCategories": {
+    "title": "Shop by Category",
+    "viewAll": "View All",
+    "noImage": "No Image"
+  },
+  "HeroSlider": {
+    "bigSale": "Big Sale",
+    "upTo50Off": "Up to 50% Off",
+    "description": "Discover our latest collection of premium products at unbeatable prices.",
+    "shopNow": "Shop Now",
+    "noImage": "No Image"
+  },
+  "NewArrivals": {
+    "title": "New Arrivals",
+    "viewAll": "View All"
+  },
+  "TopSellingProducts": {
+    "title": "Best Sellers",
+    "viewAll": "View All"
+  },
+  "NewsletterSignup": {
+    "title": "Subscribe to our Newsletter",
+    "description": "Get the latest updates on new products and upcoming sales directly in your inbox.",
+    "placeholder": "Enter your email address",
+    "subscribe": "Subscribe",
+    "termsNote": "By subscribing you agree to our Terms & Conditions and Privacy Policy.",
+    "successMessage": "Subscribed with {email}"
+  },
+  "PromoGrid": {
+    "noImage": "No Image"
+  },
+  "Testimonials": {
+    "title": "What Our Customers Say",
+    "subtitle": "Real feedback from our verified customers"
+  },
+  "TrustBadges": {
+    "freeShipping": "Free Shipping",
+    "freeShippingDesc": "On all orders over $100",
+    "securePayment": "Secure Payment",
+    "securePaymentDesc": "100% secure payment",
+    "support": "24/7 Support",
+    "supportDesc": "Dedicated support",
+    "easyReturns": "Easy Returns",
+    "easyReturnsDesc": "30 Day return policy"
+  }
+}

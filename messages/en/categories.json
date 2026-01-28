@@ -1,0 +1,22 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "categories": "Categories"
+    },
+    "Header": {
+        "title": "Explore Categories",
+        "description": "Browse our wide selection of products by category. Find exactly what you need from our extensive collection."
+    },
+    "Content": {
+        "error": "Unable to load categories. Please try again later.",
+        "noCategories": "No categories found."
+    },
+    "CategoryCard": {
+        "items": "{count} Items",
+        "subcategories": "{count} Subcategories",
+        "shopNow": "Shop Now"
+    },
+    "SubCategories": {
+        "title": "Sub Categories"
+    }
+}

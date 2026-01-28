@@ -1,0 +1,43 @@
+{
+    "Breadcrumbs": {
+        "home": "الرئيسية",
+        "search": "بحث"
+    },
+    "Toolbar": {
+        "filterResults": "تصفية النتائج"
+    },
+    "Content": {
+        "error": "خدمة البحث غير متاحة. يرجى المحاولة مرة أخرى."
+    },
+    "SearchHeader": {
+        "title": "نتائج البحث عن",
+        "foundCount": "تم العثور على {count} منتج",
+        "foundTime": "في {time} ثانية"
+    },
+    "NoResults": {
+        "title": "لاتوجد نتائج لـ \"{query}\"",
+        "description": "لم نتمكن من العثور على ما تبحث عنه. حاول التحقق من الأخطاء الإملائية أو استخدام مصطلحات أكثر شمولاً.",
+        "suggestionsTitle": "اقتراحات",
+        "checkSpelling": "تحقق من التهجئة",
+        "tryGeneral": "جرب كلمات دلالية أعم",
+        "tryDifferent": "جرب كلمات دلالية مختلفة",
+        "browseCategory": "تصفح حسب الفئة",
+        "browseCategoriesBtn": "تصفح الفئات"
+    },
+    "PopularSearches": {
+        "title": "عمليات البحث الشائعة"
+    },
+    "SearchFacets": {
+        "filters": "الفلاتر",
+        "clearAll": "مسح الكل",
+        "showResults": "عرض النتائج",
+        "categories": "الفئات",
+        "priceRange": "نطاق السعر",
+        "promotions": "العروض",
+        "brands": "الماركات",
+        "availability": "التوفر"
+    },
+    "SearchSuggestions": {
+        "relatedTo": "متعلق بـ \"{query}\""
+    }
+}

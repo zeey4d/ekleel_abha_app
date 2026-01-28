@@ -1,0 +1,83 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "products": "Products"
+    },
+    "Toolbar": {
+        "filters": "Filters",
+        "productsFound": "Products Found"
+    },
+    "Content": {
+        "error": "Error loading products.",
+        "noProducts": "No products found",
+        "noProductsDesc": "Try adjusting your filters or search criteria.",
+        "clearFilters": "Clear all filters"
+    },
+    "ProductCard": {
+        "addToCart": "Add to Cart",
+        "add": "Add",
+        "addedToCart": "{name} added to cart",
+        "addToCartFailed": "Failed to add to cart",
+        "addedToWishlist": "Added to wishlist",
+        "outOfStock": "Out of Stock",
+        "wishlistFailed": "Failed to add to wishlist",
+        "brand": "Brand",
+        "productIdMissing": "Product ID is missing!",
+        "invalidRequest": "Invalid request. Check product data.",
+        "productNotFound": "Product not found.",
+        "serverError": "Server error. Try again later.",
+        "genericError": "Error adding product to cart"
+    },
+    "ProductCarousel": {
+        "viewAll": "View All"
+    },
+    "ProductSort": {
+        "sortBy": "Sort by:",
+        "sortPlaceholder": "Sort by",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "priceLowHigh": "Price: Low to High",
+        "priceHighLow": "Price: High to Low"
+    },
+    "Filters": {
+        "title": "Filters",
+        "clearAll": "Clear All",
+        "showResults": "Show Results",
+        "brands": "Brands",
+        "searchBrands": "Search brands...",
+        "noBrandsFound": "No brands found",
+        "priceRange": "Price Range",
+        "apply": "Apply",
+        "rating": "Rating",
+        "andUp": "& Up"
+    },
+    "ProductDetail": {
+        "genericBrand": "Generic Brand",
+        "inStock": "In Stock",
+        "outOfStock": "Out of Stock",
+        "reviews": "reviews",
+        "model": "Model:",
+        "vatNote": "Price includes VAT. Free shipping on orders over",
+        "addToCart": "Add to Cart",
+        "buyNow": "Buy Now",
+        "selectAllOptions": "Please select all options before adding to cart",
+        "addedToCart": "Added to cart",
+        "addToCartFailed": "Failed to add product to cart",
+        "freeDelivery": "Free delivery",
+        "warranty": "2 Year Warranty",
+        "compare": "Compare",
+        "share": "Share",
+        "save": "Save"
+    },
+    "ProductTabs": {
+        "description": "Description",
+        "specifications": "Specifications",
+        "reviews": "Reviews",
+        "noAttributes": "No specific attributes listed."
+    },
+    "ProductReviews": {
+        "basedOnReviews": "Based on {count} reviews",
+        "writeReview": "Write a Review",
+        "noReviews": "No reviews yet. Be the first!"
+    }
+}

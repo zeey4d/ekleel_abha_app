@@ -1,0 +1,19 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "brands": "Brands"
+    },
+    "Error": {
+        "notFoundTitle": "Brand Not Found",
+        "notFoundDesc": "The brand you are looking for does not exist."
+    },
+    "Toolbar": {
+        "filter": "Filters",
+        "showing": "Showing",
+        "results": "results"
+    },
+    "Content": {
+        "noProducts": "No products found",
+        "noProductsDesc": "We couldn't find any products for {brand} matching your criteria."
+    }
+}

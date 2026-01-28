@@ -1,0 +1,28 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "products": "Products",
+        "deals": "Deals"
+    },
+    "Header": {
+        "badge": "Flash Sales & Discounts",
+        "title": "Super Deals",
+        "description": "Save up to 70% on selected items. Limited time offers, grab them before they are gone!"
+    },
+    "Timer": {
+        "endsIn": "Ends In",
+        "hrs": "Hrs",
+        "min": "Min",
+        "sec": "Sec"
+    },
+    "Toolbar": {
+        "filter": "Filters",
+        "found": "Found",
+        "deals": "deals"
+    },
+    "Content": {
+        "error": "Unable to load deals. Please check your connection.",
+        "noDeals": "No active deals found",
+        "noDealsDesc": "Check back later for new offers."
+    }
+}

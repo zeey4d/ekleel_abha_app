@@ -1,0 +1,19 @@
+{
+    "Breadcrumbs": {
+        "home": "الرئيسية",
+        "categories": "الفئات"
+    },
+    "Error": {
+        "notFoundTitle": "الفئة غير موجودة",
+        "notFoundDesc": "الفئة التي تبحث عنها غير موجودة."
+    },
+    "Toolbar": {
+        "filter": "تصفية",
+        "showing": "عرض",
+        "results": "نتائج"
+    },
+    "Content": {
+        "noProducts": "لم يتم العثور على منتجات",
+        "noProductsDesc": "لا توجد منتجات في هذه الفئة بعد. تحقق من الفئات الفرعية أعلاه."
+    }
+}

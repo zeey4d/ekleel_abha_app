@@ -1,0 +1,4732 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { RootState } from "@/store/store";
+
+// Define the base API instance
+export const apiSlice = createApi({
+  reducerPath: "api",
+
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://ekleelhaba.duckdns.org/api/v1",
+    prepareHeaders: (headers, { getState }) => {
+      const state = getState() as RootState;
+      const token =
+        (state as any).auth?.token || localStorage.getItem("accessToken");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      headers.set("Accept", "application/json");
+      return headers;
+    },
+  }),
+
+  tagTypes: [
+    "Product",
+    "Wishlist",
+    "Brand",
+    "Cart",
+    "Category",
+    "Order",
+    "User",
+    "Address",
+    "Review",
+    "Seller",
+    "Coupon",
+    "Promotion",
+    "Notification",
+    "Page",
+    "Banner",
+    "Settings",
+    "Shipping",
+    "Policy",
+    "Search",
+    "Homepage",
+    "PaymentMethods",
+  ],
+
+  endpoints: () => ({}),
+});
+
+
+import { createSelector } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+
+// ==============================
+// Types
+// ==============================
+interface Credentials {
+  email: string;
+  password: string;
+}
+
+interface RegisterCredentials {
+  firstname: string;
+  lastname: string;
+  email: string;
+  telephone: string;
+  password: string;
+  password_confirmation: string;
+}
+
+interface RegisterVerification {
+  email: string;
+  code: string;
+  device_name?: string;
+}
+
+interface LoginResponse {
+  message: string;
+  access_token: string;
+  token_type: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+  };
+}
+
+interface RegisterResponse {
+  message: string;
+  verification_required: boolean;
+  expires_in_seconds: number;
+  email: string;
+}
+
+interface VerifyRegistrationResponse {
+  message: string;
+  access_token: string;
+  token_type: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+  };
+}
+
+interface ResendOtpResponse {
+  message: string;
+  expires_in_seconds: number;
+}
+
+interface UserProfile {
+  id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  telephone: string;
+  full_name: string;
+  is_admin: boolean;
+  date_added: string;
+}
+
+interface UpdateProfileData {
+  [key: string]: string | undefined;
+  firstname?: string;
+  lastname?: string;
+  telephone?: string;
+  email?: string;
+}
+
+interface ChangePasswordData {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}
+
+interface ForgotPasswordData {
+  email: string;
+}
+
+interface ResetPasswordData {
+  token: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
+interface ApiError {
+  error?: {
+    status?: number;
+    data?: any;
+  };
+}
+
+// ==============================
+// Token Management
+// ==============================
+const tokenManager = {
+  setToken: (token: string) => {
+    try {
+      localStorage.setItem('accessToken', token);
+      window.dispatchEvent(new Event('authChange'));
+    } catch (error) {
+      console.error('Failed to save token:', error);
+    }
+  },
+
+  getToken: (): string | null => {
+    try {
+      return localStorage.getItem('accessToken');
+    } catch (error) {
+      console.error('Failed to retrieve token:', error);
+      return null;
+    }
+  },
+
+  removeToken: (): void => {
+    try {
+      localStorage.removeItem('accessToken');
+      window.dispatchEvent(new Event('authChange'));
+    } catch (error) {
+      console.error('Failed to remove token:', error);
+    }
+  },
+
+  isTokenExpired: (): boolean => {
+    const token = tokenManager.getToken();
+    if (!token) return true;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch (error) {
+      console.error('Failed to parse token:', error);
+      return true;
+    }
+  },
+};
+
+// ==============================
+// Error Handling
+// ==============================
+const handleAuthError = (error: unknown, context = 'Auth operation') => {
+  console.error(`${context} failed:`, error);
+  return error;
+};
+
+// ==============================
+// Auth Endpoints
+// ==============================
+export const authSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    register: builder.mutation<RegisterResponse, RegisterCredentials>({
+      query: (credentials) => ({
+        url: '/auth/register',
+        method: 'POST',
+        body: credentials,
+      }),
+      async onQueryStarted(credentials, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          handleAuthError(err, 'Registration');
+        }
+      },
+    }),
+
+    verifyRegistration: builder.mutation<VerifyRegistrationResponse, RegisterVerification>({
+      query: (verificationData) => ({
+        url: '/auth/verify-registration',
+        method: 'POST',
+        body: verificationData,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.access_token) {
+            tokenManager.setToken(data.access_token);
+            dispatch(authSlice.util.prefetch('getMe', undefined, { force: true }));
+          }
+        } catch (err) {
+          handleAuthError(err, 'Registration verification');
+        }
+      },
+    }),
+
+    resendRegistrationOtp: builder.mutation<ResendOtpResponse, { email: string }>({
+      query: ({ email }) => ({
+        url: '/auth/resend-otp',
+        method: 'POST',
+        body: { email },
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          handleAuthError(err, 'Resending OTP');
+        }
+      },
+    }),
+
+    login: builder.mutation<LoginResponse, Credentials>({
+      query: ({ email, password }) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body: { email, password },
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          tokenManager.setToken(data.access_token);
+          dispatch(authSlice.util.prefetch('getMe', undefined, { force: true }));
+        } catch (err) {
+          const error = handleAuthError(err, 'Login');
+          throw error;
+        }
+      },
+      invalidatesTags: ['User'],
+    }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          handleAuthError(err, 'Logout');
+        } finally {
+          tokenManager.removeToken();
+          dispatch(apiSlice.util.invalidateTags(['User', 'Cart', 'Wishlist', 'Order']));
+        }
+      },
+    }),
+
+    getMe: builder.query<UserProfile, void>({
+      query: () => ({
+        url: '/auth/me',
+      }),
+      providesTags: ['User'],
+      keepUnusedDataFor: 3600,
+      transformResponse: (response: UserProfile) => response,
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const e = err as ApiError;
+          if (e?.error?.status === 401) {
+            // Optionally remove token
+            // tokenManager.removeToken();
+          }
+        }
+      },
+    }),
+
+    updateProfile: builder.mutation<UserProfile, UpdateProfileData>({
+      query: (profileData) => ({
+        url: '/auth/me',
+        method: 'PUT',
+        body: profileData,
+      }),
+      async onQueryStarted(profileData, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          authSlice.util.updateQueryData('getMe', undefined, (draft: UserProfile) => {
+            Object.keys(profileData).forEach((key) => {
+              if (profileData[key] !== undefined) {
+                (draft as any)[key] = profileData[key];
+              }
+            });
+          })
+        );
+
+        try {
+          const { data } = await queryFulfilled;
+          // Update with server response if needed
+        } catch (err) {
+          patchResult.undo();
+          const error = handleAuthError(err, 'Profile update');
+          throw error;
+        }
+      },
+      invalidatesTags: ['User'],
+    }),
+
+    changePassword: builder.mutation<void, ChangePasswordData>({
+      query: (passwordData) => ({
+        url: '/auth/me/password',
+        method: 'PUT',
+        body: passwordData,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Password change');
+          throw error;
+        }
+      },
+    }),
+
+    forgotPassword: builder.mutation<void, ForgotPasswordData>({
+      query: ({ email }) => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body: { email },
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Password reset request');
+          throw error;
+        }
+      },
+    }),
+
+    resetPassword: builder.mutation<void, ResetPasswordData>({
+      query: (resetData) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body: resetData,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Password reset');
+          throw error;
+        }
+      },
+    }),
+  }),
+});
+
+// ==============================
+// Export Hooks
+// ==============================
+export const {
+  useRegisterMutation,
+  useVerifyRegistrationMutation,
+  useResendRegistrationOtpMutation,
+  useLoginMutation,
+  useLogoutMutation,
+  useGetMeQuery,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+} = authSlice;
+
+// ==============================
+// Selectors
+// ==============================
+export const selectCurrentUser = createSelector(
+  [authSlice.endpoints.getMe.select()],
+  (result) => result.data ?? null
+);
+
+export const selectIsAuthenticated = createSelector(
+  [authSlice.endpoints.getMe.select(), () => tokenManager.getToken()],
+  (result, token) => !!token && !tokenManager.isTokenExpired() && !!result.data && !result.isError
+);
+
+export const selectAuthLoading = createSelector(
+  [authSlice.endpoints.getMe.select()],
+  (result) => result.isLoading
+);
+
+export const selectAuthError = createSelector(
+  [authSlice.endpoints.getMe.select()],
+  (result) => result.error
+);
+
+// ==============================
+// Utility Functions
+// ==============================
+export const checkAuthStatus = (): boolean => {
+  const token = tokenManager.getToken();
+  return !!token && !tokenManager.isTokenExpired();
+};
+
+export const getAuthToken = (): string | null => tokenManager.getToken();
+
+export default authSlice;
+
+import {
+  createSelector,
+  createEntityAdapter,
+  EntityState,
+} from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "@/store/store";
+
+// ===============================
+// Types
+// ===============================
+export interface Brand {
+  id: number;
+  name: string;
+  image: string | null;
+  sort_order: number;
+  product_count?: number;
+  products?: Product[];
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  price: number;
+  final_price: number;
+  is_on_sale: boolean;
+  discount_percentage: number;
+  image: string | null;
+  average_rating: number;
+  review_count: number;
+}
+
+interface GetBrandsParams {
+  page?: number;
+  limit?: number;
+  sort?: 'name' | 'popularity';
+}
+
+interface GetBrandProductsParams {
+  id: number;
+  page?: number;
+  limit?: number;
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'rating';
+}
+
+interface GetFeaturedBrandsParams {
+  limit?: number;
+}
+
+interface GetBrandsByLetterParams {
+  letter: string;
+  page?: number;
+  limit?: number;
+  sort?: 'name' | 'popularity';
+}
+
+interface BrandsResponse {
+  data: Brand[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+interface BrandDetailResponse {
+  data: {
+    id: number;
+    name: string;
+    image: string | null;
+    sort_order: number;
+    products: Product[];
+    product_count: number;
+  };
+}
+
+interface FeaturedBrandsResponse {
+  data: Brand[];
+}
+
+interface ExtendedBrandsState extends EntityState<Brand, number> {
+  loading: boolean;
+  error: string | null;
+  meta?: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+// ===============================
+// Entity Adapter
+// ===============================
+const brandsAdapter = createEntityAdapter<Brand, number>({
+  selectId: (brand) => brand.id,
+  sortComparer: (a, b) => a.name.localeCompare(b.name),
+});
+
+const initialBrandsState: ExtendedBrandsState = brandsAdapter.getInitialState({
+  loading: false,
+  error: null,
+});
+
+// ===============================
+// RTK Query Endpoints
+// ===============================
+export const brandsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get All Brands ---
+    getBrands: builder.query<ExtendedBrandsState, GetBrandsParams>({
+      query: ({ page = 1, limit = 15, sort = 'name' }) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        params.append('sort', sort);
+        return `/brands?${params.toString()}`;
+      },
+      transformResponse: (responseData: BrandsResponse) => {
+        const state = brandsAdapter.setAll(initialBrandsState, responseData.data);
+        return {
+          ...state,
+          meta: responseData.meta
+        };
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.ids.map((id) => ({ type: "Brand" as const, id })),
+              { type: "Brand" as const, id: "LIST" },
+            ]
+          : [{ type: "Brand" as const, id: "LIST" }],
+    }),
+
+    // --- Get Brand by ID ---
+    getBrandById: builder.query<BrandDetailResponse['data'], number>({
+      query: (id) => `/brands/${id}`,
+      transformResponse: (responseData: BrandDetailResponse) => {
+        return responseData.data;
+      },
+      providesTags: (result, error, id) => [{ type: "Brand" as const, id }],
+    }),
+
+    // --- Get Featured Brands ---
+    getFeaturedBrands: builder.query<Brand[], GetFeaturedBrandsParams>({
+      query: ({ limit = 8 }) => {
+        const params = new URLSearchParams();
+        params.append('limit', limit.toString());
+        return `/brands/featured?${params.toString()}`;
+      },
+      transformResponse: (responseData: FeaturedBrandsResponse) => {
+        return responseData.data;
+      },
+      providesTags: [{ type: "Brand" as const, id: "FEATURED" }],
+    }),
+
+    // --- Get Brands by Letter ---
+    getBrandsByLetter: builder.query<ExtendedBrandsState, GetBrandsByLetterParams>({
+      query: ({ letter, page = 1, limit = 15, sort = 'name' }) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        params.append('sort', sort);
+        return `/brands/letter/${letter}?${params.toString()}`;
+      },
+      transformResponse: (responseData: BrandsResponse) => {
+        const state = brandsAdapter.setAll(initialBrandsState, responseData.data);
+        return {
+          ...state,
+          meta: responseData.meta
+        };
+      },
+      providesTags: (result, error, { letter }) => [
+        { type: "Brand" as const, id: `LETTER-${letter}` },
+      ],
+    }),
+  }),
+});
+
+// ===============================
+// Export Hooks
+// ===============================
+export const {
+  useGetBrandsQuery,
+  useGetBrandByIdQuery,
+  useGetFeaturedBrandsQuery,
+  useGetBrandsByLetterQuery,
+} = brandsSlice;
+
+// ===============================
+// Memoized Selectors
+// ===============================
+const selectBrandsResult = (params: GetBrandsParams) => 
+  brandsSlice.endpoints.getBrands.select(params);
+
+export const {
+  selectAll: selectAllBrands,
+  selectById: selectBrandById,
+  selectIds: selectBrandIds,
+} = brandsAdapter.getSelectors<RootState>(
+  (state, params: GetBrandsParams = {}) => 
+    selectBrandsResult(params)(state).data || initialBrandsState
+);
+
+// --- Selector: Brands Meta Data ---
+export const selectBrandsMeta = (params: GetBrandsParams = {}) => 
+  createSelector(
+    [selectBrandsResult(params)],
+    (result) => result.data?.meta || null
+  );
+
+// --- Selector: Featured Brands ---
+export const selectFeaturedBrands = createSelector(
+  (state: RootState) =>
+    brandsSlice.endpoints.getFeaturedBrands.select({})(state).data,
+  (featured) => featured || []
+);
+
+// --- Selector: Brands by Letter ---
+export const selectBrandsByLetter = (letter: string, params: { page?: number; limit?: number; sort?: 'name' | 'popularity' } = {}) =>
+  createSelector(
+    (state: RootState) =>
+      brandsSlice.endpoints.getBrandsByLetter.select({ letter, ...params })(state).data,
+    (brandsState) =>
+      brandsState ? brandsAdapter.getSelectors().selectAll(brandsState) : []
+  );
+
+export default brandsSlice;
+
+// src/features/cart/cartSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface CartItemOption {
+  id: number;
+  name: string;
+  value: string;
+}
+
+export interface CartItem {
+  id: number;
+  product_id: number;
+  name: string;
+  model: string;
+  quantity: number;
+  price: number;
+  final_price: number;
+  total: number;
+  image: string | null;
+  options: CartItemOption[];
+}
+
+export interface CartSummary {
+  subtotal: number;
+  tax: number;
+  total: number;
+  item_count: number;
+}
+
+export interface CartResponse {
+  data: {
+    items: CartItem[];
+    subtotal: number;
+    tax: number;
+    total: number;
+    item_count: number;
+  };
+}
+
+export interface CartState extends EntityState<CartItem, number> {
+  loading: boolean;
+  error: string | null;
+  summary: CartSummary | null;
+}
+
+export interface AddToCartPayload {
+  product_id: number;
+  quantity: number;
+  option?: Record<string, any>;
+}
+
+export interface UpdateCartItemPayload {
+  id: number;
+  quantity: number;
+}
+
+export interface RemoveFromCartPayload {
+  id: number;
+}
+
+// --- Entity Adapter for Cart Items ---
+const cartItemsAdapter = createEntityAdapter<CartItem, number>({
+  selectId: (item: CartItem) => item.id,
+});
+
+const initialCartState: CartState = cartItemsAdapter.getInitialState({
+  loading: false,
+  error: null,
+  summary: null,
+});
+
+// --- RTK Query API Slice Injection ---
+export const cartSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get Current Cart ---
+    getCart: builder.query<CartState, void>({
+      query: () => '/cart',
+      transformResponse: (response: CartResponse): CartState => {
+        const { items, subtotal, tax, total, item_count } = response.data;
+        const state = cartItemsAdapter.setAll(initialCartState, items);
+        return {
+          ...state,
+          summary: {
+            subtotal,
+            tax,
+            total,
+            item_count,
+          }
+        };
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.ids.map((id) => ({ type: 'Cart' as const, id })), { type: 'Cart' as const, id: 'CURRENT' }] 
+          : [{ type: 'Cart' as const, id: 'CURRENT' }],
+      keepUnusedDataFor: 60, // Keep cart data for 60 seconds when not in use
+    }),
+    
+    // --- Add Item to Cart ---
+    addToCart: builder.mutation<CartResponse, AddToCartPayload>({
+      query: (cartItem) => ({
+        url: '/cart/items',
+        method: 'POST',
+        body: cartItem,
+      }),
+      // Optimistic update for cart
+      async onQueryStarted(cartItem, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            // This is a simplified optimistic update
+            // In a real implementation, you would need to fetch the product details
+            // to properly add it to the cart
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to add item to cart:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Cart' as const, id: 'CURRENT' }],
+    }),
+    
+    // --- Update Cart Item Quantity ---
+    updateCartItem: builder.mutation<CartResponse, UpdateCartItemPayload>({
+      query: ({ id, quantity }) => ({
+        url: `/cart/items/${id}`,
+        method: 'PUT',
+        body: { quantity },
+      }),
+      // Optimistic update for cart item quantity
+      async onQueryStarted({ id, quantity }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            if (draft.entities[id]) {
+              const item = draft.entities[id]!;
+              item.quantity = quantity;
+              item.total = item.final_price * quantity;
+              
+              // Update summary
+              if (draft.summary) {
+                const oldItemTotal = item.final_price * (item.quantity + (quantity - item.quantity));
+                const newItemTotal = item.final_price * quantity;
+                const difference = newItemTotal - oldItemTotal;
+                draft.summary.total += difference;
+                draft.summary.subtotal += difference;
+                draft.summary.tax = draft.summary.subtotal * 0.15; // Assuming 15% tax
+              }
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to update cart item:', err);
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Cart' as const, id },
+        { type: 'Cart' as const, id: 'CURRENT' }
+      ],
+    }),
+    
+    // --- Remove Item from Cart ---
+    removeFromCart: builder.mutation<CartResponse, RemoveFromCartPayload>({
+      query: ({ id }) => ({
+        url: `/cart/items/${id}`,
+        method: 'DELETE',
+      }),
+      // Optimistic update for cart item removal
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            const item = draft.entities[id];
+            if (item) {
+              cartItemsAdapter.removeOne(draft, id);
+              
+              // Update summary
+              if (draft.summary) {
+                draft.summary.total -= item.total;
+                draft.summary.subtotal -= item.total;
+                draft.summary.tax = draft.summary.subtotal * 0.15; // Assuming 15% tax
+                draft.summary.item_count -= item.quantity;
+              }
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to remove item from cart:', err);
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Cart' as const, id },
+        { type: 'Cart' as const, id: 'CURRENT' }
+      ],
+    }),
+    
+    // --- Clear Entire Cart ---
+    clearCart: builder.mutation<CartResponse, void>({
+      query: () => ({
+        url: '/cart',
+        method: 'DELETE',
+      }),
+      // Optimistic update for clearing cart
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            cartItemsAdapter.removeAll(draft);
+            if (draft.summary) {
+              draft.summary = {
+                subtotal: 0,
+                tax: 0,
+                total: 0,
+                item_count: 0,
+              };
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to clear cart:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Cart' as const, id: 'CURRENT' }],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetCartQuery,
+  useAddToCartMutation,
+  useUpdateCartItemMutation,
+  useRemoveFromCartMutation,
+  useClearCartMutation,
+} = cartSlice;
+
+// --- Memoized Selectors ---
+// Selector for cart items
+export const {
+  selectAll: selectAllCartItems,
+  selectById: selectCartItemById,
+  selectIds: selectCartItemIds,
+} = cartItemsAdapter.getSelectors<RootState>((state) => 
+  cartSlice.endpoints.getCart.select()(state).data || initialCartState
+);
+
+// Selector for cart summary
+export const selectCartSummary = createSelector(
+  [cartSlice.endpoints.getCart.select()],
+  (result) => result.data?.summary || null
+);
+
+// Selector for cart loading state
+export const selectCartLoading = createSelector(
+  [cartSlice.endpoints.getCart.select()],
+  (result) => result.isLoading
+);
+
+// Selector for cart error
+export const selectCartError = createSelector(
+  [cartSlice.endpoints.getCart.select()],
+  (result) => result.error
+);
+
+// Selector for total items in cart
+export const selectTotalCartItems = createSelector(
+  [selectAllCartItems],
+  (items) => items.reduce((total, item) => total + item.quantity, 0)
+);
+
+// Selector for cart total price
+export const selectCartTotal = createSelector(
+  [selectCartSummary],
+  (summary) => summary?.total || 0
+);
+
+export default cartSlice;
+
+
+// src/features/cart/cartSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface CartItemOption {
+  id: number;
+  name: string;
+  value: string;
+}
+
+export interface CartItem {
+  id: number;
+  product_id: number;
+  name: string;
+  model: string;
+  quantity: number;
+  price: number;
+  final_price: number;
+  total: number;
+  image: string | null;
+  options: CartItemOption[];
+}
+
+export interface CartSummary {
+  subtotal: number;
+  tax: number;
+  total: number;
+  item_count: number;
+}
+
+export interface CartResponse {
+  data: {
+    items: CartItem[];
+    subtotal: number;
+    tax: number;
+    total: number;
+    item_count: number;
+  };
+}
+
+export interface CartState extends EntityState<CartItem, number> {
+  loading: boolean;
+  error: string | null;
+  summary: CartSummary | null;
+}
+
+export interface AddToCartPayload {
+  product_id: number;
+  quantity: number;
+  option?: Record<string, any>;
+}
+
+export interface UpdateCartItemPayload {
+  id: number;
+  quantity: number;
+}
+
+export interface RemoveFromCartPayload {
+  id: number;
+}
+
+// --- Entity Adapter for Cart Items ---
+const cartItemsAdapter = createEntityAdapter<CartItem, number>({
+  selectId: (item: CartItem) => item.id,
+});
+
+const initialCartState: CartState = cartItemsAdapter.getInitialState({
+  loading: false,
+  error: null,
+  summary: null,
+});
+
+// --- RTK Query API Slice Injection ---
+export const cartSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get Current Cart ---
+    getCart: builder.query<CartState, void>({
+      query: () => '/cart',
+      transformResponse: (response: CartResponse): CartState => {
+        const { items, subtotal, tax, total, item_count } = response.data;
+        const state = cartItemsAdapter.setAll(initialCartState, items);
+        return {
+          ...state,
+          summary: {
+            subtotal,
+            tax,
+            total,
+            item_count,
+          }
+        };
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.ids.map((id) => ({ type: 'Cart' as const, id })), { type: 'Cart' as const, id: 'CURRENT' }] 
+          : [{ type: 'Cart' as const, id: 'CURRENT' }],
+      keepUnusedDataFor: 60, // Keep cart data for 60 seconds when not in use
+    }),
+    
+    // --- Add Item to Cart ---
+    addToCart: builder.mutation<CartResponse, AddToCartPayload>({
+      query: (cartItem) => ({
+        url: '/cart/items',
+        method: 'POST',
+        body: cartItem,
+      }),
+      // Optimistic update for cart
+      async onQueryStarted(cartItem, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            // This is a simplified optimistic update
+            // In a real implementation, you would need to fetch the product details
+            // to properly add it to the cart
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to add item to cart:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Cart' as const, id: 'CURRENT' }],
+    }),
+    
+    // --- Update Cart Item Quantity ---
+    updateCartItem: builder.mutation<CartResponse, UpdateCartItemPayload>({
+      query: ({ id, quantity }) => ({
+        url: `/cart/items/${id}`,
+        method: 'PUT',
+        body: { quantity },
+      }),
+      // Optimistic update for cart item quantity
+      async onQueryStarted({ id, quantity }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            if (draft.entities[id]) {
+              const item = draft.entities[id]!;
+              item.quantity = quantity;
+              item.total = item.final_price * quantity;
+              
+              // Update summary
+              if (draft.summary) {
+                const oldItemTotal = item.final_price * (item.quantity + (quantity - item.quantity));
+                const newItemTotal = item.final_price * quantity;
+                const difference = newItemTotal - oldItemTotal;
+                draft.summary.total += difference;
+                draft.summary.subtotal += difference;
+                draft.summary.tax = draft.summary.subtotal * 0.15; // Assuming 15% tax
+              }
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to update cart item:', err);
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Cart' as const, id },
+        { type: 'Cart' as const, id: 'CURRENT' }
+      ],
+    }),
+    
+    // --- Remove Item from Cart ---
+    removeFromCart: builder.mutation<CartResponse, RemoveFromCartPayload>({
+      query: ({ id }) => ({
+        url: `/cart/items/${id}`,
+        method: 'DELETE',
+      }),
+      // Optimistic update for cart item removal
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            const item = draft.entities[id];
+            if (item) {
+              cartItemsAdapter.removeOne(draft, id);
+              
+              // Update summary
+              if (draft.summary) {
+                draft.summary.total -= item.total;
+                draft.summary.subtotal -= item.total;
+                draft.summary.tax = draft.summary.subtotal * 0.15; // Assuming 15% tax
+                draft.summary.item_count -= item.quantity;
+              }
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to remove item from cart:', err);
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Cart' as const, id },
+        { type: 'Cart' as const, id: 'CURRENT' }
+      ],
+    }),
+    
+    // --- Clear Entire Cart ---
+    clearCart: builder.mutation<CartResponse, void>({
+      query: () => ({
+        url: '/cart',
+        method: 'DELETE',
+      }),
+      // Optimistic update for clearing cart
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft: CartState) => {
+            cartItemsAdapter.removeAll(draft);
+            if (draft.summary) {
+              draft.summary = {
+                subtotal: 0,
+                tax: 0,
+                total: 0,
+                item_count: 0,
+              };
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to clear cart:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Cart' as const, id: 'CURRENT' }],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetCartQuery,
+  useAddToCartMutation,
+  useUpdateCartItemMutation,
+  useRemoveFromCartMutation,
+  useClearCartMutation,
+} = cartSlice;
+
+// --- Memoized Selectors ---
+// Selector for cart items
+export const {
+  selectAll: selectAllCartItems,
+  selectById: selectCartItemById,
+  selectIds: selectCartItemIds,
+} = cartItemsAdapter.getSelectors<RootState>((state) => 
+  cartSlice.endpoints.getCart.select()(state).data || initialCartState
+);
+
+// Selector for cart summary
+export const selectCartSummary = createSelector(
+  [cartSlice.endpoints.getCart.select()],
+  (result) => result.data?.summary || null
+);
+
+// Selector for cart loading state
+export const selectCartLoading = createSelector(
+  [cartSlice.endpoints.getCart.select()],
+  (result) => result.isLoading
+);
+
+// Selector for cart error
+export const selectCartError = createSelector(
+  [cartSlice.endpoints.getCart.select()],
+  (result) => result.error
+);
+
+// Selector for total items in cart
+export const selectTotalCartItems = createSelector(
+  [selectAllCartItems],
+  (items) => items.reduce((total, item) => total + item.quantity, 0)
+);
+
+// Selector for cart total price
+export const selectCartTotal = createSelector(
+  [selectCartSummary],
+  (summary) => summary?.total || 0
+);
+
+export default cartSlice;
+
+
+
+// src/features/categories/categoriesSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  image?: string | null;
+  parent_id: number;
+  children_count: number;
+  children?: Category[];
+  product_count?: number;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keyword?: string;
+  [key: string]: any; // Additional category properties
+}
+
+export interface ProductParams {
+  page?: number;
+  limit?: number;
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'rating';
+  min_price?: number;
+  max_price?: number;
+  attributes?: string;
+}
+
+export interface GetProductsByCategoryArgs {
+  id: number;
+  params?: ProductParams;
+}
+
+export interface GetCategoryTreeParams {
+  parent_id?: number;
+  include_products?: boolean;
+}
+
+export interface CategoryState extends EntityState<Category, number> {
+  loading: boolean;
+  error: string | null;
+  tree: Category[] | null; // For hierarchical category structure
+}
+
+export interface CategoryApiResponse {
+  data: Category[];
+}
+
+export interface CategoryDetailResponse {
+  data: {
+    id: number;
+    name: string;
+    description: string;
+    image: string | null;
+    meta_title: string;
+    meta_description: string;
+    meta_keyword: string;
+    products: any[];
+    filters: any[];
+  };
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+// --- Entity Adapter for Categories ---
+const categoriesAdapter = createEntityAdapter<Category, number>({
+  selectId: (category: Category) => category.id,
+  sortComparer: false, // No sorting since we preserve API order
+});
+
+const initialCategoriesState: CategoryState = categoriesAdapter.getInitialState({
+  loading: false,
+  error: null,
+  tree: null, // For hierarchical category structure
+});
+
+// --- RTK Query API Slice Injection ---
+export const categoriesSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get Category Tree ---
+    getCategoryTree: builder.query<CategoryState, GetCategoryTreeParams>({
+      query: ({ parent_id = 0, include_products = false }) => {
+        const params = new URLSearchParams();
+        params.append('parent_id', parent_id.toString());
+        params.append('include_products', include_products.toString());
+        return `/categories/tree?${params.toString()}`;
+      },
+      transformResponse: (responseData: CategoryApiResponse): CategoryState => {
+        // Flatten the tree structure for normalization
+        const flatCategories: Category[] = [];
+        
+        const flattenTree = (categories: Category[]) => {
+          categories.forEach(category => {
+            flatCategories.push({ ...category });
+            if (category.children) {
+              flattenTree(category.children);
+            }
+          });
+        };
+        
+        flattenTree(responseData.data);
+
+        const state = categoriesAdapter.setAll(
+          initialCategoriesState,
+          flatCategories
+        );
+
+        // Store the tree structure separately
+        return {
+          ...state,
+          tree: responseData.data,
+        };
+      },
+      providesTags: (result, error, arg) =>
+        result
+          ? [
+              ...result.ids.map((id) => ({ type: "Category" as const, id })),
+              { type: "Category" as const, id: "TREE" },
+            ]
+          : [{ type: "Category" as const, id: "TREE" }],
+    }),
+
+    // --- Get Category by ID ---
+    getCategoryById: builder.query<CategoryDetailResponse, number>({
+      query: (id) => `/categories/${id}`,
+      providesTags: (result, error, id) => [{ type: "Category", id }],
+    }),
+
+    // --- Get Products by Category ---
+    getProductsByCategory: builder.query<any, GetProductsByCategoryArgs>({
+      query: ({ id, params = {} }) => {
+        const { page = 1, limit = 15, sort = 'newest', min_price, max_price, attributes } = params;
+        const queryParams = new URLSearchParams();
+        queryParams.append('page', page.toString());
+        queryParams.append('limit', limit.toString());
+        queryParams.append('sort', sort);
+        
+        if (min_price !== undefined) queryParams.append('min_price', min_price.toString());
+        if (max_price !== undefined) queryParams.append('max_price', max_price.toString());
+        if (attributes) queryParams.append('attributes', attributes);
+        
+        return `/categories/${id}?${queryParams.toString()}`;
+      },
+      providesTags: (result, error, { id }) => [
+        { type: "Category", id },
+        { type: "Product", id: "LIST" },
+      ],
+    }),
+    
+    // --- Get Category Children ---
+    getCategoryChildren: builder.query<Category[], { id: number; include_products?: boolean }>({
+      query: ({ id, include_products = false }) => {
+        const params = new URLSearchParams();
+        params.append('include_products', include_products.toString());
+        return `/categories/${id}/children?${params.toString()}`;
+      },
+      providesTags: (result, error, { id }) => [
+        { type: "Category", id: `children-${id}` }
+      ],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetCategoryTreeQuery,
+  useGetCategoryByIdQuery,
+  useGetProductsByCategoryQuery,
+  useGetCategoryChildrenQuery,
+} = categoriesSlice;
+
+// --- Memoized Selectors ---
+// Selector for categories
+export const {
+  selectAll: selectAllCategories,
+  selectById: selectCategoryById,
+  selectIds: selectCategoryIds,
+} = categoriesAdapter.getSelectors<RootState>(
+  (state) =>
+    categoriesSlice.endpoints.getCategoryTree.select({ parent_id: 0, include_products: false })(state).data ||
+    initialCategoriesState
+);
+
+// Selector for root categories (top-level)
+export const selectRootCategories = createSelector(
+  [selectAllCategories],
+  (categories) =>
+    categories.filter(
+      (category) => category.parent_id === 0
+    )
+);
+
+// Selector for building category tree from flat list
+export const selectCategoryTree = createSelector(
+  [selectAllCategories],
+  (categories) => {
+    if (categories.length === 0) return [];
+
+    const categoryMap: Record<number, Category & { children: Category[] }> = {};
+
+    // Create map of categories by ID
+    categories.forEach((category) => {
+      categoryMap[category.id] = { ...category, children: [] };
+    });
+
+    // Build tree structure
+    const tree: (Category & { children: Category[] })[] = [];
+    categories.forEach((category) => {
+      const categoryWithChildren = categoryMap[category.id];
+
+      if (category.parent_id !== 0 && categoryMap[category.parent_id]) {
+        // Add to parent's children
+        categoryMap[category.parent_id].children.push(categoryWithChildren);
+      } else {
+        // Root category
+        tree.push(categoryWithChildren);
+      }
+    });
+
+    return tree;
+  }
+);
+
+// Selector for getting children of a category
+export const selectCategoryChildren = createSelector(
+  [selectAllCategories, (state, parentId: number) => parentId],
+  (categories, parentId) =>
+    categories.filter((category) => category.parent_id === parentId)
+);
+
+export default categoriesSlice;
+
+
+
+
+// src/features/cms/cmsSlice.ts
+import { createSelector } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface HomepageContent {
+  banner: Array<{
+    id: number;
+    url: string;
+    image: string | null;
+    position: number;
+  }>;
+  featured_categories: Array<{
+    id: number;
+    name: string;
+    image: string | null;
+  }>;
+  deals_of_the_day: Array<{
+    id: number;
+    name: string;
+    price: number;
+    special_price: number;
+    discount_percentage: number;
+    image: string | null;
+  }>;
+  top_selling_products: Array<{
+    id: number;
+    name: string;
+    price: number;
+    final_price: number;
+    is_on_sale: boolean;
+    image: string | null;
+    total_sold: number;
+  }>;
+  new_arrivals: Array<{
+    id: number;
+    name: string;
+    price: number;
+    final_price: number;
+    is_on_sale: boolean;
+    image: string | null;
+    date_added: string;
+  }>;
+  testimonials: Array<{
+    id: number;
+    name: string;
+    position: string;
+    content: string;
+    image: string | null;
+    rating: number;
+  }>;
+  featured_brands: Array<{
+    id: number;
+    name: string;
+    image: string | null;
+  }>;
+}
+
+export interface StaticPage {
+  id: number;
+  title: string;
+  content: string;
+  meta_title: string;
+  meta_description: string;
+  meta_keyword: string;
+  slug: string;
+}
+
+export interface Banner {
+  id: number;
+  title: string;
+  link: string;
+  image: string | null;
+  sort_order: number;
+}
+
+export interface GetBannersParams {
+  type?: 'home' | 'category' | 'product';
+  limit?: number;
+}
+
+export interface GetBannersResponse {
+  data: Banner[];
+}
+
+export interface GetHomepageContentResponse {
+  data: HomepageContent;
+}
+
+export interface GetStaticPageResponse {
+  data: StaticPage;
+}
+
+// --- RTK Query API Slice Injection ---
+export const cmsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get Homepage Content ---
+    getHomepageContent: builder.query<HomepageContent, void>({
+      query: () => '/cms/home',
+      providesTags: ['Homepage'],
+      keepUnusedDataFor: 3600, // Keep for 1 hour
+    }),
+    
+    // --- Get About Page Content ---
+    getAboutPage: builder.query<StaticPage, void>({
+      query: () => '/cms/about',
+      providesTags: (result, error, slug) => [{ type: 'Page', id: 'about' }],
+      keepUnusedDataFor: 3600,
+    }),
+    
+    // --- Get Static Page by Slug ---
+    getStaticPage: builder.query<StaticPage, string>({
+      query: (slug) => `/cms/page/${slug}`,
+      providesTags: (result, error, slug) => [{ type: 'Page', id: slug }],
+      keepUnusedDataFor: 3600,
+    }),
+    
+    // --- Get Banners ---
+    getBanners: builder.query<Banner[], GetBannersParams>({
+      query: ({ type = 'home', limit = 10 }) => {
+        const params = new URLSearchParams();
+        if (type) params.append('type', type);
+        if (limit) params.append('limit', limit.toString());
+        return `/cms/banners?${params.toString()}`;
+      },
+      providesTags: (result, error, { type }) => 
+        [{ type: 'Banner', id: type }, { type: 'Banner', id: 'LIST' }],
+      keepUnusedDataFor: 3600,
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetHomepageContentQuery,
+  useGetAboutPageQuery,
+  useGetStaticPageQuery,
+  useGetBannersQuery,
+} = cmsSlice;
+
+// --- Memoized Selectors ---
+// Selector for homepage content
+export const selectHomepageContent = createSelector(
+  [cmsSlice.endpoints.getHomepageContent.select()],
+  (result) => result.data || null
+);
+
+// Selector for about page content
+export const selectAboutPageContent = createSelector(
+  [cmsSlice.endpoints.getAboutPage.select()],
+  (result) => result.data || null
+);
+
+// Selector for static page content
+export const selectStaticPageContent = createSelector(
+  [(state: RootState, slug: string) => cmsSlice.endpoints.getStaticPage.select(slug)(state)],
+  (result) => result.data || null
+);
+
+// Selector for banners by type
+export const selectBannersByType = createSelector(
+  [(state: RootState, params: GetBannersParams) => cmsSlice.endpoints.getBanners.select(params)(state)],
+  (result) => result.data || []
+);
+
+// Selector for featured categories
+export const selectFeaturedCategories = createSelector(
+  [selectHomepageContent],
+  (content) => content?.featured_categories || []
+);
+
+// Selector for deals of the day
+export const selectDealsOfTheDay = createSelector(
+  [selectHomepageContent],
+  (content) => content?.deals_of_the_day || []
+);
+
+// Selector for top selling products
+export const selectTopSellingProducts = createSelector(
+  [selectHomepageContent],
+  (content) => content?.top_selling_products || []
+);
+
+// Selector for new arrivals
+export const selectNewArrivals = createSelector(
+  [selectHomepageContent],
+  (content) => content?.new_arrivals || []
+);
+
+// Selector for testimonials
+export const selectTestimonials = createSelector(
+  [selectHomepageContent],
+  (content) => content?.testimonials || []
+);
+
+// Selector for featured brands
+export const selectFeaturedBrands = createSelector(
+  [selectHomepageContent],
+  (content) => content?.featured_brands || []
+);
+
+export default cmsSlice;
+
+
+
+
+
+
+// src/features/coupons/couponsSlice.ts
+import { createSelector } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface CouponValidation {
+  id: number;
+  code: string;
+  type: 'P' | 'F'; // Percentage or Fixed
+  discount: number;
+  total: number;
+  description: string;
+  [key: string]: any; // Additional coupon properties
+}
+
+export interface Promotion {
+  id: number;
+  name: string;
+  code: string;
+  type: 'P' | 'F'; // Percentage or Fixed
+  discount: number;
+  shipping: boolean;
+  total: number;
+  description: string;
+  date_start: string;
+  date_end: string;
+  formatted_discount: string;
+}
+
+export interface ValidateCouponParams {
+  code: string;
+  subtotal: number;
+  customer_id?: number;
+}
+
+export interface GetActivePromotionsParams {
+  page?: number;
+  limit?: number;
+  category?: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+  [key: string]: any; // Additional pagination properties
+}
+
+// --- RTK Query API Slice Injection ---
+export const couponsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Validate Coupon Code ---
+    validateCoupon: builder.query<CouponValidation, ValidateCouponParams>({
+      query: ({ code, subtotal, customer_id }) => {
+        const params = new URLSearchParams();
+        params.append('code', code);
+        params.append('subtotal', subtotal.toString());
+        if (customer_id) {
+          params.append('customer_id', customer_id.toString());
+        }
+        return `/coupons/validate?${params.toString()}`;
+      },
+      providesTags: (result, error, { code }) => [{ type: 'Coupon', id: code }],
+      keepUnusedDataFor: 300, // Keep for 5 minutes
+    }),
+    
+    // --- Get Active Promotions ---
+    getActivePromotions: builder.query<PaginatedResponse<Promotion>, GetActivePromotionsParams>({
+      query: ({ page = 1, limit = 10, category }) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        if (category) {
+          params.append('category', category.toString());
+        }
+        return `/coupons/promotions?${params.toString()}`;
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.data.map(promo => ({ type: "Promotion" as const, id: promo.id })), { type: "Promotion" as const, id: 'LIST' }] 
+          : [{ type: "Promotion" as const, id: 'LIST' }],
+      keepUnusedDataFor: 3600, // Keep for 1 hour
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useValidateCouponQuery,
+  useGetActivePromotionsQuery,
+} = couponsSlice;
+
+// --- Memoized Selectors ---
+// Selector for coupon validation result
+export const selectCouponValidation = createSelector(
+  [(state: RootState, params: ValidateCouponParams) => couponsSlice.endpoints.validateCoupon.select(params)(state)],
+  (result) => result.data || null
+);
+
+// Selector for active promotions
+export const selectActivePromotions = createSelector(
+  [(state: RootState, params: GetActivePromotionsParams) => couponsSlice.endpoints.getActivePromotions.select(params)(state)],
+  (result) => result.data?.data || []
+);
+
+// Selector for promotions pagination
+export const selectPromotionsPagination = (state: RootState, params: GetActivePromotionsParams) => {
+  const result = couponsSlice.endpoints.getActivePromotions.select(params)(state);
+  return result.data?.meta || null;
+};
+
+// Selector for available promotions
+export const selectAvailablePromotions = createSelector(
+  [selectActivePromotions, (state, subtotal: number) => subtotal],
+  (promotions, subtotal) => 
+    promotions.filter(promo => 
+      // In Laravel controller, minimum amount is checked against subtotal
+      // We don't have this field in the response, so we assume all are valid for now
+      // If we had minimum amount field in the response, we would filter like this:
+      // !promo.minimum_amount || (subtotal >= promo.minimum_amount)
+      true
+    )
+);
+
+export default couponsSlice;
+
+
+
+
+
+
+
+// src/features/notifications/notificationsSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface Notification {
+  id: string | number;
+  title: string;
+  message: string;
+  type: 'order' | 'product' | 'general' | 'promotion';
+  data: Record<string, any>;
+  read: boolean;
+  date_added: string;
+  date_read?: string | null;
+  [key: string]: any; // Additional notification properties
+}
+
+export interface GetNotificationsParams {
+  page?: number;
+  limit?: number;
+  type?: 'order' | 'product' | 'general';
+  read?: boolean;
+}
+
+export interface NotificationState extends EntityState<Notification, string | number> {
+  loading: boolean;
+  error: string | null;
+  unreadCount: number;
+  pagination?: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+  [key: string]: any; // Additional response properties
+}
+
+
+// export interface PaginatedResponse<T> {
+//    T[];
+//   meta: {
+//     current_page: number;
+//     per_page: number;
+//     total: number;
+//     total_pages: number;
+//   };
+//   [key: string]: any; // Additional response properties
+// }
+// --- Entity Adapter for Notifications ---
+const notificationsAdapter = createEntityAdapter<Notification, string | number>({
+  selectId: (notification: Notification) => notification.id,
+  sortComparer: (a: Notification, b: Notification) => 
+    new Date(b.date_added).getTime() - new Date(a.date_added).getTime(),
+});
+
+const initialNotificationsState: NotificationState = notificationsAdapter.getInitialState({
+  loading: false,
+  error: null,
+  unreadCount: 0,
+  pagination: undefined,
+});
+
+// --- RTK Query API Slice Injection ---
+export const notificationsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get User Notifications ---
+    getNotifications: builder.query<NotificationState, GetNotificationsParams>({
+      query: ({ page = 1, limit = 15, type, read }) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        
+        if (type) params.append('type', type);
+        if (read !== undefined) params.append('read', read.toString());
+        
+        return `/notifications?${params.toString()}`;
+      },
+      transformResponse: (responseData: PaginatedResponse<Notification>): NotificationState => {
+        // Normalize the array response
+        const state = notificationsAdapter.setAll(
+          initialNotificationsState, 
+          responseData.data
+        );
+        
+        // Calculate unread count
+        const unreadCount = responseData.data.filter(n => !n.read).length;
+        
+        return {
+          ...state,
+          unreadCount,
+          pagination: responseData.meta,
+        };
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.ids.map((id) => ({ type: 'Notification' as const, id })), { type: 'Notification' as const, id: 'LIST' }] 
+          : [{ type: 'Notification' as const, id: 'LIST' }],
+      keepUnusedDataFor: 300, // Keep for 5 minutes
+    }),
+    
+    // --- Mark Notification as Read ---
+    markNotificationAsRead: builder.mutation<Notification, string | number>({
+      query: (id) => ({
+        url: `/notifications/${id}/read`,
+        method: 'PUT',
+      }),
+      // Optimistic update for marking as read
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          notificationsSlice.util.updateQueryData('getNotifications', { page: 1, limit: 15 }, (draft: NotificationState) => {
+            const notification = draft.entities[id];
+            if (notification && !notification.read) {
+              notification.read = true;
+              notification.date_read = new Date().toISOString();
+              draft.unreadCount = Math.max(0, draft.unreadCount - 1);
+            }
+          })
+        );
+        
+        try {
+          const { data: updatedNotification } = await queryFulfilled;
+          
+          // Update the notification with the server response
+          dispatch(
+            notificationsSlice.util.updateQueryData('getNotifications', { page: 1, limit: 15 }, (draft: NotificationState) => {
+              if (draft.entities[id]) {
+                Object.assign(draft.entities[id]!, updatedNotification);
+              }
+            })
+          );
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to mark notification as read:', err);
+        }
+      },
+      invalidatesTags: (result, error, id) => 
+        [{ type: 'Notification' as const, id }, { type: 'Notification' as const, id: 'LIST' }],
+    }),
+    
+    // --- Mark All Notifications as Read ---
+    markAllNotificationsAsRead: builder.mutation<void, void>({
+      query: () => ({
+        url: '/notifications/mark-all-read',
+        method: 'PUT',
+      }),
+      // Optimistic update for marking all as read
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          notificationsSlice.util.updateQueryData('getNotifications', { page: 1, limit: 15 }, (draft: NotificationState) => {
+            // Mark all as read
+            Object.values(draft.entities).forEach(notification => {
+              if (notification && !notification.read) {
+                notification.read = true;
+                notification.date_read = new Date().toISOString();
+              }
+            });
+            draft.unreadCount = 0;
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to mark all notifications as read:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Notification' as const, id: 'LIST' }],
+    }),
+    
+    // --- Delete Notification ---
+    deleteNotification: builder.mutation<void, string | number>({
+      query: (id) => ({
+        url: `/notifications/${id}`,
+        method: 'DELETE',
+      }),
+      // Optimistic update for deletion
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          notificationsSlice.util.updateQueryData('getNotifications', { page: 1, limit: 15 }, (draft: NotificationState) => {
+            const notification = draft.entities[id];
+            if (notification) {
+              notificationsAdapter.removeOne(draft, id);
+              if (!notification.read) {
+                draft.unreadCount = Math.max(0, draft.unreadCount - 1);
+              }
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to delete notification:', err);
+        }
+      },
+      invalidatesTags: (result, error, id) => 
+        [{ type: 'Notification' as const, id }, { type: 'Notification' as const, id: 'LIST' }],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetNotificationsQuery,
+  useMarkNotificationAsReadMutation,
+  useMarkAllNotificationsAsReadMutation,
+  useDeleteNotificationMutation,
+} = notificationsSlice;
+
+// --- Memoized Selectors ---
+// Selector for notifications
+export const {
+  selectAll: selectAllNotifications,
+  selectById: selectNotificationById,
+  selectIds: selectNotificationIds,
+} = notificationsAdapter.getSelectors<RootState>((state) => 
+  notificationsSlice.endpoints.getNotifications.select({ page: 1, limit: 15 })(state).data || initialNotificationsState
+);
+
+// Selector for unread notifications
+export const selectUnreadNotifications = createSelector(
+  [selectAllNotifications],
+  (notifications) => notifications.filter(notification => !notification.read)
+);
+
+// Selector for unread count
+export const selectUnreadCount = createSelector(
+  [notificationsSlice.endpoints.getNotifications.select({ page: 1, limit: 15 })],
+  (result) => result.data?.unreadCount || 0
+);
+
+// Selector for notifications by type
+export const selectNotificationsByType = createSelector(
+  [selectAllNotifications, (state, type: Notification['type']) => type],
+  (notifications, type) => 
+    notifications.filter(notification => notification.type === type)
+);
+
+// Selector for pagination
+export const selectNotificationsPagination = (state: RootState) => {
+  const result = notificationsSlice.endpoints.getNotifications.select({ page: 1, limit: 15 })(state);
+  return result.data?.pagination || null;
+};
+
+export default notificationsSlice;
+
+
+
+
+
+// src/features/orders/ordersSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+import { cartSlice } from '../cart/cartSlice';
+
+// --- Types ---
+export interface OrderItem {
+  id: string | number;
+  product_id: string | number;
+  name: string;
+  model: string;
+  quantity: number;
+  price: number;
+  total: number;
+  tax: number;
+  reward: number;
+  image?: string;
+  [key: string]: any; // Additional item properties
+}
+
+export interface OrderTotal {
+  code: string;
+  title: string;
+  value: number;
+  sort_order: number;
+  [key: string]: any; // Additional total properties
+}
+
+export interface OrderHistory {
+  status: string;
+  status_id: number;
+  comment: string;
+  date_added: string;
+  notify: boolean;
+  [key: string]: any; // Additional history properties
+}
+
+export interface OrderAddress {
+  address_1: string;
+  address_2?: string;
+  city: string;
+  postcode: string;
+  country: string;
+  zone: string;
+  [key: string]: any; // Additional address properties
+}
+
+export interface Order {
+  id: string | number;
+  invoice_no: string;
+  total: number;
+  status: string;
+  status_id: number;
+  date_added: string;
+  shipping_method: string;
+  payment_method: string;
+  shipping: {
+    cost: number;
+    free_threshold: number;
+    is_free: boolean;
+  };
+  tax: {
+    rate: string;
+    amount: number;
+  };
+  products?: OrderItem[];
+  totals?: OrderTotal[];
+  history?: OrderHistory[];
+  shipping_address?: OrderAddress;
+  payment_address?: OrderAddress;
+  [key: string]: any; // Additional order properties
+}
+
+export interface CreateOrderPayload {
+  shipping_address_id: number;
+  payment_method: string;
+  comment?: string;
+  coupon_code?: string;
+}
+
+export interface GetOrdersParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface RequestCancellationPayload {
+  orderId: string | number;
+  reason: string;
+}
+
+export interface RequestReturnRefundPayload {
+  id: string | number;
+  reason: string;
+  product_ids: number[];
+  quantities: number[];
+  images?: string[];
+}
+
+export interface OrderState extends EntityState<Order, string | number> {
+  loading: boolean;
+  error: string | null;
+  currentOrder: Order | null;
+  pagination?: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+  [key: string]: any; // Additional response properties
+}
+
+// --- Entity Adapter for Orders ---
+const ordersAdapter = createEntityAdapter<Order, string | number>({
+  selectId: (order: Order) => order.id,
+  sortComparer: (a: Order, b: Order) => 
+    new Date(b.date_added).getTime() - new Date(a.date_added).getTime(),
+});
+
+const initialOrdersState: OrderState = ordersAdapter.getInitialState({
+  loading: false,
+  error: null,
+  currentOrder: null,
+  pagination: undefined,
+});
+
+// --- RTK Query API Slice Injection ---
+export const ordersSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Create Order from Cart (Checkout) ---
+    createOrder: builder.mutation<Order, CreateOrderPayload>({
+      query: (orderData) => ({
+        url: '/orders/checkout',
+        method: 'POST',
+        body: orderData,
+      }),
+      // Optimistic update for order creation
+      async onQueryStarted(orderData, { dispatch, queryFulfilled }) {
+        try {
+          const { data: newOrder } = await queryFulfilled;
+          
+          // Update orders list
+          dispatch(
+            ordersSlice.util.updateQueryData('getOrders', { page: 1, limit: 10 }, (draft: OrderState) => {
+              ordersAdapter.addOne(draft, newOrder);
+            })
+          );
+          
+          // Clear cart after successful order
+          dispatch(cartSlice.util.invalidateTags([{ type: 'Cart', id: 'CURRENT' }]));
+        } catch (err) {
+          console.error('Failed to create order:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Order' as const, id: 'LIST' }],
+    }),
+    
+    // --- Get User Orders ---
+    getOrders: builder.query<OrderState, GetOrdersParams>({
+      query: ({ page = 1, limit = 10 }) => ({
+        url: '/orders',
+        params: { page, limit }
+      }),
+      transformResponse: (responseData: PaginatedResponse<Order>): OrderState => {
+        // Normalize the array response
+        const state = ordersAdapter.setAll(initialOrdersState, responseData.data);
+        return {
+          ...state,
+          pagination: responseData.meta
+        };
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.ids.map((id) => ({ type: 'Order' as const, id })), { type: 'Order' as const, id: 'LIST' }] 
+          : [{ type: 'Order' as const, id: 'LIST' }],
+      keepUnusedDataFor: 300, // Keep for 5 minutes since orders don't change frequently
+    }),
+    
+    // --- Get Order Details ---
+    getOrderDetails: builder.query<Order, string | number>({
+      query: (id) => `/orders/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Order' as const, id }],
+      keepUnusedDataFor: 300,
+    }),
+    
+    // --- Request Order Cancellation ---
+    requestOrderCancellation: builder.mutation<{ message: string }, RequestCancellationPayload>({
+      query: ({ orderId, reason }) => ({
+        url: `/orders/${orderId}/cancel`,
+        method: 'POST',
+        body: { reason }
+      }),
+      // Optimistic update for order cancellation request
+      async onQueryStarted({ orderId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          ordersSlice.util.updateQueryData('getOrderDetails', orderId, (draft: Order) => {
+            if (draft.status_id !== undefined) {
+              draft.status_id = 7; // Canceled status ID
+              draft.status = 'Canceled';
+            }
+          })
+        );
+        
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to request order cancellation:', err);
+        }
+      },
+      invalidatesTags: (result, error, { orderId }) => [{ type: 'Order' as const, id: orderId }],
+    }),
+    
+    // --- Request Return/Refund ---
+    requestReturnRefund: builder.mutation<{ message: string }, RequestReturnRefundPayload>({
+      query: ({ id, ...returnData }) => ({
+        url: `/orders/${id}/return`,
+        method: 'POST',
+        body: returnData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order' as const, id }],
+    }),
+    
+    // --- Download Invoice ---
+    downloadInvoice: builder.query<Blob, string | number>({
+      query: (id) => ({
+        url: `/orders/${id}/invoice`,
+        responseHandler: (response) => response.blob(),
+      }),
+      providesTags: (result, error, id) => [{ type: 'Order' as const, id }],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useCreateOrderMutation,
+  useGetOrdersQuery,
+  useGetOrderDetailsQuery,
+  useRequestOrderCancellationMutation,
+  useRequestReturnRefundMutation,
+  useDownloadInvoiceQuery,
+} = ordersSlice;
+
+// --- Memoized Selectors ---
+// Selector for orders
+export const {
+  selectAll: selectAllOrders,
+  selectById: selectOrderById,
+  selectIds: selectOrderIds,
+} = ordersAdapter.getSelectors<RootState>((state) => 
+  ordersSlice.endpoints.getOrders.select({ page: 1, limit: 10})(state).data || initialOrdersState
+);
+
+// Selector for processing orders
+export const selectProcessingOrders = createSelector(
+  [selectAllOrders],
+  (orders) => orders.filter(order => 
+    order.status_id === 2 || order.status_id === 3 // Processing, Shipped
+  )
+);
+
+// Selector for completed orders
+export const selectCompletedOrders = createSelector(
+  [selectAllOrders],
+  (orders) => orders.filter(order => 
+    order.status_id === 4 || order.status_id === 5 // Delivered, Complete
+  )
+);
+
+// Selector for orders with issues
+export const selectOrdersWithIssues = createSelector(
+  [selectAllOrders],
+  (orders) => orders.filter(order => 
+    order.status_id === 7 || order.status_id === 12 // Canceled, Return Processing
+  )
+);
+
+// Selector for orders pagination
+export const selectOrdersPagination = (state: RootState) => {
+  const ordersResult = ordersSlice.endpoints.getOrders.select({ page: 1, limit: 10 })(state);
+  return ordersResult.data?.pagination || null;
+};
+
+export default ordersSlice;
+
+
+
+
+
+
+
+// src/features/payments/paymentsSlice.ts
+import { createSelector } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+import { ordersSlice } from '../orders/ordersSlice';
+
+// --- Types ---
+export interface PaymentRequestData {
+  order_id: number;
+  amount: number;
+  currency: 'SAR' | 'USD' | 'EUR' | 'AED';
+}
+
+export interface PaymentPostActionData {
+  amount: number;
+  currency: 'SAR' | 'USD' | 'EUR' | 'AED';
+}
+
+export interface HyperPayPaymentResponse {
+  success: boolean;
+  data: any;
+  status: number;
+}
+
+export interface PaymentStatusResponse {
+  success: boolean;
+  data: any;
+  status: number;
+}
+
+export interface PaymentCallbackResponse {
+  message: string;
+  order_id: number | null;
+  result: any;
+}
+
+// --- RTK Query API Slice Injection ---
+export const paymentsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Request Payment (Hosted Checkout) ---
+    requestPayment: builder.mutation<HyperPayPaymentResponse, PaymentRequestData>({
+      query: (paymentData) => ({
+        url: '/payment/request',
+        method: 'POST',
+        body: paymentData,
+      }),
+      invalidatesTags: ['Order'],
+    }),
+    
+    // --- Rebill Payment (RB) ---
+    rebillPayment: builder.mutation<HyperPayPaymentResponse, { orderId: number } & PaymentPostActionData>({
+      query: ({ orderId, ...paymentData }) => ({
+        url: `/payment/rebill/${orderId}`,
+        method: 'POST',
+        body: paymentData,
+      }),
+      invalidatesTags: ['Order'],
+    }),
+    
+    // --- Refund Payment (RF) ---
+    refundPayment: builder.mutation<HyperPayPaymentResponse, { orderId: number } & PaymentPostActionData>({
+      query: ({ orderId, ...paymentData }) => ({
+        url: `/payment/refund/${orderId}`,
+        method: 'POST',
+        body: paymentData,
+      }),
+      invalidatesTags: ['Order'],
+    }),
+    
+    // --- Reverse Payment (RV) ---
+    reversePayment: builder.mutation<HyperPayPaymentResponse, { orderId: number } & PaymentPostActionData>({
+      query: ({ orderId, ...paymentData }) => ({
+        url: `/payment/reverse/${orderId}`,
+        method: 'POST',
+        body: paymentData,
+      }),
+      invalidatesTags: ['Order'],
+    }),
+    
+    // --- Check Payment Status by Order ID ---
+    getPaymentStatusByOrder: builder.query<PaymentStatusResponse, number>({
+      query: (orderId) => `/payment/status/${orderId}`,
+      providesTags: (result, error, orderId) => [{ type: 'Order' as const, id: orderId }],
+    }),
+    // --- Process Payment Callback ---
+    processPaymentCallback: builder.mutation<PaymentCallbackResponse, { id: string }>({
+      query: (params) => ({
+        url: `/payment/callback?id=${params.id}`,
+        method: 'POST',
+      }),
+      // No invalidation needed as this is a callback
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useRequestPaymentMutation,
+  useRebillPaymentMutation,
+  useRefundPaymentMutation,
+  useReversePaymentMutation,
+  useGetPaymentStatusByOrderQuery,
+  useProcessPaymentCallbackMutation,
+} = paymentsSlice;
+
+// --- Memoized Selectors ---
+// Selector for payment status by order ID
+export const selectPaymentStatusByOrder = createSelector(
+  [paymentsSlice.endpoints.getPaymentStatusByOrder.select],
+  (result: any) => result.data || null
+);
+// export const selectPaymentStatusByOrder = createSelector(
+//   [paymentsSlice.endpoints.getPaymentStatusByOrder.select],
+//   (result: any) => result.data || null
+// );
+
+
+// Selector for payment status loading state
+export const selectPaymentStatusLoading = createSelector(
+  [paymentsSlice.endpoints.getPaymentStatusByOrder.select],
+  (result: any) => result.isLoading
+);
+
+// Selector for payment status error
+export const selectPaymentStatusError = createSelector(
+  [paymentsSlice.endpoints.getPaymentStatusByOrder.select],
+  (result: any) => result.error || null
+);
+
+export default paymentsSlice;
+
+
+
+// src/features/products/productsSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import { RootState } from "@/store/store";
+
+// --- Types ---
+export interface Product {
+  id: string | number;
+  name: string;
+  description: string;
+  model?: string;
+  price: number;
+  final_price: number;
+  is_on_sale: boolean;
+  discount_percentage: number;
+  quantity: number;
+  image?: string;
+  manufacturer?: string;
+  in_stock: boolean;
+  average_rating: number;
+  review_count: number;
+  date_added?: string;
+  meta?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+  };
+  categories?: Array<{
+    id: number;
+    name: string;
+  }>;
+  viewed?: number;
+  total_sold?: number;
+  [key: string]: any; // Additional product properties
+}
+
+export interface GetProductsParams {
+  category?: number | null;
+  min_price?: number | null;
+  max_price?: number | null;
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'rating' | 'best_selling';
+  page?: number;
+  per_page?: number;
+  brand?: string | null;
+}
+
+export interface GetProductsResponse {
+  data: Product[];
+  pagination: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
+  filters?: {
+    category?: {
+      id: number;
+      name: string;
+    };
+    price_range?: {
+      min: number;
+      max: number;
+    };
+  };
+}
+
+export interface ProductState extends EntityState<Product, string | number> {
+  loading: boolean;
+  error: string | null;
+  pagination?: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
+  filters?: {
+    category?: {
+      id: number;
+      name: string;
+    };
+    price_range?: {
+      min: number;
+      max: number;
+    };
+  };
+}
+
+// --- Entity Adapter for Normalization ---
+const productsAdapter = createEntityAdapter<Product, string | number>({
+  selectId: (product: Product) => product.id,
+  // Sort by date_added descending (newest first)
+  sortComparer: (a: Product, b: Product) => {
+    if (a.date_added && b.date_added) {
+      return new Date(b.date_added).getTime() - new Date(a.date_added).getTime();
+    }
+    return 0;
+  },
+});
+
+const initialState: ProductState = productsAdapter.getInitialState({
+  loading: false,
+  error: null,
+  pagination: undefined,
+  filters: undefined,
+});
+
+// --- RTK Query API Slice Injection ---
+export const productsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get All Products with Filters ---
+    getProducts: builder.query<ProductState, GetProductsParams>({
+      query: ({
+        category = null,
+        min_price = null,
+        max_price = null,
+        sort = "newest",
+        page = 1,
+        per_page = 20,
+        brand = null,
+      }) => {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          per_page: per_page.toString(),
+          sort,
+        });
+
+        if (category !== null) params.append("category", category.toString());
+        if (min_price !== null) params.append("min_price", min_price.toString());
+        if (max_price !== null) params.append("max_price", max_price.toString());
+        if (brand) params.append("brand", brand);
+
+        return `/products?${params.toString()}`;
+      },
+      transformResponse: (responseData: GetProductsResponse): ProductState => {
+        // Normalize the array response
+        const state = productsAdapter.setAll(initialState, responseData.data);
+
+        // Add pagination and filters info
+        return {
+          ...state,
+          pagination: responseData.pagination,
+          filters: responseData.filters,
+        };
+      },
+      providesTags: (result, error, arg) =>
+        result
+          ? [
+              ...result.ids.map((id) => ({ type: "Product" as const, id })),
+              { type: "Product" as const, id: "LIST" },
+            ]
+          : [{ type: "Product" as const, id: "LIST" }],
+    }),
+
+    // --- Get Single Product by ID ---
+    getProductById: builder.query<Product, string | number>({
+      query: (id) => `/products/${id}`,
+      providesTags: (result, error, id) => [{ type: "Product" as const, id }],
+      keepUnusedDataFor: 300, // Keep for 5 minutes
+    }),
+
+    // --- Get Related Products ---
+    getRelatedProducts: builder.query<Product[], string | number>({
+      query: (productId) => `/products/${productId}/related`,
+      transformResponse: (responseData: { data: Product[] }): Product[] => {
+        return responseData.data;
+      },
+      providesTags: (result, error, productId) => [
+        { type: "Product" as const, id: `RELATED_${productId}` },
+      ],
+      keepUnusedDataFor: 300,
+    }),
+
+    // --- Get Similar Products ---
+    getSimilarProducts: builder.query<Product[], string | number>({
+      query: (productId) => `/products/${productId}/similar`,
+      transformResponse: (responseData: { data: Product[] }): Product[] => {
+        return responseData.data;
+      },
+      providesTags: (result, error, productId) => [
+        { type: "Product" as const, id: `SIMILAR_${productId}` },
+      ],
+      keepUnusedDataFor: 300,
+    }),
+
+    // --- Get Top Selling Products ---
+    getTopProducts: builder.query<Product[], { per_page?: number }>({
+      query: ({ per_page = 20 }) => `/products/top?per_page=${per_page}`,
+      transformResponse: (responseData: any): Product[] => {
+        return Array.isArray(responseData.data) ? responseData.data : [];
+      },
+      providesTags: [{ type: "Product" as const, id: "TOP" }],
+      keepUnusedDataFor: 3600,
+    }),
+
+    // --- Get New Arrival Products ---
+    getNewProducts: builder.query<Product[], { per_page?: number }>({
+      query: ({ per_page = 20 }) => `/products/new?per_page=${per_page}`,
+      transformResponse: (responseData: any): Product[] => {
+        return Array.isArray(responseData.data) ? responseData.data : [];
+      },
+      providesTags: [{ type: "Product" as const, id: "NEW" }],
+      keepUnusedDataFor: 3600,
+    }),
+
+    // --- Get Products on Deal ---
+    getDealsProducts: builder.query<Product[], { per_page?: number; category?: number }>({
+      query: ({ per_page = 10, category }) => {
+        const params = new URLSearchParams({ limit: per_page.toString() });
+        if (category) params.append('category', category.toString());
+        return `/products/deals?${params.toString()}`;
+      },
+      transformResponse: (responseData: { data: Product[]; meta?: any }): Product[] => {
+        return responseData.data || [];
+      },
+      providesTags: [{ type: "Product" as const, id: "DEALS" }],
+      keepUnusedDataFor: 3600,
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetProductsQuery,
+  useGetProductByIdQuery,
+  useGetRelatedProductsQuery,
+  useGetSimilarProductsQuery,
+  useGetTopProductsQuery,
+  useGetNewProductsQuery,
+  useGetDealsProductsQuery,
+} = productsSlice;
+
+// --- Memoized Selectors ---
+// Selector for the normalized result of getProducts
+const selectProductsResult = productsSlice.endpoints.getProducts.select({});
+
+// Creates a selector that returns the normalized data object { ids: [...], entities: {...} }
+const selectProductsData = createSelector(
+  [selectProductsResult],
+  (productsResult) => productsResult.data ?? initialState
+);
+
+// Export selectors from the adapter
+export const {
+  selectAll: selectAllProducts,
+  selectById: selectProductById,
+  selectIds: selectProductIds,
+} = productsAdapter.getSelectors<RootState>(
+  (state) => selectProductsData(state) ?? initialState
+);
+
+// --- Custom Memoized Selectors ---
+// Select best sellers (top products)
+export const selectBestSellers = (state: RootState) => {
+  const topProductsResult =
+    productsSlice.endpoints.getTopProducts.select({ per_page: 10 })(state);
+  return topProductsResult?.data || [];
+};
+
+// Select today's deals
+export const selectTodayDeals = (state: RootState) => {
+  const dealsResult = productsSlice.endpoints.getDealsProducts.select({ per_page: 10 })(state);
+  return dealsResult?.data || [];
+};
+
+// Select new arrivals
+export const selectNewArrivals = (state: RootState) => {
+  const newProductsResult =
+    productsSlice.endpoints.getNewProducts.select({ per_page: 10 })(state);
+  return newProductsResult?.data || [];
+};
+
+// Select products on sale
+export const selectProductsOnSale = createSelector(
+  [selectAllProducts],
+  (products) =>
+    products.filter(
+      (product) =>
+        product.is_on_sale
+    )
+);
+
+// Select related products for a given product ID
+export const selectRelatedProducts = (productId: string | number) =>
+  createSelector(
+    [
+      (state: RootState) =>
+        productsSlice.endpoints.getRelatedProducts.select(productId)(state),
+    ],
+    (result) => result.data || []
+  );
+
+// Select similar products for a given product ID
+export const selectSimilarProducts = (productId: string | number) =>
+  createSelector(
+    [
+      (state: RootState) =>
+        productsSlice.endpoints.getSimilarProducts.select(productId)(state),
+    ],
+    (result) => result.data || []
+  );
+
+// Select product loading state
+export const selectProductLoading = (productId: string | number) =>
+  createSelector(
+    [
+      (state: RootState) =>
+        productsSlice.endpoints.getProductById.select(productId)(state),
+    ],
+    (result) => result.isLoading
+  );
+
+// Select product error state
+export const selectProductError = (productId: string | number) =>
+  createSelector(
+    [
+      (state: RootState) =>
+        productsSlice.endpoints.getProductById.select(productId)(state),
+    ],
+    (result) => result.error
+  );
+
+// Select pagination info
+export const selectProductsPagination = (state: RootState) => {
+  const productsResult = selectProductsResult(state);
+  return productsResult.data?.pagination;
+};
+
+export default productsSlice;
+
+
+
+
+
+// src/features/reviews/reviewsSlice.ts
+import { 
+  createSelector, 
+  createEntityAdapter, 
+  EntityState 
+} from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { productsSlice } from '../products/productsSlice';
+import type { RootState } from '@/store/store';
+
+// --- Type Definitions ---
+
+export type ReviewId = string | number;
+
+export interface Review {
+  id: ReviewId;
+  author: string;
+  text: string;
+  rating: number;
+  date_added: string;
+  date_modified?: string;
+  helpful_count?: number;
+  reported?: boolean;
+  user?: {
+    id: number;
+    name: string;
+  };
+  product_id?: number;
+  product_name?: string;
+  status?: 'approved' | 'pending';
+}
+
+export interface ProductReviewResponse {
+  product: {
+    id: number;
+    name: string;
+    average_rating: number;
+    total_reviews: number;
+  };
+  reviews: {
+    data: Review[];
+    meta: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
+  };
+  rating_distribution: {
+    5: number;
+    4: number;
+    3: number;
+    2: number;
+    1: number;
+  };
+}
+
+export interface UserReviewResponse {
+  data: Array<{
+    id: number;
+    product_id: number;
+    product_name: string;
+    text: string;
+    rating: number;
+    status: 'approved' | 'pending';
+    date_added: string;
+    date_modified?: string;
+  }>;
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export interface ReviewSubmitData {
+  rating: number;
+  text: string;
+}
+
+export interface ReviewUpdateData extends Partial<ReviewSubmitData> {
+  reviewId: ReviewId;
+}
+
+export interface GetProductReviewsParams {
+  productId: number;
+  page?: number;
+  limit?: number;
+  sort?: 'newest' | 'highest' | 'lowest';
+  rating?: number;
+}
+
+export interface GetUserReviewsParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface ReportReviewParams {
+  reviewId: ReviewId;
+  reason: string;
+}
+
+// --- Entity Adapter ---
+
+const reviewsAdapter = createEntityAdapter<Review, ReviewId>({
+  selectId: (review) => review.id,
+  sortComparer: (a, b) => {
+    const dateA = new Date(a.date_added).getTime();
+    const dateB = new Date(b.date_added).getTime();
+    return dateB - dateA;
+  },
+});
+
+interface ReviewsState extends EntityState<Review, ReviewId> {
+  loading: boolean;
+  error: string | null;
+  meta?: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+const initialReviewsState: ReviewsState = reviewsAdapter.getInitialState({
+  loading: false,
+  error: null,
+});
+
+// --- RTK Query API Slice ---
+
+export const reviewsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get Product Reviews ---
+    getProductReviews: builder.query<ReviewsState, GetProductReviewsParams>({
+      query: ({ productId, page = 1, limit = 10, sort = 'newest', rating }) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        params.append('sort', sort);
+        
+        if (rating !== undefined) {
+          params.append('rating', rating.toString());
+        }
+        
+        return `/reviews/${productId}?${params.toString()}`;
+      },
+      transformResponse: (response: ProductReviewResponse): ReviewsState => {
+        const state = reviewsAdapter.setAll(initialReviewsState, response.reviews.data);
+        return {
+          ...state,
+          meta: response.reviews.meta
+        };
+      },
+      providesTags: (result, error, { productId }) => [
+        { type: 'Review' as const, id: `PRODUCT_${productId}` },
+        { type: 'Review' as const, id: 'LIST' },
+      ],
+      keepUnusedDataFor: 300,
+    }),
+
+    // --- Get User Reviews ---
+    getUserReviews: builder.query<ReviewsState, GetUserReviewsParams | void>({
+      query: (params = {}) => {
+        const page = params?.page ?? 1;
+        const limit = params?.limit ?? 10;
+        return `/reviews/user?page=${page}&limit=${limit}`;
+      },
+      transformResponse: (response: UserReviewResponse): ReviewsState => {
+        const reviews = response.data.map(review => ({
+          ...review,
+          id: review.id,
+          author: review.product_name,
+          text: review.text,
+          rating: review.rating,
+          date_added: review.date_added,
+          date_modified: review.date_modified,
+          status: review.status
+        }));
+        
+        const state = reviewsAdapter.setAll(initialReviewsState, reviews);
+        return {
+          ...state,
+          meta: response.meta
+        };
+      },
+      providesTags: [
+        { type: 'Review' as const, id: 'USER' },
+        { type: 'Review' as const, id: 'LIST' },
+      ],
+      keepUnusedDataFor: 300,
+    }),
+
+    // --- Submit Review ---
+    submitReview: builder.mutation<Review, { productId: number } & ReviewSubmitData>({
+      query: ({ productId, ...reviewData }) => ({
+        url: `/reviews/${productId}`,
+        method: 'POST',
+        body: reviewData,
+      }),
+      async onQueryStarted({ productId, ...reviewData }, { dispatch, queryFulfilled }) {
+        // Optimistic update for product reviews
+        const patchResultProduct = dispatch(
+          reviewsSlice.util.updateQueryData(
+            'getProductReviews',
+            { productId },
+            (draft) => {
+              const tempReview = {
+                id: `temp_${Date.now()}`,
+                author: 'Current User',
+                date_added: new Date().toISOString(),
+               ...reviewData
+              };
+              reviewsAdapter.addOne(draft, tempReview);
+            }
+          )
+        );
+
+        // Optimistic update for user reviews
+        const patchResultUser = dispatch(
+          reviewsSlice.util.updateQueryData(
+            'getUserReviews',
+            undefined,
+            (draft) => {
+              const tempReview: Review = {
+                id: `temp_${Date.now()}`,
+                author: 'Current User', // Add the author property
+                product_id: productId,
+                product_name: 'Loading...',
+                text: reviewData.text,
+                rating: reviewData.rating,
+                status: 'approved',
+                date_added: new Date().toISOString(),
+              };
+              reviewsAdapter.addOne(draft, tempReview);
+            }
+          )
+        );
+
+        try {
+          const { data: createdReview } = await queryFulfilled;
+
+          // Replace temporary review with actual data
+          dispatch(
+            reviewsSlice.util.updateQueryData(
+              'getProductReviews',
+              { productId },
+              (draft) => {
+                reviewsAdapter.removeOne(draft, `temp_${draft.ids[0]}`);
+                reviewsAdapter.addOne(draft, createdReview);
+              }
+            )
+          );
+
+          dispatch(
+            reviewsSlice.util.updateQueryData(
+              'getUserReviews',
+              undefined,
+              (draft) => {
+                reviewsAdapter.removeOne(draft, `temp_${draft.ids[0]}`);
+                reviewsAdapter.addOne(draft, createdReview);
+              }
+            )
+          );
+        } catch (error) {
+          patchResultProduct.undo();
+          patchResultUser.undo();
+          console.error('Failed to submit review:', error);
+        }
+      },
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Review' as const, id: `PRODUCT_${productId}` },
+        { type: 'Review' as const, id: 'USER' },
+      ],
+    }),
+
+    // --- Update Review ---
+    updateReview: builder.mutation<Review, { productId: number; reviewId: number } & Partial<ReviewSubmitData>>({
+      query: ({ productId, reviewId, ...reviewData }) => ({
+        url: `/reviews/${productId}/${reviewId}`,
+        method: 'PUT',
+        body: reviewData,
+      }),
+      async onQueryStarted({ productId, reviewId, ...reviewData }, { dispatch, queryFulfilled }) {
+        const timestamp = new Date().toISOString();
+
+        // Optimistic update for product reviews
+        const patchResultProduct = dispatch(
+          reviewsSlice.util.updateQueryData(
+            'getProductReviews',
+            { productId },
+            (draft) => {
+              const existingReview = draft.entities[reviewId];
+              if (existingReview) {
+                reviewsAdapter.updateOne(draft, {
+                  id: reviewId,
+                  changes: {
+                    ...reviewData,
+                    date_modified: timestamp,
+                  },
+                });
+              }
+            }
+          )
+        );
+
+        // Optimistic update for user reviews
+        const patchResultUser = dispatch(
+          reviewsSlice.util.updateQueryData('getUserReviews', undefined, (draft) => {
+            const existingReview = draft.entities[reviewId];
+            if (existingReview) {
+              reviewsAdapter.updateOne(draft, {
+                id: reviewId,
+                changes: {
+                  ...reviewData,
+                  date_modified: timestamp,
+                },
+              });
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          patchResultProduct?.undo();
+          patchResultUser.undo();
+          console.error('Failed to update review:', error);
+        }
+      },
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Review' as const, id: `PRODUCT_${productId}` },
+        { type: 'Review' as const, id: 'USER' },
+      ],
+    }),
+
+    // --- Delete Review ---
+    deleteReview: builder.mutation<{ message: string }, { productId: number; reviewId: number }>({
+      query: ({ productId, reviewId }) => ({
+        url: `/reviews/${productId}/${reviewId}`,
+        method: 'DELETE',
+      }),
+      async onQueryStarted({ productId, reviewId }, { dispatch, queryFulfilled }) {
+        // Optimistic updates
+        const patchResultProduct = dispatch(
+          reviewsSlice.util.updateQueryData(
+            'getProductReviews',
+            { productId },
+            (draft) => {
+              reviewsAdapter.removeOne(draft, reviewId);
+            }
+          )
+        );
+
+        const patchResultUser = dispatch(
+          reviewsSlice.util.updateQueryData('getUserReviews', undefined, (draft) => {
+            reviewsAdapter.removeOne(draft, reviewId);
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          patchResultProduct?.undo();
+          patchResultUser.undo();
+          console.error('Failed to delete review:', error);
+        }
+      },
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Review' as const, id: `PRODUCT_${productId}` },
+        { type: 'Review' as const, id: 'USER' },
+      ],
+    }),
+
+    // --- Report Review ---
+    reportReview: builder.mutation<{ message: string }, ReportReviewParams>({
+      query: ({ reviewId, reason }) => ({
+        url: `/reviews/${reviewId}/report`,
+        method: 'POST',
+        body: { reason },
+      }),
+    }),
+  }),
+});
+
+// --- Export Hooks ---
+export const {
+  useGetProductReviewsQuery,
+  useGetUserReviewsQuery,
+  useSubmitReviewMutation,
+  useUpdateReviewMutation,
+  useDeleteReviewMutation,
+  useReportReviewMutation,
+} = reviewsSlice;
+
+// --- Selectors ---
+
+// Base adapter selectors
+const adapterSelectors = reviewsAdapter.getSelectors();
+
+// Product reviews selector factory
+export const selectProductReviews = (productId: number) =>
+  createSelector(
+    [reviewsSlice.endpoints.getProductReviews.select({ productId })],
+    (result) => result.data ?? initialReviewsState
+  );
+
+// User reviews selector
+export const selectUserReviews = createSelector(
+  [reviewsSlice.endpoints.getUserReviews.select(undefined)],
+  (result) => result.data ?? initialReviewsState
+);
+
+// Reviews by product ID
+export const selectReviewsByProductId = (productId: number) =>
+  createSelector([selectProductReviews(productId)], (reviewsState) =>
+    adapterSelectors.selectAll(reviewsState)
+  );
+
+// Average rating for a product
+export const selectProductAverageRating = (productId: number) =>
+  createSelector([selectReviewsByProductId(productId)], (reviews) => {
+    if (reviews.length === 0) return 0;
+    return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+  });
+
+// Review count for a product
+export const selectProductReviewCount = (productId: number) =>
+  createSelector([selectReviewsByProductId(productId)], (reviews) => reviews.length);
+
+// Rating distribution for a product
+export const selectProductRatingDistribution = (productId: number) =>
+  createSelector([selectReviewsByProductId(productId)], (reviews) => {
+    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    reviews.forEach((review) => {
+      const rating = Math.round(review.rating) as 1 | 2 | 3 | 4 | 5;
+      if (rating >= 1 && rating <= 5) {
+        distribution[rating]++;
+      }
+    });
+    return distribution;
+  });
+
+// Get pagination meta for product reviews
+export const selectProductReviewsMeta = (productId: number) =>
+  createSelector(
+    [reviewsSlice.endpoints.getProductReviews.select({ productId })],
+    (result) => result.data?.meta || null
+  );
+
+// Get pagination meta for user reviews
+export const selectUserReviewsMeta = createSelector(
+  [reviewsSlice.endpoints.getUserReviews.select(undefined)],
+  (result) => result.data?.meta || null
+);
+
+export default reviewsSlice;
+
+
+
+
+// src/features/search/searchSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import { RootState } from "@/store/store";
+
+// --- Types ---
+export interface Product {
+  id: string | number;
+  name_en?: string;
+  name_ar?: string;
+  description_en?: string;
+  description_ar?: string;
+  price: number;
+  final_price: number;
+  stock_quantity?: number;
+  quantity: number;
+  rating?: number;
+  review_count?: number;
+  image?: string;
+  main_image?: string;
+  images?: string[];
+  thumbnail?: string;
+  model?: string;
+  name: string; // Laravel controller returns this as the primary name
+  on_sale: boolean;
+  status: boolean;
+  date_added: string;
+  [key: string]: any; // Additional product properties
+}
+
+export interface FacetValue {
+  value: string;
+  count: number;
+  [key: string]: any; // Additional facet properties
+}
+
+export interface Facet {
+  field: string;
+  values: FacetValue[];
+  stats?: {
+    count: number;
+    min?: number;
+    max?: number;
+    avg?: number;
+    sum?: number;
+  };
+}
+
+export interface SearchFacets {
+  [key: string]: Facet | undefined;
+  categories?: Facet;
+  price_range?: Facet;
+  on_sale?: Facet;
+  status?: Facet;
+}
+
+// export interface SearchFacets {
+//   [key: string]: Facet | undefined;
+//   categories?: Facet;
+//   price_range?: Facet;
+//   on_sale?: Facet;
+//   status?: Facet;
+// }
+
+export interface SearchPagination {
+  current_page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface SearchParams {
+  q?: string;
+  page?: number;
+  per_page?: number;
+  categories?: string[];
+  category_ids?: (string | number)[];
+  price_range?: string[];
+  on_sale?: boolean | string | null;
+  status?: boolean | string | null;
+  sort_by?: 'price_asc' | 'price_desc' | 'date_added_desc' | 'date_added_asc' | 'relevance';
+  min_price?: number | null;
+  max_price?: number | null;
+}
+
+export interface AutocompleteParams {
+  q: string;
+  limit?: number;
+}
+
+export interface SearchResponse {
+  success: boolean;
+  data: {
+    products: Product[];
+    facets: SearchFacets;
+    pagination: SearchPagination;
+    search_time_ms?: number;
+  };
+}
+
+export interface AutocompleteResponse {
+  success: boolean;
+  suggestions: Array<{
+    id: string | number;
+    name_en?: string;
+    name_ar?: string;
+    price: number;
+    image?: string;
+    main_image?: string;
+  }>;
+}
+
+export interface SearchState extends EntityState<Product, string | number> {
+  loading: boolean;
+  error: string | null;
+  facets: SearchFacets;
+  pagination: SearchPagination;
+  searchTimeMs: number;
+  lastSearchQuery: string | null;
+  suggestions: Array<{
+    id: string | number;
+    name_en?: string;
+    name_ar?: string;
+    price: number;
+    image?: string;
+    main_image?: string;
+  }>;
+}
+
+// --- Entity Adapter for Search Results Normalization ---
+const searchResultsAdapter = createEntityAdapter<Product, string | number>({
+  selectId: (product: Product) => product.id,
+  // Sort by relevance (maintain search order)
+  sortComparer: false,
+});
+
+const initialState: SearchState = searchResultsAdapter.getInitialState({
+  loading: false,
+  error: null,
+  facets: {},
+  pagination: {
+    current_page: 1,
+    per_page: 20,
+    total: 0,
+    total_pages: 0,
+  },
+  searchTimeMs: 0,
+  lastSearchQuery: null,
+  suggestions: [],
+});
+
+// --- RTK Query API Slice Injection ---
+export const searchSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Main Search with Filters and Facets ---
+    searchProducts: builder.query<SearchState, SearchParams>({
+      query: ({
+        q = "*",
+        page = 1,
+        per_page = 20,
+        categories = [],
+        category_ids = [],
+        price_range = [],
+        on_sale = null,
+        status = null,
+        sort_by = "relevance",
+        min_price = null,
+        max_price = null,
+      }) => {
+        const params: Record<string, any> = {};
+
+        // Search query
+        if (q) params.q = q;
+
+        // Pagination
+        params.page = page;
+        params.per_page = per_page;
+
+        // Categories
+        if (categories && categories.length > 0) {
+          params.categories = categories;
+        }
+
+        // Category IDs
+        if (category_ids && category_ids.length > 0) {
+          params.category_ids = category_ids;
+        }
+
+        // Price ranges
+        if (price_range && price_range.length > 0) {
+          params.price_range = price_range;
+        }
+
+        // Min/Max price
+        if (min_price !== null) params.min_price = min_price;
+        if (max_price !== null) params.max_price = max_price;
+
+        // On sale filter
+        if (on_sale !== null) params.on_sale = on_sale;
+
+        // Status filter
+        if (status !== null) params.status = status;
+
+        // Sort by
+        if (sort_by) params.sort_by = sort_by;
+
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            value.forEach(v => searchParams.append(`${key}[]`, v.toString()));
+          } else {
+            searchParams.append(key, value.toString());
+          }
+        });
+
+        return `/search?${searchParams.toString()}`;
+      },
+      transformResponse: (responseData: SearchResponse): SearchState => {
+        if (!responseData.success) {
+          throw new Error(responseData.data?.toString() || 'Search failed');
+        }
+        
+        const products = responseData.data?.products || [];
+
+        // Normalize the products array using the adapter
+        const normalizedState = searchResultsAdapter.setAll(
+          initialState,
+          products
+        );
+
+        return {
+          ...normalizedState,
+          facets: responseData.data?.facets || {},
+          pagination: responseData.data?.pagination || initialState.pagination,
+          searchTimeMs: responseData.data?.search_time_ms || 0,
+        };
+      },
+      providesTags: (result, error, arg) => {
+        const tags: { type: "Search" | "Product"; id: string }[] = [{ type: "Search", id: "RESULTS" }];
+
+        if (result && result.ids) {
+          result.ids.forEach((id) => {
+            tags.push({ type: "Product", id: id.toString() });
+          });
+        }
+
+        return tags;
+      },
+      // Keep search results cached for 5 minutes
+      keepUnusedDataFor: 300,
+    }),
+
+    // --- Autocomplete Search ---
+    autocomplete: builder.query<AutocompleteResponse['suggestions'], AutocompleteParams>({
+      query: ({ q, limit = 5 }) => {
+        const params = new URLSearchParams();
+        params.append("q", q);
+        params.append("limit", limit.toString());
+
+        return `/search/autocomplete?${params.toString()}`;
+      },
+      transformResponse: (responseData: AutocompleteResponse): AutocompleteResponse['suggestions'] => {
+        if (!responseData.success) {
+          throw new Error('Autocomplete failed');
+        }
+        return responseData.suggestions || [];
+      },
+      providesTags: (result, error, arg) => [
+        { type: "Search" as const, id: `AUTOCOMPLETE_${arg.q}` },
+      ],
+      // Keep autocomplete results cached for 2 minutes
+      keepUnusedDataFor: 120,
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useSearchProductsQuery,
+  useAutocompleteQuery,
+  useLazySearchProductsQuery,
+  useLazyAutocompleteQuery,
+} = searchSlice;
+
+// --- Selectors ---
+
+// Selector for the search results
+const selectSearchResult = (queryArgs: SearchParams) =>
+  searchSlice.endpoints.searchProducts.select(queryArgs);
+
+// Creates a selector that returns the normalized data
+export const selectSearchData = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.data ?? initialState;
+  });
+
+// Export selectors from the adapter - Using a default state selector
+export const {
+  selectAll: selectAllSearchResults,
+  selectById: selectSearchResultById,
+  selectIds: selectSearchResultIds,
+} = searchResultsAdapter.getSelectors<RootState>(
+  (state: RootState) => {
+    // Since we can't determine which specific search result to return without queryArgs,
+    // we return a default state or the last cached result if available
+    // This is a limitation when using entity adapters with parameterized queries
+    return initialState;
+  }
+);
+
+// --- Custom Memoized Selectors ---
+
+// Select search results for specific query
+export const selectSearchResultsForQuery = (queryArgs: SearchParams) =>
+  createSelector(
+    [selectSearchData(queryArgs)],
+    (searchState) => searchState.ids.map(id => searchState.entities[id]).filter(Boolean) as Product[]
+  );
+
+// Select search results by ID for specific query
+export const selectSearchResultByIdForQuery = (queryArgs: SearchParams, id: string | number) =>
+  createSelector(
+    [selectSearchData(queryArgs)],
+    (searchState) => searchState.entities[id] as Product | undefined
+  );
+
+// Select search results IDs for specific query
+export const selectSearchResultIdsForQuery = (queryArgs: SearchParams) =>
+  createSelector(
+    [selectSearchData(queryArgs)],
+    (searchState) => searchState.ids
+  );
+
+// Select search facets
+export const selectSearchFacets = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.data?.facets || {};
+  });
+
+// Select search pagination
+export const selectSearchPagination = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.data?.pagination || initialState.pagination;
+  });
+
+// Select search time
+export const selectSearchTime = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.data?.searchTimeMs || 0;
+  });
+
+// Select search loading state
+export const selectSearchLoading = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.isLoading;
+  });
+
+// Select search error state
+export const selectSearchError = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.error;
+  });
+
+// Select if search has results
+export const selectHasSearchResults = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return (searchResult.data?.ids?.length || 0) > 0;
+  });
+
+// Select total search results count
+export const selectSearchResultsCount = (queryArgs: SearchParams) =>
+  createSelector([selectSearchResult(queryArgs)], (searchResult) => {
+    return searchResult.data?.pagination?.total || 0;
+  });
+
+// Select category facets with counts
+export const selectCategoryFacets = (queryArgs: SearchParams) =>
+  createSelector([selectSearchFacets(queryArgs)], (facets) => {
+    return facets.categories?.values || [];
+  });
+
+// Select price range facets
+export const selectPriceRangeFacets = (queryArgs: SearchParams) =>
+  createSelector([selectSearchFacets(queryArgs)], (facets) => {
+    return facets.price_range?.values || [];
+  });
+
+// Select on sale facet
+export const selectOnSaleFacet = (queryArgs: SearchParams) =>
+  createSelector([selectSearchFacets(queryArgs)], (facets) => {
+    return facets.on_sale?.values || [];
+  });
+
+// Select available categories from facets
+export const selectAvailableCategories = (queryArgs: SearchParams) =>
+  createSelector([selectCategoryFacets(queryArgs)], (categoryFacets) => {
+    return categoryFacets.map((facet) => ({
+      name: facet.value,
+      count: facet.count,
+    }));
+  });
+
+// Select available price ranges from facets
+export const selectAvailablePriceRanges = (queryArgs: SearchParams) =>
+  createSelector([selectPriceRangeFacets(queryArgs)], (priceRangeFacets) => {
+    return priceRangeFacets.map((facet) => ({
+      range: facet.value,
+      count: facet.count,
+    }));
+  });
+
+// Select autocomplete suggestions
+export const selectAutocompleteSuggestions = (q: string, limit = 5) =>
+  createSelector(
+    [(state: RootState) => searchSlice.endpoints.autocomplete.select({ q, limit })(state)],
+    (result) => result.data || []
+  );
+
+// Select autocomplete loading state
+export const selectAutocompleteLoading = (q: string, limit = 5) =>
+  createSelector(
+    [(state: RootState) => searchSlice.endpoints.autocomplete.select({ q, limit })(state)],
+    (result) => result.isLoading
+  );
+
+export default searchSlice;
+
+
+
+
+
+// src/features/sellers/sellersSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+import { productsSlice } from '../products/productsSlice';
+
+// --- Types ---
+export interface Seller {
+  id: string | number;
+  name: string;
+  phone: string;
+  phone2?: string;
+  address: string;
+  facebook_link?: string;
+  telegram_link?: string;
+  twitter_link?: string;
+  tiktok_link?: string;
+  instagram_link?: string;
+  snap_link?: string;
+  comment?: string;
+  status: 'active' | 'pending';
+  total_products: number;
+  created_at: string;
+  updated_at?: string;
+  [key: string]: any; // Additional seller properties
+}
+
+export interface GetSellersParams {
+  page?: number;
+  limit?: number;
+  status?: 'active' | 'pending' | 'all';
+}
+
+export interface GetSellerProductsParams {
+  id: string | number;
+  page?: number;
+  limit?: number;
+}
+
+export interface ApplyToBecomeSellerPayload {
+  name: string;
+  phone: string;
+  address?: string;
+  facebook_link?: string;
+  instagram_link?: string;
+  comment?: string;
+  phone2?: string;
+  telegram_link?: string;
+  twitter_link?: string;
+  tiktok_link?: string;
+  snap_link?: string;
+}
+
+export interface SellerState extends EntityState<Seller, string | number> {
+  loading: boolean;
+  error: string | null;
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  } | null;
+}
+
+export interface SellersResponse {
+  data: Seller[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export interface SellerProductsResponse {
+  seller: {
+    id: string | number;
+    name: string;
+  };
+  products: {
+    data: any[]; // Product data
+    meta: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
+  };
+}
+
+// --- Entity Adapter for Sellers ---
+const sellersAdapter = createEntityAdapter<Seller, string | number>({
+  selectId: (seller: Seller) => seller.id,
+  sortComparer: (a: Seller, b: Seller) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+});
+
+const initialSellersState: SellerState = sellersAdapter.getInitialState({
+  loading: false,
+  error: null,
+  meta: null,
+});
+
+// --- RTK Query API Slice Injection ---
+export const sellersSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get All Sellers ---
+    getSellers: builder.query<SellerState, GetSellersParams>({
+      query: ({ page = 1, limit = 20, status = 'active' }) => ({
+        url: '/sellers',
+        params: { page, limit, status }
+      }),
+      transformResponse: (responseData: SellersResponse): SellerState => {
+        // Normalize the array response
+        const state = sellersAdapter.setAll(initialSellersState, responseData.data);
+        return {
+          ...state,
+          meta: responseData.meta,
+        };
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.ids.map((id) => ({ type: 'Seller' as const, id })), { type: 'Seller' as const, id: 'LIST' }] 
+          : [{ type: 'Seller' as const, id: 'LIST' }],
+      keepUnusedDataFor: 3600, // Keep for 1 hour
+    }),
+    
+    // --- Get Seller by ID ---
+    getSellerById: builder.query<Seller, string | number>({
+      query: (id) => `/sellers/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Seller' as const, id }],
+      keepUnusedDataFor: 3600,
+    }),
+    
+    // --- Get Seller Products ---
+    getSellerProducts: builder.query<SellerProductsResponse, GetSellerProductsParams>({
+      query: ({ id, page = 1, limit = 20 }) => ({
+        url: `/sellers/${id}/products`,
+        params: { page, limit }
+      }),
+      providesTags: (result, error, { id }) => 
+        [{ type: 'Seller' as const, id: `products-${id}` }, { type: 'Product' as const, id: 'LIST' }],
+      keepUnusedDataFor: 300,
+    }),
+    
+    // --- Apply to Become Seller ---
+    applyToBecomeSeller: builder.mutation<any, ApplyToBecomeSellerPayload>({
+      query: (applicationData) => ({
+        url: '/sellers/apply',
+        method: 'POST',
+        body: applicationData,
+      }),
+      // Optimistic update isn't really applicable here as it's a one-time action
+      invalidatesTags: ['Seller'],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetSellersQuery,
+  useGetSellerByIdQuery,
+  useGetSellerProductsQuery,
+  useApplyToBecomeSellerMutation,
+} = sellersSlice;
+
+// --- Memoized Selectors ---
+// Selector for sellers
+export const {
+  selectAll: selectAllSellers,
+  selectById: selectSellerById,
+  selectIds: selectSellerIds,
+} = sellersAdapter.getSelectors<RootState>((state) => 
+  sellersSlice.endpoints.getSellers.select({})(state).data || initialSellersState
+);
+
+// Selector for active sellers
+export const selectActiveSellers = createSelector(
+  [selectAllSellers],
+  (sellers) => sellers.filter(seller => seller.status === 'active')
+);
+
+// Selector for pending sellers
+export const selectPendingSellers = createSelector(
+  [selectAllSellers],
+  (sellers) => sellers.filter(seller => seller.status === 'pending')
+);
+
+// Selector for seller count
+export const selectSellersCount = createSelector(
+  [selectAllSellers],
+  (sellers) => sellers.length
+);
+
+// Selector for sellers pagination meta
+export const selectSellersMeta = (state: RootState) => 
+  sellersSlice.endpoints.getSellers.select({})(state).data?.meta || null;
+
+export default sellersSlice;
+
+
+
+// src/features/settings/settingsSlice.ts
+import { createSelector } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+
+// --- Types ---
+export interface Language {
+  id: number;
+  name: string;
+  code: string;
+  locale: string;
+  image: string;
+  is_default: boolean;
+}
+
+export interface Currency {
+  code: string;
+  symbol: string;
+  decimal_place: number;
+  value: number;
+}
+
+export interface StoreSettings {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  url: string;
+  logo: string;
+  icon: string;
+}
+
+export interface SocialMedia {
+  facebook: string;
+  twitter: string;
+  instagram: string;
+  youtube: string;
+}
+
+export interface ContactSettings {
+  email: string;
+  phone: string;
+  address: string;
+  working_hours: string;
+  social_media: SocialMedia;
+}
+
+export interface FeatureFlags {
+  guest_checkout: boolean;
+  wishlist_enabled: boolean;
+  reviews_enabled: boolean;
+  coupons_enabled: boolean;
+}
+
+export interface SiteSettings {
+  store: StoreSettings;
+  currency: Currency;
+  languages: Language[];
+  contact: ContactSettings;
+  features: FeatureFlags;
+  updated_at: string;
+}
+
+export interface GeoZone {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface ShippingMethod {
+  id: string;
+  name: string;
+  description: string;
+  cost?: number;
+  tax_class_id?: number;
+  geo_zone_id?: number;
+  minimum_order?: number;
+  status: boolean;
+}
+
+export interface ShippingSettings {
+  methods: ShippingMethod[];
+  geo_zones: GeoZone[];
+  default_method: string;
+  handling_fee: number;
+  tax_included: boolean;
+  updated_at: string;
+}
+
+export interface Policy {
+  title: string;
+  content: string;
+  meta_title?: string;
+  meta_description?: string;
+  updated_at: string;
+}
+
+export interface PageContent {
+  title: string;
+  content: string;
+  meta_title: string;
+  meta_description: string;
+  updated_at: string;
+}
+
+export interface Pages {
+  about: PageContent;
+  contact: PageContent;
+  privacy: PageContent;
+  terms: PageContent;
+  return: PageContent;
+}
+
+// --- RTK Query API Slice Injection ---
+export const settingsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get General Site Settings ---
+    getSiteSettings: builder.query<SiteSettings, void>({
+      query: () => '/settings',
+      providesTags: ['Settings'],
+      keepUnusedDataFor: 86400, // Keep for 24 hours as settings rarely change
+    }),
+    
+    // --- Get Shipping Methods ---
+    getShippingMethods: builder.query<ShippingSettings, void>({
+      query: () => '/settings/shipping',
+      providesTags: ['Shipping'],
+      keepUnusedDataFor: 3600, // Keep for 1 hour
+    }),
+    
+    // --- Get Return Policy ---
+    getReturnPolicy: builder.query<Policy, void>({
+      query: () => '/settings/return-policy',
+      providesTags: ['Policy'],
+      keepUnusedDataFor: 86400,
+    }),
+    
+    // --- Get Privacy Policy ---
+    getPrivacyPolicy: builder.query<Policy, void>({
+      query: () => '/settings/privacy',
+      providesTags: ['Policy'],
+      keepUnusedDataFor: 86400,
+    }),
+    
+    // --- Get Static Pages ---
+    getPages: builder.query<Pages, void>({
+      query: () => '/settings/pages',
+      providesTags: ['Page'],
+      keepUnusedDataFor: 86400,
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetSiteSettingsQuery,
+  useGetShippingMethodsQuery,
+  useGetReturnPolicyQuery,
+  useGetPrivacyPolicyQuery,
+  useGetPagesQuery,
+} = settingsSlice;
+
+// --- Memoized Selectors ---
+// Selector for site settings
+export const selectSiteSettings = createSelector(
+  [settingsSlice.endpoints.getSiteSettings.select()],
+  (result) => result.data || {} as SiteSettings
+);
+
+// Selector for shipping methods
+export const selectShippingMethods = createSelector(
+  [settingsSlice.endpoints.getShippingMethods.select()],
+  (result) => result.data?.methods || []
+);
+
+// Selector for return policy
+export const selectReturnPolicy = createSelector(
+  [settingsSlice.endpoints.getReturnPolicy.select()],
+  (result) => result.data || {} as Policy
+);
+
+// Selector for privacy policy
+export const selectPrivacyPolicy = createSelector(
+  [settingsSlice.endpoints.getPrivacyPolicy.select()],
+  (result) => result.data || {} as Policy
+);
+
+// Selector for static pages
+export const selectPages = createSelector(
+  [settingsSlice.endpoints.getPages.select()],
+  (result) => result.data || {} as Pages
+);
+
+// Selector for site name
+export const selectSiteName = createSelector(
+  [selectSiteSettings],
+  (settings) => settings.store?.name || 'My Store'
+);
+
+// Selector for site logo
+export const selectSiteLogo = createSelector(
+  [selectSiteSettings],
+  (settings) => settings.store?.logo || ''
+);
+
+// Selector for available languages
+export const selectAvailableLanguages = createSelector(
+  [selectSiteSettings],
+  (settings) => settings.languages || []
+);
+
+// Selector for default language
+export const selectDefaultLanguage = createSelector(
+  [selectAvailableLanguages],
+  (languages) => languages.find(lang => lang.is_default) || null
+);
+
+// Selector for current currency
+export const selectCurrency = createSelector(
+  [selectSiteSettings],
+  (settings) => settings.currency || {} as Currency
+);
+
+// Selector for currency symbol
+export const selectCurrencySymbol = createSelector(
+  [selectCurrency],
+  (currency) => currency.symbol || 'ر.س'
+);
+
+// Selector for contact info
+export const selectContactInfo = createSelector(
+  [selectSiteSettings],
+  (settings) => settings.contact || {} as ContactSettings
+);
+
+// Selector for feature flags
+export const selectFeatureFlags = createSelector(
+  [selectSiteSettings],
+  (settings) => settings.features || {} as FeatureFlags
+);
+
+// Selector for wishlist enabled status
+export const selectWishlistEnabled = createSelector(
+  [selectFeatureFlags],
+  (features) => features.wishlist_enabled || true
+);
+
+// Selector for guest checkout enabled status
+export const selectGuestCheckoutEnabled = createSelector(
+  [selectFeatureFlags],
+  (features) => features.guest_checkout || true
+);
+
+export default settingsSlice;
+
+
+
+
+
+// src/features/wishlist/wishlistSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+import { productsSlice } from '../products/productsSlice';
+
+// --- Types ---
+export interface WishlistProduct {
+  id: string | number;
+  name: string;
+  model: string;
+  image: string | null;
+  price: number;
+  final_price: number;
+  is_on_sale: boolean;
+  in_stock: boolean;
+  added_at: string;
+  [key: string]: any; // Additional product properties
+}
+
+export interface WishlistResponse {
+  data: WishlistProduct[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface AddToWishlistPayload {
+  product_id: string | number;
+}
+
+export interface WishlistState extends EntityState<WishlistProduct, string | number> {
+  loading: boolean;
+  error: string | null;
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  } | null;
+}
+
+// --- Entity Adapter for Wishlist Products ---
+const wishlistAdapter = createEntityAdapter<WishlistProduct, string | number>({
+  selectId: (product: WishlistProduct) => product.id,
+});
+
+const initialWishlistState: WishlistState = wishlistAdapter.getInitialState({
+  loading: false,
+  error: null,
+  meta: null,
+});
+
+// --- RTK Query API Slice Injection ---
+export const wishlistSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get User's Wishlist ---
+    getWishlist: builder.query<WishlistState, { page?: number; limit?: number }>({
+      query: ({ page = 1, limit = 15 } = {}) => `/wishlist?page=${page}&limit=${limit}`,
+      transformResponse: (responseData: WishlistResponse): WishlistState => {
+        // Normalize the array response and include meta data
+        const state = wishlistAdapter.setAll(initialWishlistState, responseData.data);
+        return {
+          ...state,
+          meta: responseData.meta,
+        };
+      },
+      providesTags: (result, error, arg) => 
+        result 
+          ? [...result.ids.map((id) => ({ type: 'Wishlist' as const, id })), { type: 'Wishlist' as const, id: 'LIST' }] 
+          : [{ type: 'Wishlist' as const, id: 'LIST' }],
+    }),
+    
+    // --- Add Product to Wishlist ---
+    addToWishlist: builder.mutation<WishlistProduct, AddToWishlistPayload>({
+      query: ({ product_id }) => ({
+        url: '/wishlist',
+        method: 'POST',
+        body: { product_id },
+      }),
+      // Optimistic update for wishlist
+      async onQueryStarted({ product_id }, { dispatch, getState, queryFulfilled }) {
+        // 1. Start optimistic update for getWishlist
+        const patchResultList = dispatch(
+          wishlistSlice.util.updateQueryData('getWishlist', { page: 1, limit: 15 }, (draft: WishlistState) => {
+            // Check if product is already in wishlist
+            if (!draft.entities[product_id]) {
+              // Add placeholder with minimal info
+              wishlistAdapter.addOne(draft, { 
+                id: product_id, 
+                name: '', 
+                model: '',
+                image: null,
+                price: 0, 
+                final_price: 0,
+                is_on_sale: false,
+                in_stock: false,
+                added_at: new Date().toISOString()
+              });
+            }
+          })
+        );
+        
+        // 2. Also update the product's wishlist status if it's cached
+        const getProductEndpoint = productsSlice.endpoints.getProductById;
+        if (getProductEndpoint) {
+          const patchResultProduct = dispatch(
+            productsSlice.util.updateQueryData('getProductById', product_id, (draft: any) => {
+              draft.in_wishlist = true;
+            })
+          );
+          
+          try {
+            await queryFulfilled;
+          } catch (err) {
+            patchResultList.undo();
+            patchResultProduct?.undo();
+            console.error('Failed to add to wishlist:', err);
+          }
+        } else {
+          try {
+            await queryFulfilled;
+          } catch (err) {
+            patchResultList.undo();
+            console.error('Failed to add to wishlist (partial):', err);
+          }
+        }
+      },
+      invalidatesTags: (result, error, { product_id }) => 
+        [{ type: 'Wishlist' as const, id: product_id }, { type: 'Wishlist' as const, id: 'LIST' }],
+    }),
+    
+    // --- Remove Product from Wishlist ---
+    removeFromWishlist: builder.mutation<void, string | number>({
+      query: (product_id) => ({
+        url: `/wishlist/${product_id}`,
+        method: 'DELETE',
+      }),
+      // Optimistic update for wishlist removal
+      async onQueryStarted(product_id, { dispatch, queryFulfilled }) {
+        // 1. Start optimistic update for getWishlist
+        const patchResultList = dispatch(
+          wishlistSlice.util.updateQueryData('getWishlist', { page: 1, limit: 15 }, (draft: WishlistState) => {
+            wishlistAdapter.removeOne(draft, product_id);
+          })
+        );
+        
+        // 2. Also update the product's wishlist status if it's cached
+        const getProductEndpoint = productsSlice.endpoints.getProductById;
+        if (getProductEndpoint) {
+          const patchResultProduct = dispatch(
+            productsSlice.util.updateQueryData('getProductById', product_id, (draft: any) => {
+              draft.in_wishlist = false;
+            })
+          );
+          
+          try {
+            await queryFulfilled;
+          } catch (err) {
+            patchResultList.undo();
+            patchResultProduct?.undo();
+            console.error('Failed to remove from wishlist:', err);
+          }
+        } else {
+          try {
+            await queryFulfilled;
+          } catch (err) {
+            patchResultList.undo();
+            console.error('Failed to remove from wishlist (partial):', err);
+          }
+        }
+      },
+      invalidatesTags: (result, error, product_id) => 
+        [{ type: 'Wishlist' as const, id: product_id }, { type: 'Wishlist' as const, id: 'LIST' }],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetWishlistQuery,
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
+} = wishlistSlice;
+
+// --- Memoized Selectors ---
+// Selector for wishlist products
+export const {
+  selectAll: selectAllWishlistProducts,
+  selectById: selectWishlistProductById,
+  selectIds: selectWishlistProductIds,
+} = wishlistAdapter.getSelectors<RootState>((state) => 
+  wishlistSlice.endpoints.getWishlist.select({})(state).data || initialWishlistState
+);
+
+
+// Selector for wishlist count
+export const selectWishlistCount = createSelector(
+  [selectAllWishlistProducts],
+  (products) => products.length
+);
+
+// Selector for checking if product is in wishlist
+export const selectIsProductInWishlist = createSelector(
+  [selectAllWishlistProducts, (state, productId: string | number) => productId],
+  (wishlistProducts, productId) => 
+    wishlistProducts.some(product => product.id === productId)
+);
+
+// Selector for pagination meta
+export const selectWishlistMeta = (state: RootState) => 
+  wishlistSlice.endpoints.getWishlist.select({})(state).data?.meta || null;
+
+export default wishlistSlice;
+
+
+// src/features/addresses/addressesSlice.ts
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { apiSlice } from '../api/apiSlice';
+import { RootState } from '@/store/store';
+
+// --- Types ---
+export interface Address {
+  id: number | string;
+  firstname: string;
+  lastname: string;
+  company?: string;
+  address_1: string;
+  address_2?: string;
+  city: string;
+  postcode: string;
+  country_id: number;
+  zone_id: number;
+  is_default: boolean;
+  telephone: string;
+  custom_field?: Record<string, any>;
+  [key: string]: any; // Additional address properties
+}
+
+export interface AddressState extends EntityState<Address, number | string> {
+  loading: boolean;
+  error: any; // Could be null, string, or an object depending on your error handling
+  defaultAddressId: number | string | null;
+}
+
+export interface AddressResponse {
+  data: Address[];
+}
+
+// --- Entity Adapter for Addresses ---
+const addressesAdapter = createEntityAdapter<Address, number | string>({
+  selectId: (address) => address.id,
+});
+
+const initialAddressesState: AddressState = addressesAdapter.getInitialState({
+  loading: false,
+  error: null,
+  defaultAddressId: null,
+});
+
+// --- RTK Query API Slice Injection ---
+export const addressesSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // --- Get User Addresses ---
+    getUserAddresses: builder.query<AddressState, void>({
+      query: () => '/users/addresses',
+      transformResponse: (responseData: AddressResponse): AddressState => {
+        const addresses = responseData.data;
+        // Find default address
+        const defaultAddress = addresses.find(addr => addr.is_default);
+        const defaultAddressId = defaultAddress ? defaultAddress.id : null;
+
+        // Normalize addresses
+        const state = addressesAdapter.setAll(
+          initialAddressesState,
+          addresses
+        );
+
+        // Add default address info
+        return {
+          ...state,
+          defaultAddressId,
+        };
+      },
+      providesTags: (result, error, arg) =>
+        result
+          ? [...result.ids.map((id) => ({ type: 'Address' as const, id })), { type: 'Address' as const, id: 'LIST' }]
+          : [{ type: 'Address' as const, id: 'LIST' }],
+    }),
+
+    // --- Add New Address ---
+    addAddress: builder.mutation<Address, Partial<Address>>({
+      query: (addressData) => ({
+        url: '/users/addresses',
+        method: 'POST',
+        body: addressData,
+      }),
+      // Optimistic update for adding address
+      async onQueryStarted(addressData, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          addressesSlice.util.updateQueryData('getUserAddresses', undefined, (draft) => {
+            // Create a temporary ID for optimistic update
+            const tempId = `temp_${Date.now()}`;
+            const newAddress: Address = {
+              id: tempId,
+              ...addressData,
+              // Ensure we have all required fields
+              is_default: addressData.is_default || false,
+              firstname: addressData.firstname || '',
+              lastname: addressData.lastname || '',
+              address_1: addressData.address_1 || '',
+              city: addressData.city || '',
+              postcode: addressData.postcode || '',
+              country_id: addressData.country_id || 0,
+              zone_id: addressData.zone_id || 0,
+              telephone: addressData.telephone || '',
+            };
+
+            // If this is set as default, unset others
+            if (newAddress.is_default) {
+              Object.values(draft.entities).forEach(addr => {
+                if (addr && addr.is_default) {
+                  addr.is_default = false;
+                }
+              });
+              draft.defaultAddressId = tempId;
+            }
+
+            addressesAdapter.addOne(draft, newAddress);
+          })
+        );
+
+        try {
+          const { data: createdAddress } = await queryFulfilled;
+
+          // Update with actual ID after successful creation
+          dispatch(
+            addressesSlice.util.updateQueryData('getUserAddresses', undefined, (draft) => {
+              // Remove temporary address
+              addressesAdapter.removeOne(draft, `temp_${(createdAddress.id as string).split('_')[1] || (createdAddress.id as number)}`);
+              // Add real address
+              addressesAdapter.addOne(draft, createdAddress);
+
+              // Update default address ID if needed
+              if (createdAddress.is_default) {
+                draft.defaultAddressId = createdAddress.id;
+              }
+            })
+          );
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to add address:', err);
+        }
+      },
+      invalidatesTags: [{ type: 'Address' as const, id: 'LIST' }],
+    }),
+
+    // --- Update Address ---
+    updateAddress: builder.mutation<Address, { id: number | string } & Partial<Address>>({
+      query: ({ id, ...addressData }) => ({
+        url: `/users/addresses/${id}`,
+        method: 'PUT',
+        body: addressData,
+      }),
+      // Optimistic update for address update
+      async onQueryStarted({ id, ...addressData }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          addressesSlice.util.updateQueryData('getUserAddresses', undefined, (draft) => {
+            const address = draft.entities[id];
+            if (address) {
+              // Update address fields
+              Object.keys(addressData).forEach(key => {
+                if (key in address) {
+                  (address as any)[key] = (addressData as any)[key];
+                }
+              });
+
+              // If this is set as default, unset others
+              if (addressData.is_default) {
+                Object.values(draft.entities).forEach(addr => {
+                  if (addr && addr.id !== id && addr.is_default) {
+                    addr.is_default = false;
+                  }
+                });
+                draft.defaultAddressId = id;
+              }
+            }
+          })
+        );
+
+        try {
+          const { data: updatedAddress } = await queryFulfilled;
+          // Optionally, update the cache with the server response if it differs
+          dispatch(
+            addressesSlice.util.updateQueryData('getUserAddresses', undefined, (draft) => {
+              const address = draft.entities[id];
+              if (address) {
+                Object.assign(address, updatedAddress);
+              }
+            })
+          );
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to update address:', err);
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: 'Address' as const, id }],
+    }),
+
+    // --- Delete Address ---
+    deleteAddress: builder.mutation<{ success: boolean }, number | string>({
+      query: (id) => ({
+        url: `/users/addresses/${id}`,
+        method: 'DELETE',
+      }),
+      // Optimistic update for address deletion
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          addressesSlice.util.updateQueryData('getUserAddresses', undefined, (draft) => {
+            const address = draft.entities[id];
+            if (address && address.is_default) {
+              // Find another address to set as default
+              const otherAddresses = Object.values(draft.entities).filter(
+                (addr): addr is Address => !!addr && addr.id !== id
+              );
+              if (otherAddresses.length > 0) {
+                otherAddresses[0].is_default = true;
+                draft.defaultAddressId = otherAddresses[0].id;
+              } else {
+                draft.defaultAddressId = null;
+              }
+            }
+
+            addressesAdapter.removeOne(draft, id);
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          patchResult.undo();
+          console.error('Failed to delete address:', err);
+        }
+      },
+      invalidatesTags: (result, error, id) => [{ type: 'Address' as const, id }, { type: 'Address' as const, id: 'LIST' }],
+    }),
+  }),
+});
+
+// Export auto-generated hooks
+export const {
+  useGetUserAddressesQuery,
+  useAddAddressMutation,
+  useUpdateAddressMutation,
+  useDeleteAddressMutation,
+} = addressesSlice;
+
+// --- Memoized Selectors ---
+// Selector for addresses
+export const {
+  selectAll: selectAllAddresses,
+  selectById: selectAddressById,
+  selectIds: selectAddressIds,
+} = addressesAdapter.getSelectors<RootState>((state) =>
+  addressesSlice.endpoints.getUserAddresses.select()(state).data || initialAddressesState
+);
+
+// Selector for default address
+export const selectDefaultAddress = createSelector(
+  [selectAllAddresses, (state: RootState) => addressesSlice.endpoints.getUserAddresses.select()(state).data?.defaultAddressId],
+  (addresses, defaultAddressId) =>
+    addresses.find(address => address.id === defaultAddressId) || null
+);
+
+// Selector for shipping countries and zones (if needed)
+export const selectShippingLocations = createSelector(
+  [selectAllAddresses],
+  (addresses) => {
+    // This would need to be populated from a separate API call in a real app
+    // This is just a placeholder for demonstration
+    return {
+      countries: [
+        { id: 222, name: 'Saudi Arabia', zones: [
+          { id: 3513, name: 'Riyadh' },
+          { id: 3514, name: 'Jeddah' },
+          // ... other zones
+        ]}
+      ]
+    };
+  }
+);
+
+export default addressesSlice;
+

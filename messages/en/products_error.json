@@ -1,0 +1,6 @@
+{
+    "title": "Unable to Load Products",
+    "description": "We encountered an unexpected error while loading the product catalog. This might be due to a connection issue.",
+    "returnHome": "Return Home",
+    "tryAgain": "Try Again"
+}

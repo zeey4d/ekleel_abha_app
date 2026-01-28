@@ -1,0 +1,183 @@
+{
+    "Steps": {
+        "shipping": "الشحن",
+        "payment": "الدفع",
+        "review": "المراجعة"
+    },
+    "Help": {
+        "text": "هل تحتاج مساعدة في طلبك؟",
+        "call": "اتصل بنا على"
+    },
+    "OrderSummary": {
+        "title": "ملخص الطلب",
+        "subtotal": "المجموع الفرعي",
+        "tax": "الضريبة",
+        "shipping": "الشحن",
+        "shippingNote": "يحسب في الخطوة التالية",
+        "total": "الإجمالي"
+    },
+    "ShippingForm": {
+        "savedAddresses": "العناوين المحفوظة",
+        "addNewAddress": "إضافة عنوان جديد",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "address": "العنوان",
+        "addressPlaceholder": "عنوان الشارع",
+        "city": "المدينة",
+        "postcode": "الرمز البريدي",
+        "phone": "رقم الهاتف",
+        "default": "افتراضي",
+        "continueToPayment": "المتابعة للدفع",
+        "saveAndContinue": "حفظ والمتابعة",
+        "saving": "جاري الحفظ...",
+        "addressAdded": "تمت إضافة العنوان بنجاح",
+        "addressAddFailed": "فشل في إضافة العنوان",
+        "selectAddress": "الرجاء اختيار عنوان",
+        "validation": {
+            "firstNameRequired": "الاسم الأول مطلوب",
+            "lastNameRequired": "اسم العائلة مطلوب",
+            "addressRequired": "العنوان مطلوب",
+            "cityRequired": "المدينة مطلوبة",
+            "postcodeRequired": "الرمز البريدي مطلوب",
+            "phoneRequired": "رقم الهاتف مطلوب"
+        }
+    },
+    "TrustBadges": {
+        "buyerProtection": "حماية المشتري",
+        "sslEncrypted": "مشفر بـ SSL",
+        "securePayment": "دفع آمن"
+    },
+    "Payment": {
+        "selectPaymentMethod": "اختر طريقة الدفع",
+        "backToShipping": "العودة للشحن",
+        "initializingPayment": "جاري تهيئة الدفع الآمن...",
+        "paymentFailed": "فشل في تحميل نموذج الدفع. يرجى المحاولة مرة أخرى أو اختيار طريقة أخرى.",
+        "orderCreationFailed": "فشل في إنشاء الطلب. يرجى المحاولة مرة أخرى.",
+        "creditCard": "بطاقة ائتمان / خصم",
+        "creditCardDesc": "ادفع بأمان باستخدام فيزا أو ماستركارد",
+        "mada": "مدى",
+        "madaDesc": "ادفع باستخدام بطاقة مدى",
+        "cod": "الدفع عند الاستلام",
+        "codDesc": "ادفع عند استلام طلبك",
+        "tamara": "تمارا",
+        "tamaraDesc": "قسّم المبلغ إلى 3-6 دفعات شهرية، بدون فوائد",
+        "tabby": "تابي",
+        "tabbyDesc": "ادفع على 4 دفعات بدون فوائد",
+        "applePay": "آبل باي",
+        "applePayDesc": "ادفع بأمان باستخدام آبل باي",
+        "stcPay": "إس تي سي باي",
+        "stcPayDesc": "ادفع باستخدام محفظة STC Pay",
+        "paypal": "باي بال",
+        "paypalDesc": "ادفع بأمان باستخدام حساب باي بال",
+        "sadad": "سداد",
+        "sadadDesc": "ادفع عبر سداد للمدفوعات الإلكترونية",
+        "installment": "تقسيط",
+        "zeroInterest": "بدون فوائد • بدون رسوم",
+        "perMonth": "شهرياً",
+        "selectInstallmentPlan": "اختر خطة التقسيط",
+        "payWith": "ادفع عبر",
+        "splitPayments": "قسّم مشترياتك إلى دفعات شهرية سهلة",
+        "noInterest": "بدون فوائد",
+        "buyerProtection": "حماية المشتري",
+        "instantApproval": "موافقة فورية",
+        "payLater": "ادفع لاحقاً",
+        "monthsInstallment": "{months} دفعات شهرية",
+        "popular": "الأكثر طلباً",
+        "payIn30Days": "ادفع المبلغ كاملاً خلال 30 يوماً",
+        "noHiddenFees": "بدون رسوم خفية أو إضافية",
+        "onePayment": "دفعة واحدة",
+        "totalToPay": "إجمالي المبلغ المستحق",
+        "installmentTerms": "باختيار خطة التقسيط، فإنك توافق على شروط وأحكام {provider}. يخضع للموافقة.",
+        "codNote": "تم اختيار الدفع عند الاستلام",
+        "codNoteDesc": "ستدفع عند توصيل طلبك",
+        "continueToReview": "المتابعة للمراجعة",
+        "securePayment": "دفع آمن",
+        "proceedToPayment": "المتابعة للدفع",
+        "processing": "جاري المعالجة...",
+        "selectPlanFirst": "يرجى اختيار خطة تقسيط للمتابعة",
+        "secureCheckout": "دفع آمن",
+        "encryptionNote": "معلومات الدفع الخاصة بك مشفرة بتقنية SSL 256-bit."
+    },
+    "Review": {
+        "shippingAddress": "عنوان الشحن",
+        "change": "تغيير",
+        "addressMissing": "معلومات العنوان مفقودة.",
+        "items": "المنتجات ({count})",
+        "editCart": "تعديل السلة",
+        "paymentMethod": "طريقة الدفع",
+        "delivery": "التوصيل",
+        "standardDelivery": "التوصيل العادي",
+        "free": "مجاناً"
+    },
+    "OrderTotal": {
+        "subtotal": "المجموع الفرعي",
+        "tax": "الضريبة",
+        "shipping": "الشحن",
+        "free": "مجاناً",
+        "discount": "الخصم",
+        "orderTotal": "إجمالي الطلب",
+        "vatIncluded": "جميع الأسعار شاملة ضريبة القيمة المضافة"
+    },
+    "Terms": {
+        "text": "أؤكد أنني قرأت وأوافق على",
+        "termsLink": "الشروط والأحكام",
+        "and": "و",
+        "privacyLink": "سياسة الخصوصية"
+    },
+    "AddressSelect": {
+        "noAddresses": "لم يتم العثور على عناوين. يرجى إضافة عنوان جديد أدناه."
+    },
+    "ShippingMethods": {
+        "defaultDescription": "التوصيل خلال 3-5 أيام عمل",
+        "free": "مجاناً"
+    },
+    "AddNewAddress": {
+        "addButton": "إضافة عنوان جديد",
+        "dialogTitle": "إضافة عنوان جديد",
+        "saveAddress": "حفظ العنوان",
+        "saving": "جاري الحفظ...",
+        "success": "تمت إضافة العنوان",
+        "error": "فشل في إضافة العنوان"
+    },
+    "AddressCard": {
+        "default": "افتراضي",
+        "country": "الدولة"
+    },
+    "Success": {
+        "orderNumber": "رقم الطلب",
+        "date": "التاريخ",
+        "shippingAddress": "عنوان الشحن",
+        "paymentSummary": "ملخص الدفع",
+        "subtotal": "المجموع الفرعي",
+        "paymentMethod": "طريقة الدفع",
+        "total": "الإجمالي"
+    },
+    "NextSteps": {
+        "confirmationEmail": "بريد التأكيد",
+        "confirmationEmailDesc": "لقد أرسلنا بريد تأكيد إلى {email} يحتوي على تفاصيل طلبك.",
+        "orderProcessing": "معالجة الطلب",
+        "orderProcessingDesc": "نحن نتحقق حالياً من دفعتك ونجهز منتجاتك للشحن.",
+        "onTheWay": "في الطريق",
+        "onTheWayDesc": "سنخطرك عبر البريد الإلكتروني برقم التتبع بمجرد شحن طلبك."
+    },
+    "Callback": {
+        "processingPayment": "جاري معالجة الدفع",
+        "pleaseWait": "يرجى الانتظار بينما نتحقق من معاملتك بشكل آمن. عادة ما يستغرق هذا بضع ثوانٍ.",
+        "step1": "تم إنشاء اتصال آمن",
+        "step2": "التحقق من الدفع مع البنك",
+        "step3": "تأكيد طلبك",
+        "secureConnection": "اتصال آمن",
+        "doNotRefresh": "يرجى عدم تحديث أو إغلاق هذه الصفحة.",
+        "transactionDeclined": "تم رفض المعاملة من قبل البنك.",
+        "verificationFailed": "فشل التحقق من الدفع.",
+        "verificationError": "لم نتمكن من التحقق من حالة الدفع."
+    },
+    "Failed": {
+        "title": "فشل الدفع",
+        "description": "لم نتمكن من معالجة دفعتك. لم يتم خصم أي مبلغ من حسابك.",
+        "errorDetails": "تفاصيل الخطأ:",
+        "retryPayment": "إعادة المحاولة",
+        "contactSupport": "تواصل مع الدعم",
+        "returnToCart": "العودة للسلة"
+    }
+}

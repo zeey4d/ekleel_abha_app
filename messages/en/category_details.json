@@ -1,0 +1,19 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "categories": "Categories"
+    },
+    "Error": {
+        "notFoundTitle": "Category Not Found",
+        "notFoundDesc": "The category you are looking for does not exist."
+    },
+    "Toolbar": {
+        "filter": "Filters",
+        "showing": "Showing",
+        "results": "results"
+    },
+    "Content": {
+        "noProducts": "No products found",
+        "noProductsDesc": "There are no products in this category yet. Check the sub-categories above."
+    }
+}

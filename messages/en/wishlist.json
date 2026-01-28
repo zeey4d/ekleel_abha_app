@@ -1,0 +1,34 @@
+{
+    "Breadcrumbs": {
+        "home": "Home",
+        "wishlist": "Wishlist"
+    },
+    "Header": {
+        "title": "My Wishlist",
+        "itemCount": "{count} Items"
+    },
+    "EmptyWishlist": {
+        "title": "Your Wishlist is Empty",
+        "description": "Explore our collections and tap the heart button to save items you love for later.",
+        "explore": "Explore Products"
+    },
+    "Actions": {
+        "share": "Share",
+        "addAll": "Add All to Cart",
+        "noStock": "No in-stock items to add.",
+        "movedCount": "Moved {count} items to cart",
+        "failedAdd": "Failed to add some items to cart",
+        "shareSuccess": "Wishlist link copied to clipboard!"
+    },
+    "Item": {
+        "outOfStock": "Out of Stock",
+        "inStock": "In Stock",
+        "addToCart": "Add to Cart",
+        "unavailable": "Unavailable",
+        "movedToCart": "Moved to cart",
+        "failedToCart": "Failed to add to cart",
+        "removed": "Removed from wishlist",
+        "removeFailed": "Failed to remove item",
+        "removeTitle": "Remove from wishlist"
+    }
+}

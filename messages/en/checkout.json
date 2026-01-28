@@ -1,0 +1,183 @@
+{
+    "Steps": {
+        "shipping": "Shipping",
+        "payment": "Payment",
+        "review": "Review"
+    },
+    "Help": {
+        "text": "Need help with your order?",
+        "call": "Call us at"
+    },
+    "OrderSummary": {
+        "title": "Order Summary",
+        "subtotal": "Subtotal",
+        "tax": "Tax",
+        "shipping": "Shipping",
+        "shippingNote": "Calculated next step",
+        "total": "Total"
+    },
+    "ShippingForm": {
+        "savedAddresses": "Saved Addresses",
+        "addNewAddress": "Add New Address",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "address": "Address",
+        "addressPlaceholder": "Street address",
+        "city": "City",
+        "postcode": "Postcode",
+        "phone": "Phone Number",
+        "default": "Default",
+        "continueToPayment": "Continue to Payment",
+        "saveAndContinue": "Save & Continue",
+        "saving": "Saving...",
+        "addressAdded": "Address added successfully",
+        "addressAddFailed": "Failed to add address",
+        "selectAddress": "Please select an address",
+        "validation": {
+            "firstNameRequired": "First name required",
+            "lastNameRequired": "Last name required",
+            "addressRequired": "Address required",
+            "cityRequired": "City required",
+            "postcodeRequired": "Postcode required",
+            "phoneRequired": "Phone required"
+        }
+    },
+    "TrustBadges": {
+        "buyerProtection": "Buyer Protection",
+        "sslEncrypted": "SSL Encrypted",
+        "securePayment": "Secure Payment"
+    },
+    "Payment": {
+        "selectPaymentMethod": "Select Payment Method",
+        "backToShipping": "Back to Shipping",
+        "initializingPayment": "Initializing secure payment...",
+        "paymentFailed": "Failed to load payment form. Please try again or choose a different method.",
+        "orderCreationFailed": "Failed to create order. Please try again.",
+        "creditCard": "Credit / Debit Card",
+        "creditCardDesc": "Pay securely with Visa or Mastercard",
+        "mada": "Mada",
+        "madaDesc": "Pay using your Mada debit card",
+        "cod": "Cash on Delivery",
+        "codDesc": "Pay when you receive your order",
+        "tamara": "Tamara",
+        "tamaraDesc": "Split into 3-6 monthly payments, 0% interest",
+        "tabby": "Tabby",
+        "tabbyDesc": "Pay in 4 interest-free payments",
+        "applePay": "Apple Pay",
+        "applePayDesc": "Pay securely with your Apple device",
+        "stcPay": "STC Pay",
+        "stcPayDesc": "Pay using your STC Pay wallet",
+        "paypal": "PayPal",
+        "paypalDesc": "Pay securely with your PayPal account",
+        "sadad": "SADAD",
+        "sadadDesc": "Pay via SADAD Online payment",
+        "installment": "Installment",
+        "zeroInterest": "0% Interest • No fees",
+        "perMonth": "per month",
+        "selectInstallmentPlan": "Select Your Installment Plan",
+        "payWith": "Pay with",
+        "splitPayments": "Split your purchase into easy monthly payments",
+        "noInterest": "0% Interest",
+        "buyerProtection": "Buyer Protection",
+        "instantApproval": "Instant Approval",
+        "payLater": "Pay Later",
+        "monthsInstallment": "{months} Monthly Payments",
+        "popular": "Popular",
+        "payIn30Days": "Pay the full amount in 30 days",
+        "noHiddenFees": "No hidden fees or extra charges",
+        "onePayment": "one payment",
+        "totalToPay": "Total amount to pay",
+        "installmentTerms": "By selecting a plan, you agree to {provider}'s terms and conditions. Subject to approval.",
+        "codNote": "Cash on Delivery Selected",
+        "codNoteDesc": "You will pay when your order is delivered",
+        "continueToReview": "Continue to Review",
+        "securePayment": "Secure Payment",
+        "proceedToPayment": "Proceed to Payment",
+        "processing": "Processing...",
+        "selectPlanFirst": "Please select an installment plan to continue",
+        "secureCheckout": "Secure Checkout",
+        "encryptionNote": "Your payment information is encrypted with 256-bit SSL technology."
+    },
+    "Review": {
+        "shippingAddress": "Shipping Address",
+        "change": "Change",
+        "addressMissing": "Address information missing.",
+        "items": "Items ({count})",
+        "editCart": "Edit Cart",
+        "paymentMethod": "Payment Method",
+        "delivery": "Delivery",
+        "standardDelivery": "Standard Delivery",
+        "free": "Free"
+    },
+    "OrderTotal": {
+        "subtotal": "Subtotal",
+        "tax": "Tax",
+        "shipping": "Shipping",
+        "free": "Free",
+        "discount": "Discount",
+        "orderTotal": "Order Total",
+        "vatIncluded": "All prices include VAT"
+    },
+    "Terms": {
+        "text": "I confirm that I have read and agree to the",
+        "termsLink": "Terms and Conditions",
+        "and": "and",
+        "privacyLink": "Privacy Policy"
+    },
+    "AddressSelect": {
+        "noAddresses": "No addresses found. Please add a new address below."
+    },
+    "ShippingMethods": {
+        "defaultDescription": "Delivery within 3-5 business days",
+        "free": "Free"
+    },
+    "AddNewAddress": {
+        "addButton": "Add New Address",
+        "dialogTitle": "Add New Address",
+        "saveAddress": "Save Address",
+        "saving": "Saving...",
+        "success": "Address added",
+        "error": "Failed to add address"
+    },
+    "AddressCard": {
+        "default": "Default",
+        "country": "Country"
+    },
+    "Success": {
+        "orderNumber": "Order Number",
+        "date": "Date",
+        "shippingAddress": "Shipping Address",
+        "paymentSummary": "Payment Summary",
+        "subtotal": "Subtotal",
+        "paymentMethod": "Payment Method",
+        "total": "Total"
+    },
+    "NextSteps": {
+        "confirmationEmail": "Confirmation Email",
+        "confirmationEmailDesc": "We have sent a confirmation email to {email} with your order details.",
+        "orderProcessing": "Order Processing",
+        "orderProcessingDesc": "We are currently verifying your payment and preparing your items for shipment.",
+        "onTheWay": "On the Way",
+        "onTheWayDesc": "We will notify you via email with a tracking number as soon as your order ships."
+    },
+    "Callback": {
+        "processingPayment": "Processing Your Payment",
+        "pleaseWait": "Please wait while we securely verify your transaction. This usually takes a few seconds.",
+        "step1": "Secure connection established",
+        "step2": "Verifying payment with bank",
+        "step3": "Confirming your order",
+        "secureConnection": "Secure Connection",
+        "doNotRefresh": "Please do not refresh or close this page.",
+        "transactionDeclined": "Transaction was declined by the bank.",
+        "verificationFailed": "Payment verification failed.",
+        "verificationError": "We could not verify the payment status."
+    },
+    "Failed": {
+        "title": "Payment Failed",
+        "description": "We couldn't process your payment. No funds have been deducted from your account.",
+        "errorDetails": "Error Details:",
+        "retryPayment": "Retry Payment",
+        "contactSupport": "Contact Support",
+        "returnToCart": "Return to Cart"
+    }
+}
