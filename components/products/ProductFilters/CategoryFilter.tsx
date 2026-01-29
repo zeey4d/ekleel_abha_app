@@ -1,31 +1,33 @@
-import React, { useCallback } from 'react';
-import { View } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-// استيراد المكونات من مكتبة Reusables
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Text } from '@/components/ui/text';
-import { cn } from '@/lib/utils';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
+// import { Checkbox } from '@/components/ui/checkbox';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  YourScreenName: { category: number | null; page: number };
+  // add other screens if needed
+};
 
 export const CategoryFilter = ({ categories = [] }: { categories?: any[] }) => {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-
-  // الحصول على التصنيف الحالي من الروابط
-  const currentCategory = Number(params.category);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [currentCategory, setCurrentCategory] = useState<number | null>(null);
 
   const handleCategoryChange = useCallback(
     (categoryId: number) => {
-      // تحديث المعاملات (Params) في Expo Router
-      router.setParams({
-        category: currentCategory === categoryId ? undefined : categoryId.toString(),
-        page: '1', // إعادة تعيين الصفحة
-      });
+      if (currentCategory === categoryId) {
+        setCurrentCategory(null);
+        navigation.navigate('YourScreenName', { category: null, page: 1 });
+      } else {
+        setCurrentCategory(categoryId);
+        navigation.navigate('YourScreenName', { category: categoryId, page: 1 });
+      }
     },
-    [currentCategory, router]
+    [currentCategory, navigation]
   );
 
-  // تصنيفات وهمية في حال عدم توفر بيانات
+  // Mock categories if none provided by API
   const displayCategories = categories?.length
     ? categories
     : [
@@ -35,41 +37,58 @@ export const CategoryFilter = ({ categories = [] }: { categories?: any[] }) => {
       ];
 
   return (
-    <View className="gap-3">
-      <Text className="mb-2 text-sm font-semibold text-foreground">Categories</Text>
-
-      <View className="gap-3">
-        {displayCategories.map((cat) => {
-          const meshId = `cat-${cat.id}`;
-          const isChecked = currentCategory === cat.id;
-
-          return (
-            <View key={cat.id} className="flex-row items-center gap-3">
-              <Checkbox
-                id={meshId}
-                checked={isChecked}
-                onCheckedChange={() => handleCategoryChange(cat.id)}
-                aria-labelledby={meshId}
-              />
-
-              <Label
-                nativeID={meshId}
-                onPress={() => handleCategoryChange(cat.id)}
-                className="flex-1 flex-row items-center justify-between">
-                <Text
-                  className={cn(
-                    'text-sm',
-                    isChecked ? 'font-medium text-primary' : 'text-muted-foreground'
-                  )}>
-                  {cat.name}
-                </Text>
-
-                <Text className="text-xs text-muted-foreground">({cat.count || 0})</Text>
-              </Label>
-            </View>
-          );
-        })}
+    <View style={styles.container}>
+      <Text style={styles.header}>Categories</Text>
+      <View style={styles.categoryList}>
+        {displayCategories.map((cat) => (
+          <View key={cat.id} style={styles.categoryItem}>
+            <CheckBox
+              value={currentCategory === cat.id}
+              onValueChange={() => handleCategoryChange(cat.id)}
+            />
+            <TouchableOpacity
+              onPress={() => handleCategoryChange(cat.id)}
+              style={styles.labelContainer}>
+              <Text style={styles.labelText}>{cat.name}</Text>
+              <Text style={styles.countText}>({cat.count || 0})</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    paddingVertical: 10,
+  },
+  header: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  categoryList: {
+    marginVertical: 8,
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  labelContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  labelText: {
+    fontSize: 14,
+    color: '#475569',
+  },
+  countText: {
+    fontSize: 12,
+    color: '#94A3B8',
+  },
+});

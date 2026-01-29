@@ -59,34 +59,30 @@ const resources = {
 // RTL languages
 const RTL_LANGUAGES = ['ar', 'he', 'fa'];
 
-// Get initial language
-const initialLanguage = Localization.getLocales()[0]?.languageCode || 'ar';
-
-// Set initial RTL direction
-const isRTL = RTL_LANGUAGES.includes(initialLanguage);
+// Ensure RTL is allowed at startup
 I18nManager.allowRTL(true);
-I18nManager.forceRTL(isRTL);
+
+// Get initial language based on I18nManager (which persists across restarts)
+// This ensures that if we forceRTL(true) and restart, we start with 'ar' (or another RTL lang)
+// preventing a mismatch between layout and language.
+const isRTL = I18nManager.isRTL;
+const initialLanguage = isRTL ? 'ar' : 'en';
 
 i18n
   .use(initReactI18next)
   .init({
     compatibilityJSON: 'v4',
     resources,
-    lng: initialLanguage,
+    lng: initialLanguage, // Initialize with what matches the current layout direction
     fallbackLng: 'ar',
     interpolation: {
       escapeValue: false,
     },
     defaultNS: 'home',
+    react: {
+      useSuspense: false,
+    }
   });
-
-// Listen for language changes and update RTL direction
-i18n.on('languageChanged', (lng) => {
-  const shouldBeRTL = RTL_LANGUAGES.includes(lng);
-  if (I18nManager.isRTL !== shouldBeRTL) {
-    I18nManager.forceRTL(shouldBeRTL);
-  }
-});
 
 export default i18n;
 export { RTL_LANGUAGES };

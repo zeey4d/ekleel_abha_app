@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 // Redux Hooks
-import { useAddToCartMutation } from "@/store/features/cart/cartSlice";
-import { useAddToWishlistMutation } from "@/store/features/wishlist/wishlistSlice";
+import { useAddToCartMutation } from '@/store/features/cart/cartSlice';
+import { useAddToWishlistMutation } from '@/store/features/wishlist/wishlistSlice';
 
 // افترضنا وجود i18n بسيط أو استبدله بـ useTranslations الخاص بك
-const t = (key: string) => key; 
+const t = (key: string) => key;
 
 interface ProductActionsProps {
   product: any;
@@ -47,11 +47,11 @@ export const ProductActions = ({ product, selectedOptions }: ProductActionsProps
       await addToCart({
         product_id: product.id,
         quantity,
-        option: selectedOptions
+        option: selectedOptions,
       }).unwrap();
 
       if (buyNow) {
-        router.push("/cart");
+        router.push('/cart');
       }
     } catch (error) {
       console.error(error);
@@ -60,61 +60,57 @@ export const ProductActions = ({ product, selectedOptions }: ProductActionsProps
 
   return (
     <View className="flex-col gap-4 p-2">
-      <View className="flex-row gap-3 items-center">
-        
+      <View className="flex-row items-center justify-center gap-2">
         {/* Quantity Selector */}
-        <View className="flex-row items-center border border-input rounded-lg overflow-hidden bg-background h-12">
-          <Button
-            variant="ghost"
-            className="w-10 h-full justify-center items-center active:bg-muted"
-            onPress={() => updateQty(quantity - 1)}
-          >
-            <Minus size={18} className="text-foreground" />
-          </Button>
-          
-          <View className="w-12 items-center justify-center">
-             <Text className="text-lg font-bold">{quantity}</Text>
-          </View>
 
-          <Button
-            variant="ghost"
-            className="w-10 h-full justify-center items-center active:bg-muted"
-            onPress={() => updateQty(quantity + 1)}
-          >
-            <Plus size={18} className="text-foreground" />
-          </Button>
-        </View>
-
-        {/* Wishlist Button */}
         <Button
-          variant="outline"
-          className="h-12 px-4 rounded-lg flex-1 border-input"
-          onPress={() => addToWishlist({ product_id: product.id })}
-        >
-          <Heart size={22} className="text-foreground" />
+          className="h-10 w-full flex-row gap-2 rounded-full bg-primary "
+          onPress={() => handleAddToCart(false)}
+          disabled={!product.in_stock || isAdding}>
+          <ShoppingCart size={20} color="white" />
+          <Text className="text-md font-bold text-primary-foreground">
+            {t('ProductDetail.addToCart')}
+          </Text>
         </Button>
       </View>
 
       {/* Main Buttons */}
-      <View className="flex-col gap-3">
-        <Button
-          className="flex-row gap-2 h-14 rounded-xl bg-primary"
-          onPress={() => handleAddToCart(false)}
-          disabled={!product.in_stock || isAdding}
-        >
-          <ShoppingCart size={20} color="white" />
-          <Text className="text-primary-foreground font-bold text-lg">
-            {t('ProductDetail.addToCart')}
-          </Text>
-        </Button>
+      <View className="flex-row items-center justify-center gap-2">
+        <View className="h-10 flex-row items-center overflow-hidden rounded-full border border-input bg-background">
+          <Button
+            variant="ghost"
+            className="h-full w-10 items-center justify-center active:bg-muted"
+            onPress={() => updateQty(quantity - 1)}>
+            <Minus size={18} className="text-foreground" />
+          </Button>
 
+          <View className="w-12 items-center justify-center">
+            <Text className="text-lg font-bold">{quantity}</Text>
+          </View>
+
+          <Button
+            variant="ghost"
+            className="h-full w-10 items-center justify-center active:bg-muted"
+            onPress={() => updateQty(quantity + 1)}>
+            <Plus size={18} className="text-foreground" />
+          </Button>
+        </View>
+
+        <View>
+          {/* Wishlist Button */}
+          <Button
+            variant="outline"
+            className="h-12 flex-1 rounded-full border-input px-4"
+            onPress={() => addToWishlist({ product_id: product.id })}>
+            <Heart size={22} className="text-foreground" />
+          </Button>
+        </View>
         <Button
           variant="secondary"
-          className="h-14 rounded-xl"
+          className="h-10 w-[52%] rounded-full"
           onPress={() => handleAddToCart(true)}
-          disabled={!product.in_stock || isAdding}
-        >
-          <Text className="text-secondary-foreground font-bold text-lg">
+          disabled={!product.in_stock || isAdding}>
+          <Text className="text-md font-bold text-secondary-foreground">
             {t('ProductDetail.buyNow')}
           </Text>
         </Button>

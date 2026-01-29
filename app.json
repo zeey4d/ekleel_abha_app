@@ -4,12 +4,12 @@
     "slug": "ekleel_abha",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "ekleel_abha",
+    "icon": "./assets/images/aka.png",
+    "scheme": "ekleelabha",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/aka_g.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,7 +17,10 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "edgeToEdgeEnabled": true,
@@ -25,7 +28,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.ekleel_abha"
+      "package": "com.anonymous.ekleel_abha",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +42,15 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5cce5b06-4918-46e4-91d9-36aea95c69eb"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5cce5b06-4918-46e4-91d9-36aea95c69eb"
     }
   }
 }

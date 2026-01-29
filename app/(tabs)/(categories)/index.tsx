@@ -96,7 +96,7 @@ export default function MegaMenu() {
               {/* Header for Selected Category */}
               <View className="flex-row items-center justify-between mb-6">
                 <Text className="text-lg font-bold text-foreground">{selectedCategory.name}</Text>
-                <Pressable onPress={() => router.push(`/categories/${selectedCategory.id}`)}>
+                <Pressable onPress={() => router.push(`/(tabs)/(shop)/categories/${selectedCategory.id}`)}>
                   <Text className="text-xs text-primary font-bold">VIEW ALL</Text>
                 </Pressable>
               </View>
@@ -104,7 +104,7 @@ export default function MegaMenu() {
               {/* Banner Image (if available) */}
               {selectedCategory.image && (
                 <Pressable 
-                  onPress={() => router.push(`/categories/${selectedCategory.id}`)}
+                  onPress={() => router.push(`/(tabs)/(shop)/categories/${selectedCategory.id}`)}
                   className="mb-6 rounded-xl overflow-hidden shadow-sm"
                 >
                   <Image 
@@ -124,7 +124,7 @@ export default function MegaMenu() {
                   selectedCategory.children.map((sub) => (
                     <Pressable
                       key={sub.id}
-                      onPress={() => router.push(`/categories/${sub.id}`)}
+                      onPress={() => router.push(`/(tabs)/(shop)/categories/${sub.id}`)}
                       className="w-[30%] items-center mb-4"
                     >
                       <View className="h-16 w-16 bg-secondary rounded-full items-center justify-center mb-2 overflow-hidden border border-border">
@@ -149,7 +149,7 @@ export default function MegaMenu() {
                   <View className="w-full py-10 items-center justify-center">
                     <Text className="text-muted-foreground">No subcategories found.</Text>
                     <Pressable 
-                      onPress={() => router.push(`/categories/${selectedCategory.id}`)}
+                      onPress={() => router.push(`/(tabs)/(shop)/categories/${selectedCategory.id}`)}
                       className="mt-4 bg-primary px-6 py-2 rounded-full"
                     >
                       <Text className="text-primary-foreground font-bold text-xs">Browse Products</Text>

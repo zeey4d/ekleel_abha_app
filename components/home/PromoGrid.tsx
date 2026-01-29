@@ -43,7 +43,7 @@ export function PromoGrid({ banners }: PromoGridProps) {
   );
 
   return (
-    <View className="w-full px-4">
+    <View className="w-full ">
       {/* Top Row */}
       <View className="mb-4 flex-row justify-between">{topRow.map((b) => renderTile(b))}</View>
 

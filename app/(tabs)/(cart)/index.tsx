@@ -30,7 +30,7 @@ const notifications = [
   },
 ];
 
-export default function NotificationsScreen() {
+export default function CartScreen() {
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="flex-1 gap-6 p-6">

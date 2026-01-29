@@ -16,6 +16,7 @@ import { FeaturedBrands } from '@/components/home/FeaturedBrands';
 import { DealsOfTheDay } from '@/components/home/DealsOfTheDay';
 import { Testimonials } from '@/components/home/Testimonials';
 import { Search } from 'lucide-react-native';
+import HomeHeader from '@/components/layout/HomeHeader';
 
 export default function HomeScreen() {
   const { t } = useTranslation('home');
@@ -31,22 +32,19 @@ export default function HomeScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background">
-      <View className="flex-1 gap-6 p-6">
+      <View className="flex-1 gap-6 ">
         
         {/* Language Toggle Button */}
-        <View className="w-full items-end">
-          <LanguageToggle />
-        </View>
-              <View className="px-4 py-3 border-b border-border bg-background z-10">
-                <View className="flex-row items-center bg-secondary/50 rounded-lg px-3 py-2">
-                  <Search size={20} className="text-muted-foreground mr-2" />
-                  <Text className="text-muted-foreground">Search ...</Text>
-                </View>
-              </View>
+  
+        {/* <HomeHeader /> */}
 
-{/* <HeroSlider banners={data.banner.slice(0, 5)} /> */}
+
         <HeroSlider banners={data.banner.slice(-5)} />
 
+        <View className="px-3">
+                <View className="w-full items-end">
+          <LanguageToggle />
+        </View>
 
         <FeaturedCategories categories={data?.featured_categories || []} />
 
@@ -63,35 +61,9 @@ export default function HomeScreen() {
 
         <PromoGrid banners={data.banner.slice(-15, -10)} />
 
-        <Testimonials testimonials={data?.testimonials || []} />
+        <Testimonials testimonials={data?.testimonials || []} /> 
+        </View>
       </View>
     </ScrollView>
   );
 }
-
-// <View className="w-full gap-4">
-//   {/* <View className="rounded-xl bg-card p-6 shadow-sm">
-//     <Text className="mb-2 text-xl font-semibold text-foreground">{t('welcome')}</Text>
-//     <Text className="leading-6 text-muted-foreground">{t('welcomeMessage')}</Text>
-//   </View> */}
-
-//   {/* <View className="rounded-xl bg-card p-6 shadow-sm">
-//     <Text className="mb-2 text-lg font-semibold text-foreground">{t('features')}</Text>
-//     <View className="mt-2 gap-3">
-//       <Text className="text-muted-foreground">{t('feature1')}</Text>
-//       <Text className="text-muted-foreground">{t('feature2')}</Text>
-//       <Text className="text-muted-foreground">{t('feature3')}</Text>
-//       <Text className="text-muted-foreground">{t('feature4')}</Text>
-//       <Text className="text-muted-foreground">{t('feature5')}</Text>
-//     </View>
-//   </View> */}
-
-//   {/* New Arrivals Section */}
-//   {/* {isLoading ? (
-//     <View className="items-center py-8">
-//       <ActivityIndicator size="large" />
-//     </View>
-//   ) : (
-//     <NewArrivals products={data?.new_arrivals || []} />
-//   )} */}
-// </View>

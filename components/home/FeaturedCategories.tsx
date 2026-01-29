@@ -37,7 +37,7 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
           <Pressable 
             className="mr-4 w-20 items-center"
             onPress={() => {
-              router.push(`/(tabs)/(shop)/categories/${item.id}` as any);
+              router.push(`/categories/${item.id}` as any);
             }}
           >
             {item.image ? (

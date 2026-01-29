@@ -44,6 +44,7 @@ export default function ProductsPage() {
   });
 
   const products = useMemo(() => {
+    
     return (data?.ids.map((id) => data.entities[id]) || []).filter(Boolean);
   }, [data]);
 

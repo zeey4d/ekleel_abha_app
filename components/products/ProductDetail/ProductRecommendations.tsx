@@ -60,7 +60,7 @@ export const ProductRecommendations = ({ productId }: ProductRecommendationsProp
 
       {similarProducts && similarProducts.length > 0 && (
         <View>
-          <Text className="text-xl font-bold px-4 mb-4 text-start">
+          <Text className="text-xl font-bold px-4 mb-2 text-start">
             {t("Sections.similarProducts")}
           </Text>
           <ProductCarousel products={similarProducts} title={''} />
