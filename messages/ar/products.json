@@ -1,0 +1,83 @@
+{
+    "Breadcrumbs": {
+        "home": "الرئيسية",
+        "products": "المنتجات"
+    },
+    "Toolbar": {
+        "filters": "تصفية",
+        "productsFound": "منتجات تم العثور عليها"
+    },
+    "Content": {
+        "error": "خطأ في تحميل المنتجات.",
+        "noProducts": "لم يتم العثور على منتجات",
+        "noProductsDesc": "حاول تعديل معايير البحث أو التصفية.",
+        "clearFilters": "مسح جميع الفلاتر"
+    },
+    "ProductCard": {
+        "addToCart": "أضف للسلة",
+        "add": "أضف",
+        "addedToCart": "تمت إضافة {name} إلى السلة",
+        "addToCartFailed": "فشلت الإضافة إلى السلة",
+        "outOfStock": "غير متوفر",
+        "addedToWishlist": "تمت الإضافة إلى المفضلة",
+        "wishlistFailed": "فشلت الإضافة إلى المفضلة",
+        "brand": "علامة تجارية",
+        "productIdMissing": "معرف المنتج غير موجود!",
+        "invalidRequest": "طلب غير صالح. تأكد من صحة بيانات المنتج.",
+        "productNotFound": "المنتج غير موجود.",
+        "serverError": "خطأ في الخادم. حاول لاحقًا.",
+        "genericError": "حدث خطأ أثناء إضافة المنتج إلى السلة"
+    },
+    "ProductCarousel": {
+        "viewAll": "عرض الكل"
+    },
+    "ProductSort": {
+        "sortBy": "ترتيب حسب:",
+        "sortPlaceholder": "ترتيب حسب",
+        "newest": "الأحدث",
+        "oldest": "الأقدم",
+        "priceLowHigh": "السعر: من الأقل للأعلى",
+        "priceHighLow": "السعر: من الأعلى للأقل"
+    },
+    "Filters": {
+        "title": "الفلاتر",
+        "clearAll": "مسح الكل",
+        "showResults": "عرض النتائج",
+        "brands": "العلامات التجارية",
+        "searchBrands": "ابحث عن العلامات...",
+        "noBrandsFound": "لم يتم العثور على علامات تجارية",
+        "priceRange": "نطاق السعر",
+        "apply": "تطبيق",
+        "rating": "التقييم",
+        "andUp": "وأعلى"
+    },
+    "ProductDetail": {
+        "genericBrand": "علامة تجارية عامة",
+        "inStock": "متوفر",
+        "outOfStock": "غير متوفر",
+        "reviews": "تقييم",
+        "model": "الموديل:",
+        "vatNote": "السعر يشمل الضريبة. شحن مجاني للطلبات فوق",
+        "addToCart": "أضف للسلة",
+        "buyNow": "اشترِ الآن",
+        "selectAllOptions": "يرجى اختيار جميع الخيارات قبل الإضافة للسلة",
+        "addedToCart": "تمت الإضافة للسلة",
+        "addToCartFailed": "فشل إضافة المنتج للسلة",
+        "freeDelivery": "توصيل مجاني",
+        "warranty": "ضمان سنتين",
+        "compare": "مقارنة",
+        "share": "مشاركة",
+        "save": "وفر"
+    },
+    "ProductTabs": {
+        "description": "الوصف",
+        "specifications": "المواصفات",
+        "reviews": "التقييمات",
+        "noAttributes": "لا توجد مواصفات مدرجة."
+    },
+    "ProductReviews": {
+        "basedOnReviews": "بناءً على {count} تقييم",
+        "writeReview": "كتابة تقييم",
+        "noReviews": "لا توجد تقييمات بعد. كن أول من يقيّم!"
+    }
+}

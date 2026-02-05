@@ -27,7 +27,7 @@ interface ProductCardProps {
   layout?: 'grid' | 'list';
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, linkPrefix = "/products" }: ProductCardProps & { linkPrefix?: string }) => {
   const displayName = product.name_ar || product.name || 'منتج';
   const rawImage = product.main_image || product.image || null;
   const displayImage = getImageUrl(rawImage);
@@ -40,7 +40,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const rating = Number(product.average_rating || product.rating || 4.5);
 
   return (
-    <Link href={`/products/${product.id}`} asChild>
+    <Link href={`${linkPrefix}/${product.id}`} asChild>
     <TouchableOpacity 
       className="bg-card border border-border rounded-xl overflow-hidden"
       activeOpacity={0.7}

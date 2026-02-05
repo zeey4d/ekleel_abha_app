@@ -12,7 +12,19 @@
     "SearchHeader": {
         "title": "نتائج البحث عن",
         "foundCount": "تم العثور على {count} منتج",
-        "foundTime": "في {time} ثانية"
+        "foundTime": "في {time} ثانية",
+        "searchPlaceholder": "ابحث عن المنتجات...",
+        "searchButton": "بحث"
+    },
+    "History": {
+        "title": "آخر عمليات البحث",
+        "clearAll": "مسح الكل"
+    },
+    "Brands": {
+        "title": "تصفح حسب الماركة"
+    },
+    "Empty": {
+        "title": "لا يوجد تاريخ بحث أو ماركات للعرض"
     },
     "NoResults": {
         "title": "لاتوجد نتائج لـ \"{query}\"",

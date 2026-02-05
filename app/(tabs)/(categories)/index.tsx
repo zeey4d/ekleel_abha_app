@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Pressable, FlatList, Image, Dimensions } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { useGetCategoryTreeQuery } from '@/store/features/categories/categoriesSlice';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { getImageUrl } from '@/lib/image-utils';
 import { Search } from 'lucide-react-native';
 import { Input } from '@/components/ui/input';
+import { SearchBar } from '@/components/layout/header/SearchBar';
 
 const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.28;
@@ -42,12 +44,15 @@ export default function MegaMenu() {
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <Animated.View className="flex-1 bg-background" entering={FadeIn.duration(600)}>
       {/* Header with Search */}
       <View className="px-4 py-3 border-b border-border bg-background z-10">
-        <View className="flex-row items-center bg-secondary/50 rounded-lg px-3 py-2">
+        {/* <View className="flex-row items-center bg-secondary/50 rounded-lg px-3 py-2">
           <Search size={20} className="text-muted-foreground mr-2" />
           <Text className="text-muted-foreground">Search categories...</Text>
+        </View> */}
+        <View className="h-10 flex-row-reverse items-center rounded-full bg-[#f5f5f5] ml-2">
+          <SearchBar />
         </View>
       </View>
 
@@ -96,7 +101,7 @@ export default function MegaMenu() {
               {/* Header for Selected Category */}
               <View className="flex-row items-center justify-between mb-6">
                 <Text className="text-lg font-bold text-foreground">{selectedCategory.name}</Text>
-                <Pressable onPress={() => router.push(`/(tabs)/(shop)/categories/${selectedCategory.id}`)}>
+                <Pressable onPress={() => router.push(`/(tabs)/(categories)/(context)/categories/${selectedCategory.id}`)}>
                   <Text className="text-xs text-primary font-bold">VIEW ALL</Text>
                 </Pressable>
               </View>
@@ -104,7 +109,7 @@ export default function MegaMenu() {
               {/* Banner Image (if available) */}
               {selectedCategory.image && (
                 <Pressable 
-                  onPress={() => router.push(`/(tabs)/(shop)/categories/${selectedCategory.id}`)}
+                  onPress={() => router.push(`/(tabs)/(categories)/(context)/categories/${selectedCategory.id}`)}
                   className="mb-6 rounded-xl overflow-hidden shadow-sm"
                 >
                   <Image 
@@ -124,7 +129,7 @@ export default function MegaMenu() {
                   selectedCategory.children.map((sub) => (
                     <Pressable
                       key={sub.id}
-                      onPress={() => router.push(`/(tabs)/(shop)/categories/${sub.id}`)}
+                      onPress={() => router.push(`/(tabs)/(categories)/(context)/categories/${sub.id}`)}
                       className="w-[30%] items-center mb-4"
                     >
                       <View className="h-16 w-16 bg-secondary rounded-full items-center justify-center mb-2 overflow-hidden border border-border">
@@ -149,7 +154,7 @@ export default function MegaMenu() {
                   <View className="w-full py-10 items-center justify-center">
                     <Text className="text-muted-foreground">No subcategories found.</Text>
                     <Pressable 
-                      onPress={() => router.push(`/(tabs)/(shop)/categories/${selectedCategory.id}`)}
+                      onPress={() => router.push(`/(tabs)/(categories)/(context)/categories/${selectedCategory.id}`)}
                       className="mt-4 bg-primary px-6 py-2 rounded-full"
                     >
                       <Text className="text-primary-foreground font-bold text-xs">Browse Products</Text>
@@ -161,6 +166,6 @@ export default function MegaMenu() {
           )}
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }

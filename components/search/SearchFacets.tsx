@@ -1,6 +1,182 @@
-import React from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
-import { useTranslation } from 'react-i18next';
+// import React, { useState, useRef, useMemo, useCallback } from 'react';
+// import { View, Text, ScrollView, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+// import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+
+// interface FacetValue {
+//   value: string;
+//   count: number;
+// }
+
+// interface Facet {
+//   field: string;
+//   values: FacetValue[];
+// }
+
+// interface Facets {
+//   categories?: Facet;
+//   brand?: Facet;
+//   price_range?: Facet;
+//   on_sale?: Facet;
+//   status?: Facet;
+//   [key: string]: Facet | undefined;
+// }
+
+// interface Props {
+//   facets: Facets;
+//   onFilterChange?: (group: string, value: string, checked: boolean) => void;
+// }
+
+// export default function SearchFacets({ facets, onFilterChange }: Props) {
+//   const [selectedFacet, setSelectedFacet] = useState<string | null>(null);
+//   const [checkedItems, setCheckedItems] = useState<Record<string, string[]>>({});
+
+//   const bottomSheetRef = useRef<BottomSheet>(null);
+
+//   const snapPoints = useMemo(() => ['50%', '80%'], []);
+
+//   const openFacet = useCallback((facetKey: string) => {
+//     setSelectedFacet(facetKey);
+//     bottomSheetRef.current?.expand();
+//   }, []);
+
+//   const handleCheckboxChange = (facetKey: string, value: string) => {
+//     const current = checkedItems[facetKey] || [];
+//     const isChecked = current.includes(value);
+//     const updated = isChecked
+//       ? current.filter((v) => v !== value)
+//       : [...current, value];
+
+//     setCheckedItems({ ...checkedItems, [facetKey]: updated });
+//     if (onFilterChange) onFilterChange(facetKey, value, !isChecked);
+//   };
+
+//   const renderFacetButton = (facetKey: string, title: string) => (
+//     <TouchableOpacity
+//       key={facetKey}
+//       style={styles.facetButton}
+//       onPress={() => openFacet(facetKey)}
+//     >
+//       <Text style={styles.facetButtonText}>{title}</Text>
+//     </TouchableOpacity>
+//   );
+
+//   const facet = selectedFacet ? facets[selectedFacet] : null;
+//   const facetItems = facet?.values || [];
+
+//   return (
+//     <View style={{ flex: 1 }}>
+//       {/* Horizontal ScrollView للفلترة */}
+//       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
+//         {facets.categories && renderFacetButton('categories', 'Categories')}
+//         {facets.brand && renderFacetButton('brand', 'Brands')}
+//         {facets.price_range && renderFacetButton('price_range', 'Price Range')}
+//         {facets.on_sale && renderFacetButton('on_sale', 'On Sale')}
+//         {facets.status && renderFacetButton('status', 'Availability')}
+//       </ScrollView>
+
+//       {/* Bottom Sheet */}
+//       <BottomSheet
+//         ref={bottomSheetRef}
+//         index={-1} // يبدأ مغلق
+//         snapPoints={snapPoints}
+//         enablePanDownToClose
+//       >
+//         <View style={{ flex: 1, padding: 20 }}>
+//           <Text style={styles.modalTitle}>{selectedFacet}</Text>
+//           <BottomSheetFlatList
+//             data={facetItems}
+//             keyExtractor={(item) => item.value}
+//             renderItem={({ item }) => (
+//               <TouchableOpacity
+//                 style={styles.checkboxRow}
+//                 onPress={() => handleCheckboxChange(selectedFacet!, item.value)}
+//               >
+//                 <View
+//                   style={[
+//                     styles.checkboxFake,
+//                     checkedItems[selectedFacet!]?.includes(item.value) && styles.checkboxChecked,
+//                   ]}
+//                 />
+//                 <Text style={styles.checkboxLabel}>
+//                   {item.value} ({item.count})
+//                 </Text>
+//               </TouchableOpacity>
+//             )}
+//           />
+//           <TouchableOpacity
+//             style={styles.closeButton}
+//             onPress={() => bottomSheetRef.current?.close()}
+//           >
+//             <Text style={styles.closeButtonText}>Show Results</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </BottomSheet>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   scroll: {
+//     paddingHorizontal: 10,
+//     paddingVertical: 8,
+//     backgroundColor: '#f5f5f5',
+//   },
+//   facetButton: {
+//     backgroundColor: '#fff',
+//     paddingVertical: 8,
+//     paddingHorizontal: 15,
+//     borderRadius: 20,
+//     marginRight: 10,
+//     borderWidth: 1,
+//     borderColor: '#ddd',
+//   },
+//   facetButtonText: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//   },
+//   modalTitle: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     marginBottom: 15,
+//   },
+//   checkboxRow: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginBottom: 12,
+//   },
+//   checkboxFake: {
+//     width: 20,
+//     height: 20,
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     borderRadius: 4,
+//     marginRight: 8,
+//     backgroundColor: 'white',
+//   },
+//   checkboxChecked: {
+//     backgroundColor: '#f87171',
+//     borderColor: '#f87171',
+//   },
+//   checkboxLabel: {
+//     fontSize: 16,
+//   },
+//   closeButton: {
+//     backgroundColor: '#007AFF',
+//     paddingVertical: 12,
+//     borderRadius: 10,
+//     marginTop: 15,
+//     alignItems: 'center',
+//   },
+//   closeButtonText: {
+//     color: '#fff',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+// });
+
+import React, { useState, useRef } from "react";
+import { View, Text, ScrollView, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { Modalize } from "react-native-modalize";
 
 interface FacetValue {
   value: string;
@@ -12,114 +188,152 @@ interface Facet {
   values: FacetValue[];
 }
 
-interface SearchFacetsProps {
-  facets?: {
-    categories?: Facet;
-    brand?: Facet;
-    price_range?: Facet;
-    on_sale?: Facet;
-    status?: Facet;
-    [key: string]: Facet | undefined;
-  };
-  mobile?: boolean;
-  onClose?: () => void;
+interface Facets {
+  categories?: Facet;
+  brand?: Facet;
+  price_range?: Facet;
+  on_sale?: Facet;
+  status?: Facet;
+  [key: string]: Facet | undefined;
 }
 
-export const SearchFacets = ({ facets, mobile, onClose }: SearchFacetsProps) => {
-  const { t } = useTranslation('search');
-  const [selected, setSelected] = React.useState<{ [key: string]: string[] }>({});
+interface Props {
+  facets: Facets;
+  onFilterChange?: (group: string, value: string, checked: boolean) => void;
+}
 
-  if (!facets) return null;
+export default function SearchFacets({ facets, onFilterChange }: Props) {
+  const [selectedFacet, setSelectedFacet] = useState<string | null>(null);
+  const [checkedItems, setCheckedItems] = useState<Record<string, string[]>>({});
+  const modalRef = useRef<Modalize>(null);
 
-  const toggleValue = (group: string, value: string) => {
-    setSelected((prev) => {
-      const arr = prev[group] || [];
-      if (arr.includes(value)) {
-        return { ...prev, [group]: arr.filter((v) => v !== value) };
-      } else {
-        return { ...prev, [group]: [...arr, value] };
-      }
-    });
+  const openFacet = (facetKey: string) => {
+    setSelectedFacet(facetKey);
+    modalRef.current?.open();
   };
 
-  const FacetGroup = ({
-    title,
-    items,
-    groupKey,
-  }: {
-    title: string;
-    items: FacetValue[];
-    groupKey: string;
-  }) => {
-    if (!items || items.length === 0) return null;
-    return (
-      <View className="mb-4">
-        <Text className="mb-2 text-base font-semibold">{title}</Text>
-        {items.map((item) => {
-          const isChecked = selected[groupKey]?.includes(item.value);
-          return (
-            <View key={item.value} className="mb-1 flex-row items-center justify-between">
-              <Text className="text-sm">
-                {item.value} ({item.count})
-              </Text>
-              <Switch value={isChecked} onValueChange={() => toggleValue(groupKey, item.value)} />
-            </View>
-          );
-        })}
-      </View>
-    );
+  const handleCheckboxChange = (facetKey: string, value: string) => {
+    const current = checkedItems[facetKey] || [];
+    const isChecked = current.includes(value);
+    const updated = isChecked
+      ? current.filter((v) => v !== value)
+      : [...current, value];
+    setCheckedItems({ ...checkedItems, [facetKey]: updated });
+    if (onFilterChange) onFilterChange(facetKey, value, !isChecked);
   };
+
+  const renderFacetButton = (facetKey: string, title: string) => (
+    <TouchableOpacity
+      key={facetKey}
+      style={styles.facetButton}
+      onPress={() => openFacet(facetKey)}
+    >
+      <Text style={styles.facetButtonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+
+  const facet = selectedFacet ? facets[selectedFacet] : null;
+  const facetItems = facet?.values || [];
 
   return (
-    <ScrollView className="px-2">
-      {mobile && (
-        <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-lg font-bold">{t('SearchFacets.filters')}</Text>
-          {onClose && (
-            <TouchableOpacity onPress={onClose}>
-              <Text className="text-sm text-primary">{t('SearchFacets.clearAll')}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
+    <View style={{ flex: 1 }}>
+      {/* Horizontal ScrollView للفلترة */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
+        {facets.categories && renderFacetButton("categories", "Categories")}
+        {facets.brand && renderFacetButton("brand", "Brands")}
+        {facets.price_range && renderFacetButton("price_range", "Price Range")}
+        {facets.on_sale && renderFacetButton("on_sale", "On Sale")}
+        {facets.status && renderFacetButton("status", "Availability")}
+      </ScrollView>
 
-      {facets.categories && (
-        <FacetGroup
-          title={t('SearchFacets.categories')}
-          groupKey="categories"
-          items={facets.categories.values}
-        />
-      )}
-      {facets.brand && (
-        <FacetGroup title={t('SearchFacets.brands')} groupKey="brand" items={facets.brand.values} />
-      )}
-      {facets.price_range && (
-        <FacetGroup
-          title={t('SearchFacets.priceRange')}
-          groupKey="price_range"
-          items={facets.price_range.values}
-        />
-      )}
-      {facets.on_sale && (
-        <FacetGroup
-          title={t('SearchFacets.promotions')}
-          groupKey="on_sale"
-          items={facets.on_sale.values}
-        />
-      )}
-      {facets.status && (
-        <FacetGroup
-          title={t('SearchFacets.availability')}
-          groupKey="status"
-          items={facets.status.values}
-        />
-      )}
-
-      {mobile && onClose && (
-        <TouchableOpacity onPress={onClose} className="mt-4 rounded bg-primary py-3">
-          <Text className="text-center text-white">{t('SearchFacets.showResults')}</Text>
+      {/* Modalize Bottom Sheet */}
+<Modalize ref={modalRef} modalHeight={500}>
+  <View style={{ flex: 1, padding: 20 }}>
+    <Text style={styles.modalTitle}>{selectedFacet}</Text>
+    <FlatList
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingBottom: 20 }}
+      data={facetItems}
+      keyExtractor={(item) => item.value}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={styles.checkboxRow}
+          onPress={() => handleCheckboxChange(selectedFacet!, item.value)}
+        >
+          <View
+            style={[
+              styles.checkboxFake,
+              checkedItems[selectedFacet!]?.includes(item.value) && styles.checkboxChecked,
+            ]}
+          />
+          <Text style={styles.checkboxLabel}>
+            {item.value} ({item.count})
+          </Text>
         </TouchableOpacity>
       )}
-    </ScrollView>
+    />
+
+        </View>
+      </Modalize>
+    </View>
   );
-};
+}
+
+const styles = StyleSheet.create({
+  scroll: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    backgroundColor: "#f5f5f5",
+  },
+  facetButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  facetButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  checkboxFake: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    marginRight: 8,
+    backgroundColor: "white",
+  },
+  checkboxChecked: {
+    backgroundColor: "#f87171",
+    borderColor: "#f87171",
+  },
+  checkboxLabel: {
+    fontSize: 16,
+  },
+  closeButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 15,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});

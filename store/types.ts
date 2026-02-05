@@ -577,6 +577,9 @@ export interface Brand {
   sort_order: number;
   product_count?: number;
   products?: BrandProduct[];
+  description?: string;
+  name_ar?: string;
+  name_en?: string;
 }
 
 export interface BrandProduct {
@@ -702,6 +705,8 @@ export interface CategoryDetailResponse {
   data: {
     id: number;
     name: string;
+    name_ar?: string;
+    name_en?: string;
     description: string;
     image: string | null;
     meta_title: string;

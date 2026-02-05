@@ -5,15 +5,20 @@ import filtersSlice, { FilterState } from './filtersSlice';
 import comparisonSlice, { ComparisonState } from './comparisonSlice';
 import recentlyViewedSlice, { RecentlyViewedState } from './recentlyViewedSlice';
 import preferencesSlice, { PreferencesState } from './preferencesSlice';
+import searchUiSlice from '../features/search/searchUiSlice';
 
 // Combine all slice reducers
-export const slicesReducer = combineReducers({
+// Combine all slice reducers
+export const sliceReducers = {
   ui: uiSlice,
   filters: filtersSlice,
   comparison: comparisonSlice,
   recentlyViewed: recentlyViewedSlice,
   preferences: preferencesSlice,
-});
+  searchUi: searchUiSlice,
+};
+
+export const slicesReducer = combineReducers(sliceReducers);
 
 // Export individual state types
 export type {

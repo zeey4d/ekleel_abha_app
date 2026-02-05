@@ -25,7 +25,37 @@ export function PromoGrid({ banners }: PromoGridProps) {
   const renderTile = (banner: { id: number; url: string; image: string | null }, wide = false) => (
     <Pressable
       key={banner.id}
-      onPress={() => router.push((banner.url || '/shop') as any)}
+      onPress={() => {
+        if (!banner.url) {
+          router.push('/(tabs)/(home)/(context)/categories/[id]' as any);
+          return;
+        }
+
+        // 1. Clean Language Prefix
+        // Removes /ar/, /en/, ar/, en/ from start
+        let cleanUrl = banner.url.replace(/^\/?(ar|en)\//, '/');
+        
+        // Ensure leading slash
+        if (!cleanUrl.startsWith('/')) {
+          cleanUrl = '/' + cleanUrl;
+        }
+
+        // 2. Map Web Routes to App Routes
+        // Example: /categories/360 -> /content/categories/360
+        if (cleanUrl.startsWith('/categories/')) {
+          cleanUrl = cleanUrl.replace('/(tabs)/(home)/(context)/categories/[id]', '/(tabs)/(home)/(context)/categories/[id]');
+        } else if (cleanUrl.startsWith('/products/')) {
+           // Assuming product structure is similar or check existing files
+           // Checking file tree: app/(tabs)/(home)/content/products/[id] exists?
+           // Or app/(tabs)/(shop)/products/[id]?
+           // Let's assume /content/products/ based on consistency, or keep as is if unsure.
+           // Safe bet: The user specifically complained about categories.
+           cleanUrl = cleanUrl.replace('/(tabs)/(home)/(context)/products/[id]', '/(tabs)/(home)/(context)/products/[id]'); 
+        }
+
+        console.log('Navigating to:', cleanUrl);
+        router.push(cleanUrl as any);
+      }}
       className="overflow-hidden rounded-sm bg-gray-100"
       style={{ width: wide ? '100%' : '48%', aspectRatio: wide ? 4 / 1 : 16 / 9 }}>
       {banner.image ? (

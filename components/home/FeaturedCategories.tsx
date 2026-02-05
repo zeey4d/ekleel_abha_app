@@ -21,7 +21,7 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
       <View className="mb-4 flex-row items-center justify-between">
         <Text className="text-2xl font-bold text-foreground">{t('FeaturedCategories.title')}</Text>
         <Pressable
-          onPress={() => router.push('/categories' as any)}
+          onPress={() => router.push('/(tabs)/(home)/(context)/categories' as any)}
           className="flex-row items-center">
           <Text className="mr-2 font-medium text-primary">{t('FeaturedCategories.viewAll')}</Text>
           <ArrowRight size={18} color="#06b6d4" />
@@ -37,7 +37,7 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
           <Pressable 
             className="mr-4 w-20 items-center"
             onPress={() => {
-              router.push(`/categories/${item.id}` as any);
+              router.push(`/(tabs)/(home)/(context)/categories/${item.id}` as any);
             }}
           >
             {item.image ? (

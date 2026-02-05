@@ -39,7 +39,7 @@ export const FeaturedBrands = ({ brands }: { brands: Brand[] }) => {
           <View style={{ flex: 1 }}>
             <Link
               href={{
-                pathname: '/brands/[id]',
+                pathname: '/(tabs)/(home)/(context)/brands/[id]',
                 params: { id: item.id },
               }}
               asChild

@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "@/store/features/api/apiSlice";
-import { slicesReducer } from "@/store/slices";
+import { slicesReducer, sliceReducers } from "@/store/slices";
 
 // Define the RootState type explicitly to include all slices
 export type RootState = {
@@ -11,7 +11,7 @@ export type RootState = {
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
-    ...slicesReducer, // Spread the combined reducers from the slices directory
+    ...sliceReducers, // Spread the combined reducers from the slices directory
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

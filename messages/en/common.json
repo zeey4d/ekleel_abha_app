@@ -47,5 +47,10 @@
         "title": "Command Palette",
         "searchPlaceholder": "Search for a command to run...",
         "noResults": "No results found."
-    }
+    },
+    "change_language": "Change Language",
+    "restart_confirm": "The app will restart to apply the new language ({{lang}}). Are you sure?",
+    "cancel": "Cancel",
+    "confirm": "Yes, Change",
+    "restarting": "Restarting..."
 }

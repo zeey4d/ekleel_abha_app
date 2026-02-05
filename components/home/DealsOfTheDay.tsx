@@ -9,6 +9,6 @@ export const DealsOfTheDay = ({ products }: { products: any[] }) => {
   if (!products?.length) return null;
 
   return (
-    <ProductCarousel products={products} title={t('DealsOfTheDay.title')} href="/products/deals" />
+    <ProductCarousel products={products} title={t('DealsOfTheDay.title')} href="/products/(deals)" />
   );
 };

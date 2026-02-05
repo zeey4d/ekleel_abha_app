@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { UserIcon, MailIcon, PhoneIcon, MapPinIcon, SettingsIcon } from 'lucide-react-native';
 import { View, ScrollView } from 'react-native';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function ProfileScreen() {
   return (
@@ -56,6 +57,13 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
+        </View>
+
+
+        {/* Language Switcher */}
+        <View className="gap-3 mt-4 mb-4">
+             <Text className="text-lg font-bold text-foreground mx-1">اللغة / Language</Text>
+             <LanguageSwitcher />
         </View>
 
         {/* Settings Button */}

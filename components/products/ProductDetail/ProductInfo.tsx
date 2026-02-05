@@ -7,7 +7,7 @@ import RenderHTML from 'react-native-render-html';
 import { Text } from '@/components/ui/text';
 import { Badge } from '@/components/ui/badge';
 import { ProductOptions } from './ProductOptions'; // تأكد من تحويل هذا المكون أيضاً
-import HomeHeader from '@/components/layout/HomeHeader';
+import HomeHeader from '@/components/layout/header/HomeHeader';
 import { Stack, Tabs } from 'expo-router';
 
 interface ProductInfoProps {

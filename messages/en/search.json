@@ -12,7 +12,19 @@
     "SearchHeader": {
         "title": "Results for",
         "foundCount": "Found {count} products",
-        "foundTime": "in {time} seconds"
+        "foundTime": "in {time} seconds",
+        "searchPlaceholder": "Search for products...",
+        "searchButton": "Search"
+    },
+    "History": {
+        "title": "Recent Searches",
+        "clearAll": "Clear All"
+    },
+    "Brands": {
+        "title": "Browse by Brand"
+    },
+    "Empty": {
+        "title": "No search history or brands to show"
     },
     "NoResults": {
         "title": "No results found for \"{query}\"",
