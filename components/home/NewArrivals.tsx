@@ -15,7 +15,7 @@ export const NewArrivals = ({ products }: { products: any[] }) => {
   return (
     <View className="w-full mb-6">
       <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-2xl font-bold text-foreground">{t('newArrivals.title')}</Text>
+        <Text className="text-lg font-bold text-foreground">{t('newArrivals.title')}</Text>
         <TouchableOpacity 
           className="flex-row items-center gap-1" 
           activeOpacity={0.7}

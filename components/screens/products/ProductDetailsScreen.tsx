@@ -43,7 +43,7 @@
 // }
 import { View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ProductDetailsContent } from '@/app/shop/product/ProductDetailsContent';
+import { ProductDetailsContent } from '@/components/features/product/ProductDetailsContent';
 import { useGetProductByIdQuery } from '@/store/features/products/productsSlice';
 import { useLocalizedEntityName } from '@/hooks/useLocalizedEntityName';
 

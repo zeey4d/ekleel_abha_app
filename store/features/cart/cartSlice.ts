@@ -87,7 +87,8 @@ export const cartSlice = apiSlice.injectEndpoints({
 
     addGuestItem: builder.mutation<CartResponse, AddGuestCartItemPayload>({
       query: (body) => ({
-        url: '/cart/add',
+        url: '/cart/guest/items',
+                // url: '/cart/add',
         method: 'POST',
         body,
       }),
@@ -106,7 +107,8 @@ export const cartSlice = apiSlice.injectEndpoints({
     // --- Add Item to Cart ---
     addToCart: builder.mutation<CartResponse, AddToCartPayload>({
       query: (cartItem) => ({
-        url: '/cart/add',
+        url: '/cart/items',
+                // url: '/cart/add',
         method: 'POST',
         body: cartItem,
       }),

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { RootState } from '@/store/store';
 // import { cookieManager } from "@/lib/cookieManager";
-import { cookieManager } from '@/lib/cookieManager';
+import { authStorage } from '@/lib/authStorage';
 
 // Define the base API instance
 export const apiSlice = createApi({
@@ -10,12 +10,12 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.EXPO_PUBLIC_BASE_SERVER || 'http://127.0.0.1:8000/api/v1',
     prepareHeaders: async (headers, { getState }) => {
-      const token = await cookieManager.getToken();
+      const token = await authStorage.getToken();
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
       headers.set('Accept', 'application/json');
-      const locale = cookieManager.getLocale();
+      const locale = authStorage.getLocale();
       headers.set('Accept-Language', locale);
       return headers;
     },

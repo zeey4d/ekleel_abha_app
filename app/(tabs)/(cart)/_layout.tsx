@@ -1,9 +1,14 @@
+/**
+ * Cart Tab Layout
+ * 
+ * Manages the Cart tab's navigation stack.
+ * The (context) group handles all nested routes via its own _layout.tsx
+ * 
+ * Note: Cart index has headerShown: true for consistency with cart header
+ */
 import { Stack } from 'expo-router';
-// import { useTranslation } from 'react-i18next';
 
 export default function CartLayout() {
-  // const { t } = useTranslation('cart'); 
-
   return (
     <Stack
       screenOptions={{
@@ -11,20 +16,17 @@ export default function CartLayout() {
         animation: 'slide_from_right',
       }}
     >
+      {/* Main Cart Screen - with header visible */}
       <Stack.Screen
-          name="index"
-          options={{
-            title: 'Cart',
-            headerShown: true, 
-          }}
+        name="index"
+        options={{
+          title: 'Cart',
+          headerShown: true,
+        }}
       />
-       {/* Context Routes */}
-        <Stack.Screen name="(context)/products/index" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/products/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/categories/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/brands/index" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/brands/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/search/index" options={{ headerShown: false }} />
+      
+      {/* Context group - uses (context)/_layout.tsx for nested routes */}
+      <Stack.Screen name="(context)" />
     </Stack>
   );
 }

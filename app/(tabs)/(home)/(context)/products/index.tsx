@@ -2,4 +2,4 @@
 
 // export default ProductsPage;
 
-export { default } from '@/app/shop/product/ProductsContent';
+export { default } from '@/components/features/product/ProductsContent';

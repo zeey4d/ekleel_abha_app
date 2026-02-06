@@ -17,14 +17,14 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
   if (!categories || categories.length === 0) return null;
 
   return (
-    <View className="p-0">
+    <View className="p-0 ">
       <View className="mb-4 flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-foreground">{t('FeaturedCategories.title')}</Text>
+        <Text className="text-lg font-bold text-foreground">{t('FeaturedCategories.title')}</Text>
         <Pressable
           onPress={() => router.push('/(tabs)/(home)/(context)/categories' as any)}
           className="flex-row items-center">
           <Text className="mr-2 font-medium text-primary">{t('FeaturedCategories.viewAll')}</Text>
-          <ArrowRight size={18} color="#06b6d4" />
+          <ArrowRight size={18} color="#000000ff" />
         </Pressable>
       </View>
 

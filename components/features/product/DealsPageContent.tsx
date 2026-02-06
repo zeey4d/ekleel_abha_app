@@ -20,7 +20,7 @@ import { useSearchProductsQuery } from "@/store/features/search/searchSlice";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductSort } from "@/components/products/ProductSort"; // تأكد من تحويله لـ Native
-import SearchFacets  from '../../../components/search/SearchFacets';
+import SearchFacets  from '../../search/SearchFacets';
 
 export default function DealsScreen() {
   const { t } = useTranslation("deals");

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import { CategoryPageContent } from '@/app/shop/category/CategoryPageContent';
+import { CategoryPageContent } from '@/components/features/category/CategoryPageContent';
 import { useGetCategoryByIdQuery } from '@/store/features/categories/categoriesSlice';
 import { useLocalizedEntityName } from '@/hooks/useLocalizedEntityName';
 

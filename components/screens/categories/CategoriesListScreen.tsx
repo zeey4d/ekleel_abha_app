@@ -4,7 +4,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import CategoriesListPage from '@/app/shop/category/‎CategoriesListPage';
+import CategoriesListPage from '@/components/features/category/‎CategoriesListPage';
 
 export default function CategoriesListScreen() {
   const { t } = useTranslation('categories');

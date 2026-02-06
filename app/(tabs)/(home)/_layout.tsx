@@ -1,5 +1,15 @@
+/**
+ * Home Tab Layout
+ * 
+ * Manages the Home tab's navigation stack.
+ * The (context) group handles all nested routes via its own _layout.tsx
+ * 
+ * Benefits:
+ * - Simplified configuration
+ * - Centralized nested route management in (context)/_layout.tsx
+ * - Easier maintenance
+ */
 import { Stack } from 'expo-router';
-// import AppHeader from '@/components/navigation/AppHeader';
 
 export default function HomeLayout() {
   return (
@@ -9,15 +19,11 @@ export default function HomeLayout() {
         animation: 'slide_from_right',
       }}
     >
-        <Stack.Screen name="index" options={{headerShown: false}} />
-        
-        {/* Context Routes */}
-        <Stack.Screen name="(context)/products/index" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/products/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/categories/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/brands/index" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/brands/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="(context)/search/index" options={{ headerShown: false }} />
+      {/* Main Home Screen */}
+      <Stack.Screen name="index" />
+      
+      {/* Context group - uses (context)/_layout.tsx for nested routes */}
+      <Stack.Screen name="(context)" />
     </Stack>
   );
 }

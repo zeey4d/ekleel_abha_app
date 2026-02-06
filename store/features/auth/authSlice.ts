@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { apiSlice } from '../api/apiSlice';
-import { cookieManager } from '@/lib/cookieManager';
+import { authStorage } from '@/lib/authStorage';
 
 
 
@@ -28,7 +28,7 @@ const handleAuthError = (err: any, action: string) => {
 };
 
 // ==============================
-// Token Management (using cookieManager)
+// Token Management (using authStorage)
 export const authSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<RegisterResponse, RegisterCredentials>({
@@ -56,7 +56,7 @@ export const authSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           if (data.access_token) {
-            cookieManager.setToken(data.access_token);
+            await authStorage.setToken(data.access_token);
             dispatch(authSlice.util.prefetch('getMe', undefined, { force: true }));
           }
         } catch (err) {
@@ -89,7 +89,7 @@ export const authSlice = apiSlice.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          cookieManager.setToken(data.access_token);
+          await authStorage.setToken(data.access_token);
           dispatch(authSlice.util.prefetch('getMe', undefined, { force: true }));
         } catch (err) {
           const error = handleAuthError(err, 'Login');
@@ -110,7 +110,7 @@ export const authSlice = apiSlice.injectEndpoints({
         } catch (err) {
           handleAuthError(err, 'Logout');
         } finally {
-          cookieManager.removeToken();
+          await authStorage.removeToken();
           dispatch(apiSlice.util.invalidateTags(['User', 'Cart', 'Wishlist', 'Order']));
         }
       },
@@ -130,7 +130,7 @@ export const authSlice = apiSlice.injectEndpoints({
           const e = err as ApiError;
           if (e?.error?.status === 401) {
             // Optionally remove token
-            // cookieManager.removeToken();
+            // await authStorage.removeToken();
           }
         }
       },
@@ -247,8 +247,8 @@ export const selectCurrentUser = createSelector(
 );
 
 export const selectIsAuthenticated = createSelector(
-  [authSlice.endpoints.getMe.select(), () => cookieManager.getToken()],
-  (result, token) => !!token && !cookieManager.isTokenExpired() && !!result.data && !result.isError
+  [authSlice.endpoints.getMe.select()],
+  (result) => !!result.data && !result.isError
 );
 
 export const selectAuthLoading = createSelector(
@@ -264,11 +264,11 @@ export const selectAuthError = createSelector(
 // ==============================
 // Utility Functions
 // ==============================
-export const checkAuthStatus = (): boolean => {
-  const token = cookieManager.getToken();
-  return !!token && !cookieManager.isTokenExpired();
+export const checkAuthStatus = async (): Promise<boolean> => {
+  const token = await authStorage.getToken();
+  return !!token && !authStorage.isTokenExpired();
 };
 
-export const getAuthToken = (): string | null => cookieManager.getToken();
+export const getAuthToken = async (): Promise<string | null> => authStorage.getToken();
 
 export default authSlice;

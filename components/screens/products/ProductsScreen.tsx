@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
-import ProductsContent from '@/app/shop/product/ProductsContent';
+import ProductsContent from '@/components/features/product/ProductsContent';
 
 export default function ProductsScreen() {
   const params = useLocalSearchParams();

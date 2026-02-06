@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import  BestSellersPageContent  from '@/app/shop/product/BestSellersPageContent';
+import  BestSellersPageContent  from '@/components/features/product/BestSellersPageContent';
 
 export default function BestSellersPageScreen() {
   const { t } = useTranslation('deals');

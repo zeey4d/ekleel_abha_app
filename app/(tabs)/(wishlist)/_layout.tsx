@@ -1,3 +1,14 @@
+/**
+ * Wishlist Tab Layout
+ * 
+ * Manages the Wishlist tab's navigation stack.
+ * The (context) group handles all nested routes via its own _layout.tsx
+ * 
+ * Benefits:
+ * - Simplified configuration
+ * - Centralized nested route management in (context)/_layout.tsx
+ * - Easier maintenance
+ */
 import { Stack } from 'expo-router';
 
 export default function WishlistLayout() {
@@ -8,15 +19,11 @@ export default function WishlistLayout() {
         animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      {/* Main Wishlist Screen */}
+      <Stack.Screen name="index" />
       
-      {/* Context Routes */}
-      <Stack.Screen name="(context)/products/index" options={{ headerShown: false }} />
-      <Stack.Screen name="(context)/products/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="(context)/categories/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="(context)/brands/index" options={{ headerShown: false }} />
-      <Stack.Screen name="(context)/brands/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="(context)/search/index" options={{ headerShown: false }} />
+      {/* Context group - uses (context)/_layout.tsx for nested routes */}
+      <Stack.Screen name="(context)" />
     </Stack>
   );
 }

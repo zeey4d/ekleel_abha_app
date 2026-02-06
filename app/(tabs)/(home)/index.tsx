@@ -20,7 +20,7 @@ import { Search } from 'lucide-react-native';
 import HomeHeader from '@/components/layout/header/HomeHeader';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import LanguageSwitcher from '@/components/Language/LanguageSwitcher';
 
 
 
@@ -59,18 +59,24 @@ export default function HomeScreen() {
         <HeroSlider banners={data.banner.slice(-5)} />
 
         <View className="px-3">
-          <View className="w-full items-end">
-            <LanguageSwitcher />
-          </View>
+   <View className="py-5">
 
-          <FeaturedCategories categories={data?.featured_categories || []} />
+
+
+          <FeaturedCategories categories={data?.featured_categories || []} /></View>
 
           <NewArrivals products={data?.new_arrivals || []} />
+
+          
 
           {/* Promo Grid 1 */}
           <PromoGrid banners={data.banner.slice(-10, -5)} />
 
+
+              <View className="py-5">
           <TopSellingProducts products={data?.top_selling_products || []} />
+
+    </View>
 
           <FeaturedBrands brands={data?.featured_brands || []} />
 

@@ -77,7 +77,7 @@ export const SearchBar = () => {
           console.log('🔍 Opening Search Landing Page');
           router.push("/(tabs)/(home)/(context)/search");
         }}
-        className="relative flex-row items-center bg-[#f5f5f5] rounded-full px-4 h-10 border border-transparent"
+        className="relative flex-row items-center bg-white rounded-full px-4 h-10 border border-transparent"
       >
         <Search size={20} color="#64748b" />
         

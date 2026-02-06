@@ -24,7 +24,7 @@ export const FeaturedBrands = ({ brands }: { brands: Brand[] }) => {
   return (
     <View className="w-[96%] self-center mb-7">
       {/* Title */}
-      <Text className="text-2xl font-bold text-foreground mb-6">
+      <Text className="text-lg font-bold text-foreground mb-6">
         {t('FeaturedBrands.title')}
       </Text>
 

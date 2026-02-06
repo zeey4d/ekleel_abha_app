@@ -4,19 +4,19 @@ import { Provider } from "react-redux";
 import { store } from "./store";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
-import { cookieManager } from "@/lib/cookieManager";
+import { authStorage } from "@/lib/authStorage";
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 export function Providers({ children }: ProvidersProps) {
   useEffect(() => {
-    const checkGuestSession = () => {
+    const checkGuestSession = async () => {
       // Ensure guest session ID exists for non-authenticated users
       // This prevents "Unauthorized or missing Session ID" errors from the backend
-      if (!cookieManager.isAuthenticated() && !cookieManager.getGuestSessionId()) {
-        const newSessionId = 'sess_' + Date.now() + Math.random().toString(36).substring(2, 9);
-        cookieManager.setGuestSessionId(newSessionId);
+      const isAuth = await authStorage.isAuthenticated();
+      if (!isAuth) {
+        await authStorage.ensureGuestSessionId();
       }
     };
 

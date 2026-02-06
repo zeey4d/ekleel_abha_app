@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Updates from 'expo-updates';
 import i18n from '@/i18n/config';
 import { loadLanguage, isRTL, LANGUAGE_STORAGE_KEY } from '@/lib/i18n';
-import RestartSplashScreen from '@/components/RestartSplashScreen';
+import RestartSplashScreen from '@/components/Language/RestartSplashScreen';
 
 type LanguageContextType = {
   language: string;

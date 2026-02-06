@@ -32,7 +32,7 @@ export default function MegaMenu() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 flex-row">
+      <View className="flex-1 flex-row ">
         <View className="w-[100px] border-r border-border p-2 gap-2">
            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-16 w-full rounded-md" />)}
         </View>
@@ -44,7 +44,7 @@ export default function MegaMenu() {
   }
 
   return (
-    <Animated.View className="flex-1 bg-background" entering={FadeIn.duration(600)}>
+    <Animated.View className="flex-1 bg-background mt-10" entering={FadeIn.duration(600)}>
       {/* Header with Search */}
       <View className="px-4 py-3 border-b border-border bg-background z-10">
         {/* <View className="flex-row items-center bg-secondary/50 rounded-lg px-3 py-2">

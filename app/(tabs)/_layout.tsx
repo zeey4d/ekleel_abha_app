@@ -82,20 +82,11 @@ export default function TabsLayout() {
       
       {/* Account Tab */}
       <Tabs.Screen
-        name="(auth)"
+        name="(account)"
         options={{
           title: t('Account'),
           tabBarIcon: ({ color, size }) => <UserIcon size={size} color={color} />,
           tabBarAccessibilityLabel: t('Account'),
-        }}
-      />
-
-       {/* Shared Product Details - Hidden Tab */}
-       <Tabs.Screen
-        name="products"
-        options={{
-          href: null,
-          title: '',
         }}
       />
     </Tabs>

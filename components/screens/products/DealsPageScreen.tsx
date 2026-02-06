@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import  DealsPageContent  from '@/app/shop/product/DealsPageContent';
+import  DealsPageContent  from '@/components/features/product/DealsPageContent';
 
 export default function DealsPageScreen() {
   const { t } = useTranslation('deals');

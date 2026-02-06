@@ -53,6 +53,7 @@ export interface GetProductsParams {
   page?: number;
   per_page?: number;
   brand?: string | null;
+  search?: string | null;
 }
 
 export interface GetProductsResponse {
@@ -128,6 +129,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         page = 1,
         per_page = 20,
         brand = null,
+        search = null,
       }) => {
         const params = new URLSearchParams({
           page: page.toString(),
@@ -139,6 +141,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         if (min_price !== null) params.append("min_price", min_price.toString());
         if (max_price !== null) params.append("max_price", max_price.toString());
         if (brand) params.append("brand", brand);
+        if (search) params.append("search", search);
 
         return `/products?${params.toString()}`;
       },

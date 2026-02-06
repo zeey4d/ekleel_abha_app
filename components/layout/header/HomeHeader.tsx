@@ -102,10 +102,13 @@ export default function HomeHeader() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eef2f7',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
   },
   row: {
     flexDirection: 'row-reverse', // RTL: الأيقونات على اليمين
@@ -121,22 +124,21 @@ const styles = StyleSheet.create({
     height: 36,
     width: 36,
     borderRadius: 18,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(255,255,255,0.8)', // خلفية شبه شفافة للأيقونات لتبدو أفضل
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8, // في row-reverse يظهر كمسافة على اليمين
+    marginLeft: 8,
   },
   searchWrapper: {
     flex: 1,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(255,255,255,0.9)', // خلفية شبه شفافة للبحث
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    // إذا أردت ظل خفيف:
+    paddingHorizontal: 2,
     shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import { BrandPageContent } from '@/app/shop/brand/BrandPageContent';
+import { BrandPageContent } from '@/components/features/brand/BrandPageContent';
 import { useGetBrandByIdQuery } from '@/store/features/brands/brandsSlice';
 import { useLocalizedEntityName } from '@/hooks/useLocalizedEntityName';
 

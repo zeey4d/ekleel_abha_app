@@ -33,7 +33,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import  BrandsListContent  from '@/app/shop/brand/BrandsListContent';
+import  BrandsListContent  from '@/components/features/brand/BrandsListContent';
 
 export default function BrandsScreen() {
   const { t } = useTranslation('brands');

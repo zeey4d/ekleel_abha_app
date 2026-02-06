@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
 
-import  NewArrivalsContent  from '@/app/shop/product/NewArrivalsContent';
+import  NewArrivalsContent  from '@/components/features/product/NewArrivalsContent';
 
 export default function NewArrivalsScreen() {
 
