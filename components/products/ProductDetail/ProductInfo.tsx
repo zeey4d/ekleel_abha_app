@@ -1,22 +1,43 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Pressable, useWindowDimensions } from 'react-native';
-import { Star, Share2, Truck, ShieldCheck, ArrowRightLeft } from 'lucide-react-native';
+import React, { useState } from "react";
+import { View, Share, Pressable, useWindowDimensions } from "react-native";
+import { Star, Share2, Heart, ShieldCheck, ArrowRightLeft } from "lucide-react-native";
+import { Badge } from "@/components/ui/badge";
+import { Text } from "@/components/ui/text";
+import { ProductOptions } from "@/components/products/ProductDetail/ProductOptions";
+import { ProductActions } from "@/components/products/ProductDetail/ProductActions";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 import RenderHTML from 'react-native-render-html';
-
-// مكونات react-native-reusables
-import { Text } from '@/components/ui/text';
-import { Badge } from '@/components/ui/badge';
-import { ProductOptions } from './ProductOptions'; // تأكد من تحويل هذا المكون أيضاً
-import HomeHeader from '@/components/layout/header/HomeHeader';
-import { Stack, Tabs } from 'expo-router';
 
 interface ProductInfoProps {
   product: any;
 }
 
+const InstallmentCard = ({ type, price }: { type: 'tabby' | 'tamara', price: number }) => {
+  const installmentPrice = (price / 4).toFixed(2);
+  return (
+    <Pressable className="flex-1 border border-border rounded-xl p-3 bg-card active:opacity-70 overflow-hidden">
+      <View className="flex-row items-center justify-between mb-2">
+        <View className="bg-secondary px-2 py-1 rounded">
+           <Text className="text-[10px] font-bold uppercase text-foreground">{type}</Text>
+        </View>
+        <View className="p-1 rounded-full bg-secondary">
+          <ArrowRightLeft size={12} className="text-muted-foreground" />
+        </View>
+      </View>
+      <Text className="text-[11px] text-muted-foreground leading-tight text-start">
+        {type === 'tamara' ? "قسم فاتورتك على 4 دفعات" : "أو قسمها على 4 دفعات"}
+      </Text>
+      <Text className="font-bold text-foreground mt-1 text-sm text-start">{installmentPrice} ر.س</Text>
+    </Pressable>
+  );
+};
+
 export const ProductInfo = ({ product }: ProductInfoProps) => {
-  const { width } = useWindowDimensions();
+  const { t } = useTranslation('products');
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { width } = useWindowDimensions();
 
   const handleOptionChange = (name: string, value: string) => {
     setSelectedOptions((prev) => ({ ...prev, [name]: value }));
@@ -25,115 +46,122 @@ export const ProductInfo = ({ product }: ProductInfoProps) => {
   const finalPrice = Number(product.final_price ?? product.special_price ?? 0);
   const originalPrice = Number(product.price ?? 0);
 
-  const isOnSale =
-    product.is_on_sale || (finalPrice > 0 && originalPrice > 0 && finalPrice < originalPrice);
+  const isOnSale = product.is_on_sale || product.on_sale ||
+    (finalPrice > 0 && originalPrice > 0 && finalPrice < originalPrice);
 
-  const discountPercentage =
-    isOnSale && originalPrice > 0
-      ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100)
-      : 0;
+  const discountPercentage = Number(product.discount_percentage ||
+    (isOnSale && originalPrice > 0 ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100) : 0));
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `${product.name}\n${finalPrice} ر.س`,
+        // url: product.url // لو متاح رابط
+      });
+    } catch (error) {
+       console.error(error);
+    }
+  };
 
   return (
-    <View className="flex-1 bg-background p-4">
-      {/* Header */}
-      <View className="mb-6 gap-2">
-        <View className="flex-row items-center justify-between">
-          <Text className="text-brand-lavender text-xs font-bold uppercase tracking-widest">
-            {product.brand || 'ماركة عامة'}
-          </Text>
-          <Badge variant={product.in_stock ? 'secondary' : 'destructive'}>
-            <Text className={product.in_stock ? 'text-brand-green' : 'text-white'}>
-              {product.in_stock ? 'متوفر' : 'غير متوفر'}
-            </Text>
-          </Badge>
-        </View>
-
-        <Text className="text-brand-green text-2xl font-bold leading-tight">{product.name}</Text>
-
-        <View className="flex-row items-center gap-3">
-          <View className="flex-row items-center gap-1">
-            <View className="flex-row">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={16}
-                  fill={i < Math.round(product.average_rating) ? '#D4AF37' : 'transparent'}
-                  color={i < Math.round(product.average_rating) ? '#D4AF37' : '#ccc'}
-                />
-              ))}
-            </View>
-            <Text className="ml-1 text-sm text-muted-foreground">
-              {product.average_rating} ({product.review_count} مراجعة)
-            </Text>
+    <View className="flex-col bg-background p-4">
+      {/* Top Brand Banner & Wishlist */}
+      <View className="flex-row items-start justify-between mb-4 border-b border-border pb-4">
+        <View className="flex-row gap-4 items-center">
+          <View className="h-12 w-24 bg-secondary rounded-lg items-center justify-center border border-border">
+             <Text className="font-bold text-muted-foreground text-xs">{product.brand || "LOGO"}</Text>
           </View>
-          <Text className="text-muted-foreground">|</Text>
-          <Text className="text-sm text-muted-foreground">موديل: {product.model}</Text>
+          <View className="flex-col">
+            <View className="flex-row items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full self-start">
+              <Text className="text-[10px] font-bold text-green-600">%100</Text>
+              <ShieldCheck size={12} color="#16a34a" />
+              <Text className="text-[10px] font-bold text-green-600">أصلي</Text>
+            </View>
+            <Pressable>
+              <Text className="text-[11px] text-primary mt-1 text-start">
+                المزيد من {product.brand}
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </View>
 
-      {/* Price Box */}
-      <View className="border-brand-green/5 mb-6 rounded-2xl border bg-muted/30 p-5">
-        <View className="flex-row items-end gap-2">
-          <Text className="text-brand-green text-4xl font-bold">
-            {finalPrice} <Text className="text-lg">ر.س</Text>
+      {/* Ratings */}
+      <View className="flex-row items-center gap-2 mb-2">
+        <View className="flex-row">
+          {[...Array(5)].map((_, i) => (
+            <Star 
+              key={i} 
+              size={16}
+              fill={i < Math.round(product.average_rating) ? "#eab308" : "transparent"}
+              color={i < Math.round(product.average_rating) ? "#eab308" : "#ccc"} 
+            />
+          ))}
+        </View>
+        <Text className="text-xs font-bold text-muted-foreground">({product.review_count || 0}) التقييمات</Text>
+        <Text className="text-xs text-yellow-500 font-bold">{product.average_rating || "0.0"}</Text>
+      </View>
+
+      <Text className="text-xl font-bold text-foreground mb-4 text-start leading-8">
+        {product.name}
+      </Text>
+
+      {/* Price Section */}
+      <View className="mb-6">
+        <View className="flex-row items-end gap-3">
+          <Text className="text-3xl font-bold text-foreground">
+            {finalPrice} <Text className="text-sm font-bold">ر.س</Text>
           </Text>
           {isOnSale && (
-            <View className="flex-row items-center gap-2">
-              <Text className="text-lg text-muted-foreground line-through decoration-destructive">
+            <View className="flex-row items-end gap-2 mb-1">
+              <Text className="text-lg text-muted-foreground line-through">
                 {originalPrice}
               </Text>
-              <Badge className="bg-brand-gold">
-                <Text className="text-xs text-white">وفر {discountPercentage}%</Text>
-              </Badge>
+              <View className="bg-destructive px-2 py-0.5 rounded">
+                <Text className="text-white text-[10px] font-bold">-{discountPercentage}%</Text>
+               </View>
             </View>
           )}
         </View>
-        <Text className="mt-2 text-xs text-muted-foreground">
-          الأسعار تشمل ضريبة القيمة المضافة
-        </Text>
+        <Text className="text-[11px] text-muted-foreground mt-1 font-bold text-start">شامل الضريبة</Text>
       </View>
 
-      {/* Description */}
-      <View className="mb-6">
-        <RenderHTML
-          contentWidth={width}
-          source={{ html: product.description?.substring(0, 150) + '...' }}
-          baseStyle={{ color: '#666', fontSize: 14, textAlign: 'right' }}
-        />
+      {/* Tabby & Tamara Installments */}
+      <View className="flex-row gap-3 mb-8">
+        <InstallmentCard type="tamara" price={finalPrice} />
+        <InstallmentCard type="tabby" price={finalPrice} />
       </View>
 
-      {/* Options */}
-      <ProductOptions
-        options={product.options || []}
-        selections={selectedOptions}
-        onChange={handleOptionChange}
+      {/* Options Selector */}
+      {product.options && product.options.length > 0 && (
+        <View className="mb-8 p-4 bg-secondary/30 border border-border rounded-xl">
+          <ProductOptions
+            options={product.options}
+            selections={selectedOptions}
+            onChange={handleOptionChange}
+          />
+        </View>
+      )}
+
+      {/* Actions */}
+      <ProductActions
+        product={product}
+        selectedOptions={selectedOptions}
       />
 
-      <View className="my-6 h-[1px] w-full bg-border" />
-
-
-      {/* Features Grid */}
-      <View className="mt-6 flex-row gap-3">
-        <View className="flex-1 flex-row items-center gap-2 rounded-xl border border-border bg-card p-3">
-          <Truck size={20} color="#D4AF37" />
-          <Text className="text-[10px] text-muted-foreground">توصيل مجاني</Text>
-        </View>
-        <View className="flex-1 flex-row items-center gap-2 rounded-xl border border-border bg-card p-3">
-          <ShieldCheck size={20} color="#D4AF37" />
-          <Text className="text-[10px] text-muted-foreground">ضمان الجودة</Text>
-        </View>
-      </View>
-
-      {/* Share & Compare */}
-      <View className="mt-6 flex-row gap-6 pb-10">
-        <Pressable className="flex-row items-center gap-2">
-          <ArrowRightLeft size={16} color="#666" />
-          <Text className="text-sm text-slate-500">مقارنة</Text>
+       {/* Share & Extra Info */}
+      <View className="mt-8 flex-row items-center justify-between border-t border-border pt-6">
+        <Pressable
+          onPress={handleShare}
+          className="flex-row items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50"
+        >
+          <Share2 size={16} className="text-foreground" />
+          <Text className="font-bold text-sm text-foreground">{t('ProductDetail.share')}</Text>
         </Pressable>
-        <Pressable className="flex-row items-center gap-2">
-          <Share2 size={16} color="#666" />
-          <Text className="text-sm text-slate-500">مشاركة</Text>
-        </Pressable>
+
+        <View>
+          <Text className="text-[11px] text-muted-foreground font-bold italic">رقم الموديل: {product.model || "N/A"}</Text>
+        </View>
       </View>
     </View>
   );

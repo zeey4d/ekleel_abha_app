@@ -163,6 +163,8 @@ export const productsSlice = apiSlice.injectEndpoints({
             { type: "Product" as const, id: "LIST" },
           ]
           : [{ type: "Product" as const, id: "LIST" }],
+      // ⏱️ Medium-lived: Product lists are reasonably stable
+      keepUnusedDataFor: 180, // 3 minutes
     }),
 
     // --- Get Single Product by ID ---

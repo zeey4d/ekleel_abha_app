@@ -47,7 +47,13 @@
         "priceRange": "Price Range",
         "promotions": "Promotions",
         "brands": "Brands",
-        "availability": "Availability"
+        "availability": "Availability",
+        "apply": "Apply",
+        "reset": "Reset",
+        "search": "Search...",
+        "onSale": "On Sale",
+        "status": "Status",
+        "noResults": "No results found"
     },
     "SearchSuggestions": {
         "relatedTo": "Related to \"{query}\""

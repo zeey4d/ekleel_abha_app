@@ -15,7 +15,9 @@ export default function WishlistLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerBackVisible: false, 
+        title: 'Wishlist',
         animation: 'slide_from_right',
       }}
     >

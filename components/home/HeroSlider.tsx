@@ -1,385 +1,425 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, Dimensions, Pressable, FlatList, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import { getImageUrl } from '@/lib/image-utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { Banner } from '@/store/types';
-import { cn } from '@/lib/utils';
-
-const { width } = Dimensions.get('window');
-
-export function HeroSlider({ banners = [] }: { banners: Banner[] }) {
-  const { t } = useTranslation('home');
-  const router = useRouter();
-  const [current, setCurrent] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
-
-  const displayBanners = banners.slice(0, 5);
-
-  // التمرير التلقائي
-  useEffect(() => {
-    if (!displayBanners.length) return;
-
-    const timer = setInterval(() => {
-      let nextIndex = current === displayBanners.length - 1 ? 0 : current + 1;
-      scrollToIndex(nextIndex);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [current, displayBanners]);
-
-  const scrollToIndex = (index: number) => {
-    flatListRef.current?.scrollToIndex({
-      index,
-      animated: true,
-    });
-    setCurrent(index);
-  };
-
-  // تحديث النقطة النشطة عند السحب بالإصبع
-  const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const contentOffset = e.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffset / width);
-    setCurrent(index);
-  };
-
-  if (!displayBanners.length) return null;
-
-  return (
-    <View className=" h-[400px] w-full bg-slate-100 relative">
-      <FlatList
-        ref={flatListRef}
-        data={displayBanners}
-        horizontal
-        pagingEnabled // هذا ما يسمح بالسحب "صفحة بصفحة"
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={onMomentumScrollEnd}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={{ width }} className="h-full relative">
-            {item.image ? (
-              <View className="flex-1 w-full h-full relative">
-                <Image
-                  source={{ uri: getImageUrl(item.image) }}
-                  className="h-full w-full"
-                  resizeMode="cover"
-                />
-                <View className="absolute inset-0 bg-black/40" />
-              </View>
-            ) : (
-              <View className="flex-1 items-center justify-center bg-slate-300">
-                <Text>{t('HeroSlider.noImage')}</Text>
-              </View>
-            )}
-
-            {/* محتوى النص فوق الصورة */}
-            <View className="absolute inset-0 flex items-center justify-center px-5">
-              <View className="w-full">
-                <Text className="text-3xl font-bold leading-tight text-white">
-                  {t('HeroSlider.bigSale')}{' '}
-                  <Text className="text-green-400">{t('HeroSlider.upTo50Off')}</Text>
-                </Text>
-
-                <Text className="mt-3 text-base text-slate-200">
-                  {t('HeroSlider.description')}
-                </Text>
-
-                <Pressable
-                  onPress={() => router.push(item.url as any)}
-                  className="mt-6 self-start rounded-full bg-white px-8 py-3 active:bg-slate-200"
-                >
-                  <Text className="font-bold text-black">{t('HeroSlider.shopNow')}</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        )}
-      />
-
-      {/* أزرار التحكم (اختياري يمكنك حذفها لأن السحب بالإصبع يكفي) */}
-      {/* <Pressable
-        onPress={() => scrollToIndex(current === 0 ? displayBanners.length - 1 : current - 1)}
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/20 p-2"
-      >
-        <ChevronLeft size={26} color="white" />
-      </Pressable>
-
-      <Pressable
-        onPress={() => scrollToIndex(current === displayBanners.length - 1 ? 0 : current + 1)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/20 p-2"
-      >
-        <ChevronRight size={26} color="white" />
-      </Pressable> */}
-
-      {/* النقاط السفلية (Dots) */}
-      <View className="absolute bottom-4 flex-row space-x-2 self-center z-10">
-        {displayBanners.map((_, i) => (
-          <View
-            key={i}
-            className={cn(
-              "h-2 rounded-full transition-all",
-              current === i ? "w-6 bg-white" : "w-2 bg-white/50"
-            )}
-          />
-        ))}
-      </View>
-    </View>
-  );
-}
-
-// import React, { useEffect, useRef, useState } from 'react';
+// import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 // import {
 //   View,
 //   Text,
 //   Image,
-//   StyleSheet,
 //   TouchableOpacity,
-//   Animated,
 //   Dimensions,
-//   Linking,
-//   ScrollView,
+//   FlatList,
 //   NativeSyntheticEvent,
 //   NativeScrollEvent,
+//   StyleSheet,
 //   Platform,
 // } from 'react-native';
-// import { Feather } from '@expo/vector-icons';
+// import { useTranslation } from 'react-i18next';
+// import { useRouter } from 'expo-router';
+// import { getImageUrl } from '@/lib/image-utils';
+// import { getAppRoute } from '@/lib/url-utils';
+// import { LinearGradient } from 'expo-linear-gradient';
 
-// export type Banner = {
-//   id: string | number;
-//   title?: string;
-//   url?: string;
-//   image?: string;
-// };
+// const { width } = Dimensions.get('window');
 
-// type Props = {
-//   banners?: Banner[];
-//   autoplayInterval?: number;
-//   t?: (key: string) => string;
-//   getImageUrl?: (src?: string) => string | undefined;
-// };
+// // ⚡ PERFORMANCE CONFIG
+// // Taller Aspect Ratio (3:4) for better mobile visibility
+// const ASPECT_RATIO = 0.95;
+// const BANNER_HEIGHT = width * ASPECT_RATIO;
+// const AUTO_PLAY_INTERVAL = 5000;
 
-// const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// interface Banner {
+//   id: number | string;
+//   image?: string | null;
+//   url?: string | null;
+//   title?: string | null;
+// }
 
-// export const HeroSlider: React.FC<Props> = ({
-//   banners = [],
-//   autoplayInterval = 5000,
-//   t,
-//   getImageUrl,
-// }) => {
-//   const displayBanners = banners;
+// interface HeroSliderProps {
+//   banners: Banner[];
+// }
+
+// // ------------------------------------------------------------------
+// // 1. Optimized Banner Item (React.memo to prevent re-renders)
+// // ------------------------------------------------------------------
+// const BannerItem = React.memo(
+//   ({ item, onPress }: { item: Banner; onPress: (item: Banner) => void }) => {
+//     const { t } = useTranslation('home');
+//     const imageUrl = useMemo(() => getImageUrl(item.image), [item.image]);
+//     const [hasError, setHasError] = useState(false);
+
+//     return (
+//       <TouchableOpacity
+//         activeOpacity={0.9}
+//         onPress={() => onPress(item)}
+//         style={[styles.bannerContainer, { width, height: BANNER_HEIGHT }]}
+//       >
+//         {item.image && !hasError ? (
+//           <Image
+//             source={{ uri: imageUrl }}
+//             resizeMode="cover" // Cover ensures no empty space (best for 16:9 container)
+//             style={styles.image}
+//             onError={() => setHasError(true)}
+//           />
+//         ) : (
+//           <View style={styles.placeholderContainer}>
+//             <Text style={styles.placeholderText}>
+//               {hasError ? t('common.imageError', 'Image failed') : t('HeroSlider.noImage', 'No Image')}
+//             </Text>
+//           </View>
+//         )}
+
+//         {/* Gradient Overlay for Smooth Transition to Page */}
+//         <LinearGradient
+//           pointerEvents="none"
+//           colors={[
+//             'transparent',
+//             'rgba(255,255,255,0.1)',
+//             'rgba(255,255,255,0.6)',
+//             '#ffffff',
+//           ]}
+//           locations={[0, 0.6, 0.85, 1]}
+//           style={[styles.gradient, { height: BANNER_HEIGHT * 0.3 }]} 
+//         />
+//       </TouchableOpacity>
+//     );
+//   },
+//   (prev, next) => prev.item.id === next.item.id && prev.item.image === next.item.image
+// );
+
+// // ------------------------------------------------------------------
+// // 2. High-Performance Slider Container
+// // ------------------------------------------------------------------
+// export const HeroSlider = ({ banners = [] }: HeroSliderProps) => {
+//   const router = useRouter();
+//   const flatListRef = useRef<FlatList>(null);
 //   const [current, setCurrent] = useState(0);
-//   const opacityAnim = useRef<Animated.Value[]>([]).current;
-//   const scrollRef = useRef<ScrollView | null>(null);
-//   const autoplayTimer = useRef<NodeJS.Timeout | null>(null);
 
-//   // initialize animated values
-//   if (opacityAnim.length !== displayBanners.length) {
-//     opacityAnim.length = 0;
-//     for (let i = 0; i < displayBanners.length; i++) {
-//       opacityAnim.push(new Animated.Value(i === 0 ? 1 : 0));
-//     }
-//   }
-
-//   // autoplay (scroll programmatically)
+//   // Prefetch next image for smoother transition
 //   useEffect(() => {
-//     if (!displayBanners || displayBanners.length === 0) return;
-
-//     if (autoplayTimer.current) clearInterval(autoplayTimer.current);
-//     autoplayTimer.current = setInterval(() => {
-//       const next = (current + 1) % displayBanners.length;
-//       scrollRef.current?.scrollTo({ x: next * SCREEN_WIDTH * 0.94, animated: true });
-//       setCurrent(next);
-//     }, autoplayInterval);
-
-//     return () => {
-//       if (autoplayTimer.current) clearInterval(autoplayTimer.current);
-//     };
-//   }, [displayBanners, autoplayInterval, current]);
-
-//   // animate opacity on current change
-//   useEffect(() => {
-//     opacityAnim.forEach((anim, idx) => {
-//       Animated.timing(anim, {
-//         toValue: idx === current ? 1 : 0,
-//         duration: 400,
-//         useNativeDriver: true,
-//       }).start();
-//     });
-//   }, [current, opacityAnim]);
-
-//   const openUrl = async (url?: string) => {
-//     if (!url) return;
-//     try {
-//       const supported = await Linking.canOpenURL(url);
-//       if (supported) await Linking.openURL(url);
-//     } catch {
-//       // ignore
+//     if (banners.length > 1) {
+//       const nextIndex = (current + 1) % banners.length;
+//       const nextImage = banners[nextIndex]?.image;
+//       if (nextImage) {
+//         Image.prefetch(getImageUrl(nextImage)).catch(() => {});
+//       }
 //     }
-//   };
+//   }, [current, banners]);
 
-//   const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-//     const offsetX = e.nativeEvent.contentOffset.x;
-//     const containerWidth = e.nativeEvent.layoutMeasurement.width;
-//     const index = Math.round(offsetX / containerWidth);
-//     setCurrent(index);
-//   };
+//   // Auto Play Logic
+//   useEffect(() => {
+//     if (banners.length <= 1) return;
 
-//   const nextSlide = () => {
-//     const next = current === displayBanners.length - 1 ? 0 : current + 1;
-//     scrollRef.current?.scrollTo({ x: next * SCREEN_WIDTH * 0.94, animated: true });
-//     setCurrent(next);
-//   };
+//     const timer = setInterval(() => {
+//       const nextIndex = (current + 1) % banners.length;
+//       flatListRef.current?.scrollToIndex({
+//         index: nextIndex,
+//         animated: true,
+//       });
+//       setCurrent(nextIndex);
+//     }, AUTO_PLAY_INTERVAL);
 
-//   const prevSlide = () => {
-//     const prev = current === 0 ? displayBanners.length - 1 : current - 1;
-//     scrollRef.current?.scrollTo({ x: prev * SCREEN_WIDTH * 0.94, animated: true });
-//     setCurrent(prev);
-//   };
+//     return () => clearInterval(timer);
+//   }, [current, banners.length]);
 
-//   if (!displayBanners || displayBanners.length === 0) return null;
+//   const handleBannerPress = useCallback(
+//     (item: Banner) => {
+//       const route = getAppRoute(item.url);
+//       if (route) router.push(route as any);
+//     },
+//     [router]
+//   );
+
+//   const renderItem = useCallback(
+//     ({ item }: { item: Banner }) => (
+//       <BannerItem item={item} onPress={handleBannerPress} />
+//     ),
+//     [handleBannerPress]
+//   );
+
+//   const onMomentumScrollEnd = useCallback(
+//     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+//       const index = Math.round(event.nativeEvent.contentOffset.x / width);
+//       setCurrent(index);
+//     },
+//     []
+//   );
+
+//   const getItemLayout = useCallback(
+//     (_: any, index: number) => ({
+//       length: width,
+//       offset: width * index,
+//       index,
+//     }),
+//     []
+//   );
+
+//   const keyExtractor = useCallback((item: Banner) => String(item.id), []);
+
+//   if (!banners.length) return null;
 
 //   return (
-//     <View style={styles.container}>
-//       <ScrollView
-//         ref={scrollRef}
+//     <View style={[styles.container, { height: BANNER_HEIGHT }]}>
+//       <FlatList
+//         ref={flatListRef}
+//         data={banners}
+//         renderItem={renderItem}
 //         horizontal
 //         pagingEnabled
 //         showsHorizontalScrollIndicator={false}
+//         keyExtractor={keyExtractor}
 //         onMomentumScrollEnd={onMomentumScrollEnd}
-//         contentContainerStyle={{ width: SCREEN_WIDTH * 0.94 * displayBanners.length }}
+//         getItemLayout={getItemLayout}
+        
+//         // ⚡ FlatList Performance Props
+//         initialNumToRender={1}
+//         maxToRenderPerBatch={2}
+//         windowSize={3}
+//         removeClippedSubviews={Platform.OS === 'android'}
 //         decelerationRate="fast"
-//         snapToInterval={SCREEN_WIDTH * 0.94}
-//       >
-//         {displayBanners.map((banner, index) => {
-//           const imageSource = getImageUrl ? getImageUrl(banner.image) : banner.image;
-//           return (
-//             <Animated.View
-//               key={banner.id}
+//         snapToInterval={width}
+//         snapToAlignment="center"
+//         scrollEventThrottle={16}
+//       />
+
+//       {/* Dots Indicator */}
+//       {banners.length > 1 && (
+//         <View style={styles.dotsContainer}>
+//           {banners.map((_, idx) => (
+//             <View
+//               key={idx}
 //               style={[
-//                 styles.slide,
-//                 { opacity: opacityAnim[index], width: SCREEN_WIDTH * 0.94 },
+//                 styles.dot,
+//                 idx === current ? styles.activeDot : styles.inactiveDot,
 //               ]}
-//             >
-//               {imageSource ? (
-//                 <TouchableOpacity
-//                   activeOpacity={0.9}
-//                   style={styles.imageWrapper}
-//                   onPress={() => openUrl(banner.url)}
-//                 >
-//                   <Image
-//                     source={{ uri: imageSource }}
-//                     style={styles.image}
-//                     resizeMode="cover"
-//                   />
-//                 </TouchableOpacity>
-//               ) : (
-//                 <View style={styles.noImage}>
-//                   <Text style={styles.noImageText}>
-//                     {t ? t('HeroSlider.noImage') : 'No image available'}
-//                   </Text>
-//                 </View>
-//               )}
-//             </Animated.View>
-//           );
-//         })}
-//       </ScrollView>
-
-//       <TouchableOpacity style={[styles.control, styles.leftControl]} onPress={prevSlide}>
-//         <Feather name="chevron-left" size={28} color="#fff" />
-//       </TouchableOpacity>
-
-//       <TouchableOpacity style={[styles.control, styles.rightControl]} onPress={nextSlide}>
-//         <Feather name="chevron-right" size={28} color="#fff" />
-//       </TouchableOpacity>
-
-//       <View style={styles.dotsRow}>
-//         {displayBanners.map((_, idx) => (
-//           <TouchableOpacity
-//             key={idx}
-//             onPress={() => {
-//               scrollRef.current?.scrollTo({ x: idx * SCREEN_WIDTH * 0.94, animated: true });
-//               setCurrent(idx);
-//             }}
-//             style={[
-//               styles.dot,
-//               idx === current ? styles.dotActive : styles.dotInactive,
-//             ]}
-//           />
-//         ))}
-//       </View>
+//             />
+//           ))}
+//         </View>
+//       )}
 //     </View>
 //   );
 // };
 
 // const styles = StyleSheet.create({
 //   container: {
-//     width: SCREEN_WIDTH * 0.94,
-//     aspectRatio: 19 / 5,
-//     alignSelf: 'center',
-//     borderRadius: 6,
-//     overflow: Platform.OS === 'android' ? 'hidden' : 'visible',
-//     backgroundColor: '#e2e8f0',
-//     marginTop: 16,
+//     backgroundColor: '#fff',
+//     position: 'relative',
 //   },
-//   slide: {
-//     height: '100%',
-//   },
-//   imageWrapper: {
-//     flex: 1,
+//   bannerContainer: {
+//     backgroundColor: '#f1f5f9', // slate-100 placeholder
+//     overflow: 'hidden',
+//     position: 'relative',
 //   },
 //   image: {
 //     width: '100%',
 //     height: '100%',
-//     borderRadius: 6,
 //   },
-//   noImage: {
+//   placeholderContainer: {
 //     flex: 1,
-//     backgroundColor: '#cbd5e1',
 //     alignItems: 'center',
 //     justifyContent: 'center',
+//     backgroundColor: '#e2e8f0', // slate-200
 //   },
-//   noImageText: {
-//     color: '#334155',
-//     fontSize: 16,
+//   placeholderText: {
+//     color: '#64748b', // slate-500
 //   },
-//   control: {
+//   gradient: {
 //     position: 'absolute',
-//     top: '50%',
-//     marginTop: -22,
-//     zIndex: 30,
-//     backgroundColor: 'rgba(255,255,255,0.2)',
-//     padding: 8,
-//     borderRadius: 999,
+//     bottom: 0,
+//     left: 0,
+//     right: 0,
+//     zIndex: 10,
 //   },
-//   leftControl: {
-//     left: 12,
-//   },
-//   rightControl: {
-//     right: 12,
-//   },
-//   dotsRow: {
+//   dotsContainer: {
 //     position: 'absolute',
 //     bottom: 12,
 //     left: 0,
 //     right: 0,
-//     zIndex: 30,
 //     flexDirection: 'row',
 //     justifyContent: 'center',
 //     gap: 8,
 //   },
 //   dot: {
-//     borderRadius: 999,
-//     marginHorizontal: 4,
-//   },
-//   dotActive: {
-//     width: 16,
 //     height: 8,
-//     backgroundColor: '#fff',
+//     borderRadius: 4,
 //   },
-//   dotInactive: {
+//   activeDot: {
+//     width: 24,
+//     backgroundColor: '#2c7c7b',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 1 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 1.41,
+//     elevation: 2,
+//   },
+//   inactiveDot: {
 //     width: 8,
-//     height: 8,
-//     backgroundColor: 'rgba(255,255,255,0.5)',
+//     backgroundColor: 'rgba(255, 255, 255, 0.7)',
 //   },
 // });
+
+
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
+import { getImageUrl } from '@/lib/image-utils';
+import { getAppRoute } from '@/lib/url-utils';
+import { LinearGradient } from 'expo-linear-gradient';
+
+
+const { width } = Dimensions.get('window');
+// Use 3:4 aspect ratio or similar for taller mobile banners
+const BANNER_HEIGHT = width * 1.15;
+
+interface Banner {
+  id: number | string;
+  image?: string | null;
+  url?: string | null;
+  title?: string | null;
+}
+
+interface HeroSliderProps {
+  banners: Banner[];
+}
+
+
+
+export const HeroSlider = ({ banners = [] }: HeroSliderProps) => {
+  const { t } = useTranslation('home');
+  const router = useRouter();
+  const flatListRef = useRef<FlatList>(null);
+  const [current, setCurrent] = useState(0);
+
+  // Auto play
+  useEffect(() => {
+    if (!banners.length || banners.length === 1) return;
+
+    const timer = setInterval(() => {
+      const nextIndex = current === banners.length - 1 ? 0 : current + 1;
+      flatListRef.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true,
+      });
+      setCurrent(nextIndex);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [banners.length, current]);
+
+  // Handle scroll end to update current index
+  const onMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const contentOffsetX = event.nativeEvent.contentOffset.x;
+      const index = Math.round(contentOffsetX / width);
+      setCurrent(index);
+    },
+    []
+  );
+const renderItem = useCallback(
+  ({ item }: { item: Banner }) => (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => {
+        const route = getAppRoute(item.url);
+        if (route) router.push(route as any);
+      }}
+      style={{ width, height: BANNER_HEIGHT }}
+      className="relative"
+    >
+      {/* Image */}
+      {item.image ? (
+        <Image
+          source={{ uri: getImageUrl(item.image) }}
+          resizeMode="cover"
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      ) : (
+        <View className="h-full w-full items-center justify-center bg-slate-200">
+          <Text className="text-slate-500">{t('HeroSlider.noImage')}</Text>
+        </View>
+      )}
+
+      {/* ✅ Bottom Fade (iOS FIXED) */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={[
+          'rgba(255,255,255,0)',
+          'rgba(255,255,255,0.4)',
+          'rgba(255,255,255,0.85)',
+          '#ffffff',
+        ]}
+        locations={[0, 0.55, 0.8, 1]}
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 180,
+          zIndex: 10, // 🔥 مهم لـ iOS
+        }}
+      />
+    </TouchableOpacity>
+  ),
+  [router, t]
+);
+
+
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: width,
+      offset: width * index,
+      index,
+    }),
+    []
+  );
+
+  if (!banners.length) return null;
+
+  return (
+    <View className="relative  bg-white">
+      <FlatList
+        ref={flatListRef}
+        data={banners}
+        renderItem={renderItem}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => String(item.id)}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        getItemLayout={getItemLayout}
+        scrollEventThrottle={16}
+        decelerationRate="fast"
+        snapToInterval={width}
+        snapToAlignment="center"
+        contentContainerStyle={{ alignItems: 'center' }}
+      />
+
+      {/* Dots Indicator */}
+      {banners.length > 1 && (
+        <View className="absolute bottom-12 left-0 right-0 flex-row justify-center gap-2 ">
+          {banners.map((_, idx) => (
+            <View
+              key={idx}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                idx === current
+                  ? 'w-6 bg-[#2c7c7b] shadow-sm'
+                  : 'w-2 bg-white/70'
+              }`}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};

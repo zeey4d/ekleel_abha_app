@@ -32,12 +32,16 @@
         "viewAll": "عرض الكل"
     },
     "ProductSort": {
-        "sortBy": "ترتيب حسب:",
+        "sortBy": "ترتيب حسب",
         "sortPlaceholder": "ترتيب حسب",
         "newest": "الأحدث",
         "oldest": "الأقدم",
         "priceLowHigh": "السعر: من الأقل للأعلى",
-        "priceHighLow": "السعر: من الأعلى للأقل"
+        "priceHighLow": "السعر: من الأعلى للأقل",
+        "nameAZ": "الاسم: أ-ي",
+        "nameZA": "الاسم: ي-أ",
+        "apply": "تطبيق",
+        "reset": "إعادة ضبط"
     },
     "Filters": {
         "title": "الفلاتر",

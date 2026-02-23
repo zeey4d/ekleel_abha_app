@@ -1,6 +1,7 @@
 {
     "title": "My Account",
     "dashboard": "Dashboard",
+    "preferences": "My Preferences",
     "orders": "Orders",
     "addresses": "Addresses",
     "profile": "Profile Details",
@@ -53,5 +54,8 @@
     "addToCart": "Add to Cart",
     "outOfStock": "Out of Stock",
     "removedFromWishlist": "Removed from wishlist",
-    "failedToRemove": "Failed to remove item"
+    "failedToRemove": "Failed to remove item",
+    "companySection": "About Ekleel Abha",
+    "helpSection": "Help & Support",
+    "addressNotFound": "Address not found"
 }

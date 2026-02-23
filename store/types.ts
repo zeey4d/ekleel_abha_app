@@ -808,6 +808,21 @@ export interface NotificationStates extends EntityState<Notification, string | n
   };
 }
 
+/** Shape of the Expo push notification data payload */
+export interface PushNotificationPayload {
+  id: string | number;
+  title: string;
+  message: string;
+  type: Notification['type'];
+  data?: Record<string, any>;
+}
+
+/** Args for the cache injection utility */
+export interface InjectPushNotificationArgs {
+  notification: Notification;
+  queryParams: GetNotificationsParams;
+}
+
 // ==============================
 // Order Types
 // ==============================

@@ -5,7 +5,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  I18nManager,
 } from 'react-native';
+import { ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { ProductCard } from '@/components/products/ProductCard';
@@ -24,7 +26,14 @@ export const ProductCarousel = ({
   title,
   href,
 }: ProductCarouselProps) => {
-  const { t } = useTranslation('products');
+  const { t, i18n } = useTranslation('products');
+  const isArabic = i18n.language === 'ar';
+  // Force row-reverse if language is Arabic but native layout is LTR (desync fix)
+  const headerStyle = [
+    styles.header,
+    isArabic && !I18nManager.isRTL && { flexDirection: 'row-reverse' } as const,
+  ];
+
   const flatListRef = useRef<FlatList>(null);
   const indexRef = useRef(0);
 
@@ -52,15 +61,24 @@ export const ProductCarousel = ({
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text className="text-2xl font-bold">{title}</Text>
+      <View style={headerStyle}>
+        <Text className="text-xl font-bold">{title}</Text>
 
         {href && (
-          <Link href={href} asChild>
-            <TouchableOpacity>
+          <Link href={href as any} asChild>
+            <TouchableOpacity 
+              activeOpacity={0.7} 
+              className="flex-row items-center gap-1"
+              style={headerStyle[1] /* Applies the conditional row-reverse */}
+            >
               <Text className="text-primary text-sm font-medium">
-                {t('ProductCarousel.viewAll')} →
+                {t('ProductCarousel.viewAll')}
               </Text>
+              {isArabic ? (
+                <ArrowLeft size={16} color="#000000ff" />
+              ) : (
+                <ArrowRight size={16} color="#000000ff" />
+              )}
             </TouchableOpacity>
           </Link>
         )}
@@ -91,7 +109,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   header: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     marginBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -99,6 +117,6 @@ const styles = StyleSheet.create({
   },
   item: {
     width: width * 0.45,
-    marginRight: 12,
+    marginEnd: 12,
   },
 });

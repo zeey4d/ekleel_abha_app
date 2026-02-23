@@ -1,56 +1,72 @@
 {
   "expo": {
-    "name": "ekleel_abha",
+    "name": "إكليل أبها",
     "slug": "ekleel_abha",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/aka.png",
+    "icon": "./assets/icons/ios-light.png",
     "scheme": "ekleelabha",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/aka_g.png",
+      "image": "./assets/icons/splash-icon-light.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "dark": {
+        "image": "./assets/icons/splash-icon-dark.png",
+        "backgroundColor": "#000000"
+      }
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true,
-      "runtimeVersion": {
-        "policy": "appVersion"
+      "bundleIdentifier": "com.zeey4d.ekleelabha",
+      "icon": "./assets/icons/ios-light.png",
+      "runtimeVersion": "1.0.0",
+      "infoPlist": {
+        "ExpoLocalization_supportsRTL": true,
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
+      "package": "com.zeey4d.ekleelabha",
+      "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.ekleel_abha",
       "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/icons/ios-light.png"
     },
     "plugins": [
       "expo-router",
-      "expo-localization"
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "5cce5b06-4918-46e4-91d9-36aea95c69eb"
       }
     },
     "updates": {
       "url": "https://u.expo.dev/5cce5b06-4918-46e4-91d9-36aea95c69eb"
-    }
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ]
   }
 }

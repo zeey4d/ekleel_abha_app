@@ -4,85 +4,566 @@
     },
     "about": {
         "title": "About Us",
-        "description": "Learn more about our story and mission."
+        "description": "Learn more about our story and mission.",
+        "meta": {
+            "title": "About Us - Ekleelabha",
+            "description": "Discover Ekleelabha, your trusted destination for pharmacy and personal care products in Saudi Arabia. Quality products at reasonable prices since 2022."
+        },
+        "hero": {
+            "title": "Your Trusted Partner in Personal Care",
+            "subtitle": "At Ekleelabha, we are dedicated to providing high-quality pharmacy and personal care products at prices that make sense. Established in 2022 and proudly originating from the South of Saudi Arabia, we bring care closer to you."
+        },
+        "story": {
+            "title": "Our Story",
+            "paragraph1": "Founded in 2022, Ekleelabha emerged from the heart of Southern Saudi Arabia with a clear vision: to make quality pharmacy and personal care products accessible to everyone at reasonable prices.",
+            "paragraph2": "Our journey began with a simple belief that healthcare and personal care shouldn't be a luxury. We partner with trusted suppliers and brands to ensure every product we offer meets the highest standards of quality and authenticity.",
+            "paragraph3": "Today, Ekleelabha continues to grow while staying true to our roots—serving our community with dedication, integrity, and a commitment to your well-being that defines who we are."
+        },
+        "mission": {
+            "title": "Our Mission",
+            "description": "To provide our customers with premium pharmacy and personal care products at affordable prices, backed by exceptional service. We believe quality healthcare and personal care should be within everyone's reach, and we work tirelessly to make that a reality."
+        },
+        "stats": {
+            "products": "Quality Products",
+            "customers": "Happy Customers",
+            "authentic": "Authentic Guaranteed"
+        },
+        "values": {
+            "title": "Our Core Values",
+            "subtitle": "The principles that guide everything we do at Ekleelabha.",
+            "authenticity": {
+                "title": "Quality First",
+                "description": "We guarantee 100% authentic, high-quality products. Every item is sourced from trusted suppliers and verified brands you can rely on."
+            },
+            "excellence": {
+                "title": "Affordable Excellence",
+                "description": "We believe quality doesn't have to come at a premium. We work hard to offer the best products at reasonable prices."
+            },
+            "passion": {
+                "title": "Customer Care",
+                "description": "Your health and well-being are our priority. We go the extra mile to ensure you find exactly what you need."
+            },
+            "community": {
+                "title": "Rooted in Community",
+                "description": "Born in the South, we understand and serve our community with products and services tailored to local needs."
+            },
+            "innovation": {
+                "title": "Continuous Improvement",
+                "description": "We constantly expand our product range and enhance our services to serve you better every day."
+            },
+            "trust": {
+                "title": "Trust & Transparency",
+                "description": "Honesty is at our core. We build lasting relationships through transparent practices and reliable service."
+            }
+        },
+        "cta": {
+            "title": "Experience the Ekleelabha Difference",
+            "description": "Explore our wide range of pharmacy and personal care products. Quality you can trust at prices you'll love.",
+            "button": "Shop Now"
+        }
     },
     "faq": {
         "title": "Frequently Asked Questions",
-        "description": "Find answers to common questions."
+        "description": "Find answers to common questions.",
+        "hero": {
+            "title": "Frequently Asked Questions",
+            "subtitle": "Find quick answers to the most common questions about shopping, shipping, payments, and more."
+        },
+        "categories": {
+            "orders": {
+                "title": "Orders & Shopping",
+                "q1": "How do I place an order?",
+                "a1": "Simply browse our products, add items to your cart, and proceed to checkout. You can check out as a guest or create an account for faster future purchases. Follow the steps to enter your shipping address, select a payment method, and confirm your order.",
+                "q2": "Can I modify or cancel my order after placing it?",
+                "a2": "You can modify or cancel your order within a short window after placing it, as long as it hasn't been processed for shipping. Please contact our customer support immediately at 0575637926 or email support@ekleelabha.com to request changes.",
+                "q3": "How can I track my order?",
+                "a3": "Once your order is shipped, you will receive an email with a tracking number and a link to track your shipment. You can also track your order by logging into your account and viewing your order history."
+            },
+            "shipping": {
+                "title": "Shipping & Delivery",
+                "q1": "What are the delivery times?",
+                "a1": "Standard delivery typically takes 3-5 business days within Saudi Arabia. Delivery times may vary depending on your location and product availability. Express shipping options may be available for select areas.",
+                "q2": "How much does shipping cost?",
+                "a2": "Shipping fees depend on your order value and location. We offer free shipping on orders above a certain threshold. The exact shipping cost will be calculated and displayed at checkout before you complete your purchase.",
+                "q3": "Do you deliver to all areas in Saudi Arabia?",
+                "a3": "Yes, we deliver to all major cities and regions across Saudi Arabia. For remote areas, delivery times may be slightly longer. Enter your address at checkout to confirm delivery availability to your location."
+            },
+            "payment": {
+                "title": "Payment Methods",
+                "q1": "What payment methods do you accept?",
+                "a1": "We accept various payment methods including credit/debit cards (Visa, Mastercard), Mada cards, Apple Pay, and Cash on Delivery (COD). All online payments are processed securely through encrypted payment gateways.",
+                "q2": "Is it safe to pay online on your website?",
+                "a2": "Absolutely. We use industry-standard SSL encryption and partner with trusted payment providers to ensure your payment information is fully protected. We never store your complete credit card details on our servers.",
+                "q3": "When is my card charged for an order?",
+                "a3": "Your card is charged when you confirm your order. For Cash on Delivery orders, you pay the delivery agent when you receive your package. If an order is canceled, any charged amount will be refunded within 7-14 business days."
+            },
+            "returns": {
+                "title": "Returns & Refunds",
+                "q1": "What is your return policy?",
+                "a1": "You can return most products within 14 days of purchase, provided they are unused, unopened, and in their original packaging. Some items like personal care products that have been opened cannot be returned for hygiene reasons.",
+                "q2": "How do I return a product?",
+                "a2": "To initiate a return, contact our customer support with your order number and reason for return. Once approved, you'll receive instructions on how to send the product back. You can also visit our Help page for detailed return instructions.",
+                "q3": "How long does it take to receive a refund?",
+                "a3": "Once we receive and inspect your returned item, refunds are typically processed within 7-14 business days. The refund will be credited to your original payment method. You'll receive an email confirmation once the refund is processed."
+            },
+            "account": {
+                "title": "Account & Profile",
+                "q1": "How do I create an account?",
+                "a1": "Click on the 'Sign Up' or 'Register' button at the top of the page. Enter your email address, create a password, and fill in your personal details. You can also register during checkout to save your information for future orders.",
+                "q2": "I forgot my password. How can I reset it?",
+                "a2": "Click on 'Forgot Password' on the login page, enter your registered email address, and we'll send you a link to reset your password. The link is valid for a limited time, so please reset your password promptly.",
+                "q3": "How do I update my personal information?",
+                "a3": "Log into your account and navigate to 'My Account' or 'Profile Settings'. From there, you can update your name, email, phone number, addresses, and password. Remember to save your changes."
+            },
+            "products": {
+                "title": "Products & Quality",
+                "q1": "Are all your products authentic?",
+                "a1": "Yes, we guarantee 100% authentic products. We source all our pharmacy and personal care products directly from authorized distributors and trusted brands. Every product we sell is genuine and properly stored to maintain quality.",
+                "q2": "What if I receive a damaged or wrong product?",
+                "a2": "We apologize for any inconvenience. Please contact our customer support within 48 hours of receiving your order with photos of the damaged or incorrect item. We will arrange for a replacement or full refund promptly.",
+                "q3": "How should I store the products I purchase?",
+                "a3": "Storage instructions vary by product type. Generally, keep products in a cool, dry place away from direct sunlight. Always check the product label for specific storage instructions. Refrigerated items will be clearly marked during checkout."
+            }
+        },
+        "contact": {
+            "title": "Still Have Questions?",
+            "description": "Can't find the answer you're looking for? Our customer support team is here to help you.",
+            "emailButton": "Email Us",
+            "callButton": "Call: 0575637926"
+        }
     },
     "privacyPolicy": {
         "title": "Privacy Policy",
-        "description": "Read our privacy policy."
+        "description": "Read our privacy policy.",
+        "meta": {
+            "title": "Privacy Policy - Ekleelabha",
+            "description": "Learn how Ekleelabha collects, uses, and protects your personal information."
+        },
+        "hero": {
+            "title": "Privacy Policy",
+            "subtitle": "Your privacy is important to us. Learn how we collect, use, and protect your information.",
+            "lastUpdated": "Last updated: February 2026"
+        },
+        "introduction": "At Ekleelabha, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make a purchase. Please read this policy carefully to understand our practices.",
+        "sections": {
+            "collection": {
+                "title": "1. Information We Collect",
+                "intro": "We collect information that you provide directly to us and information that is automatically collected when you use our website.",
+                "personal": {
+                    "title": "Personal Information:",
+                    "name": "Full name and contact details",
+                    "contact": "Email address and phone number",
+                    "address": "Shipping and billing addresses",
+                    "payment": "Payment information (processed securely through payment providers)"
+                },
+                "automatic": {
+                    "title": "Automatically Collected Information:",
+                    "device": "Device type, operating system, and browser information",
+                    "browsing": "Pages visited, time spent on pages, and navigation patterns",
+                    "ip": "IP address and approximate location"
+                }
+            },
+            "usage": {
+                "title": "2. How We Use Your Information",
+                "intro": "We use the information we collect for the following purposes:",
+                "points": {
+                    "orders": "Process and fulfill your orders, including shipping and delivery",
+                    "communication": "Communicate with you about your orders, inquiries, and customer service",
+                    "improve": "Improve our website, products, and services",
+                    "personalize": "Personalize your shopping experience and send relevant offers",
+                    "security": "Detect and prevent fraud and maintain security",
+                    "legal": "Comply with legal obligations and protect our rights"
+                }
+            },
+            "sharing": {
+                "title": "3. Information Sharing",
+                "intro": "We may share your information with third parties only in the following circumstances:",
+                "points": {
+                    "service": "Service providers who assist in our operations (e.g., hosting, analytics)",
+                    "payment": "Payment processors to complete your transactions securely",
+                    "delivery": "Shipping companies to deliver your orders",
+                    "legal": "Legal authorities when required by law or to protect our rights"
+                },
+                "noSell": "We do not sell, rent, or trade your personal information to third parties for marketing purposes."
+            },
+            "security": {
+                "title": "4. Data Security",
+                "content": "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.",
+                "measures": {
+                    "ssl": "SSL encryption for all data transmission",
+                    "encryption": "Encrypted storage of sensitive information",
+                    "access": "Limited access to personal data on a need-to-know basis",
+                    "monitoring": "Regular security assessments and monitoring"
+                }
+            },
+            "cookies": {
+                "title": "5. Cookies & Tracking",
+                "intro": "We use cookies and similar tracking technologies to enhance your browsing experience and analyze website traffic.",
+                "types": {
+                    "essential": "Essential cookies: Required for website functionality",
+                    "analytics": "Analytics cookies: Help us understand how visitors use our site",
+                    "preferences": "Preference cookies: Remember your settings and preferences"
+                },
+                "control": "You can control cookies through your browser settings. Disabling certain cookies may affect website functionality."
+            },
+            "rights": {
+                "title": "6. Your Rights",
+                "intro": "You have the following rights regarding your personal data:",
+                "points": {
+                    "access": "Access: Request a copy of the personal data we hold about you",
+                    "correction": "Correction: Request correction of inaccurate or incomplete data",
+                    "deletion": "Deletion: Request deletion of your personal data (subject to legal requirements)",
+                    "optout": "Opt-out: Unsubscribe from marketing communications at any time"
+                }
+            },
+            "retention": {
+                "title": "7. Data Retention",
+                "content": "We retain your personal information for as long as necessary to fulfill the purposes outlined in this policy, comply with legal obligations, resolve disputes, and enforce our agreements. When data is no longer needed, we securely delete or anonymize it."
+            },
+            "updates": {
+                "title": "8. Updates to This Policy",
+                "content": "We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of significant changes by posting the updated policy on our website with a new effective date. We encourage you to review this policy periodically."
+            },
+            "children": {
+                "title": "9. Children's Privacy",
+                "content": "Our website is not intended for children under 18 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately so we can delete it."
+            }
+        },
+        "contact": {
+            "title": "Contact Us",
+            "content": "If you have any questions about this Privacy Policy or wish to exercise your rights, please contact us:",
+            "email": "Email: ",
+            "phone": "Phone: "
+        }
     },
     "returnPolicy": {
         "title": "Return Policy",
-        "description": "Read our return policy."
+        "description": "Read our return policy.",
+        "meta": {
+            "title": "Return & Refund Policy - Ekleelabha",
+            "description": "Learn about Ekleelabha's return and refund policies, eligibility requirements, and how to initiate a return."
+        },
+        "hero": {
+            "title": "Return & Refund Policy",
+            "subtitle": "We want you to be completely satisfied with your purchase. If you're not happy, we're here to help.",
+            "lastUpdated": "Last updated: February 2026"
+        },
+        "introduction": "At Ekleelabha, customer satisfaction is our top priority. If you are not entirely satisfied with your purchase, we're here to help. Please read our return and refund policy carefully to understand your rights and our procedures.",
+        "eligibility": {
+            "title": "Return Eligibility",
+            "eligible": {
+                "title": "Eligible for Return",
+                "item1": "Products returned within 14 days of delivery",
+                "item2": "Items in original, unopened packaging",
+                "item3": "Products with all original tags and labels attached",
+                "item4": "Items accompanied by original receipt or order confirmation"
+            },
+            "notEligible": {
+                "title": "Not Eligible for Return",
+                "item1": "Opened personal care or hygiene products",
+                "item2": "Products past the 14-day return window",
+                "item3": "Items that have been used or damaged by the customer",
+                "item4": "Products marked as 'Final Sale' or 'Non-Returnable'"
+            }
+        },
+        "process": {
+            "title": "How to Return",
+            "step1": {
+                "title": "Contact Customer Support",
+                "description": "Reach out to our customer service team via email at support@ekleelabha.com or call 0575637926 with your order number and reason for return."
+            },
+            "step2": {
+                "title": "Get Return Authorization",
+                "description": "Our team will review your request and provide you with a Return Authorization (RA) number and instructions for shipping the item back."
+            },
+            "step3": {
+                "title": "Pack and Ship",
+                "description": "Securely pack the item in its original packaging and ship it to the address provided. Include the RA number on the package."
+            },
+            "step4": {
+                "title": "Receive Your Refund",
+                "description": "Once we receive and inspect the returned item, we will process your refund within 7-14 business days to your original payment method."
+            }
+        },
+        "refund": {
+            "title": "Refund Information",
+            "card": {
+                "title": "Original Payment Method",
+                "description": "Refunds are credited to the same payment method used for the original purchase."
+            },
+            "time": {
+                "title": "Processing Time",
+                "description": "Refunds are processed within 7-14 business days after we receive and inspect the returned item."
+            },
+            "shipping": {
+                "title": "Shipping Costs",
+                "description": "Original shipping costs are non-refundable. Return shipping is the customer's responsibility unless the item was defective."
+            }
+        },
+        "notes": {
+            "title": "Important Notes",
+            "note1": "For defective or damaged products, please contact us within 48 hours of receiving your order with photos of the damage.",
+            "note2": "Exchanges are subject to product availability. If the requested item is out of stock, a full refund will be provided.",
+            "note3": "Promotional items and gift cards are non-refundable and cannot be exchanged."
+        },
+        "contact": {
+            "title": "Need Help with a Return?",
+            "description": "Our customer support team is ready to assist you with any questions about returns and refunds.",
+            "emailButton": "Email Support",
+            "callButton": "Call: 0575637926"
+        }
     },
     "shipping": {
         "title": "Shipping Information",
-        "description": "Learn about our shipping methods and policies."
+        "description": "Learn about our shipping methods and policies.",
+        "meta": {
+            "title": "Shipping & Delivery - Ekleelabha",
+            "description": "Learn about Ekleelabha's shipping options, delivery times, coverage areas, and policies."
+        },
+        "hero": {
+            "title": "Shipping & Delivery",
+            "subtitle": "Fast, reliable delivery across Saudi Arabia. We ensure your orders reach you safely and on time."
+        },
+        "options": {
+            "title": "Delivery Options",
+            "homeDelivery": {
+                "title": "Home Delivery",
+                "time": "2-5 business days",
+                "price": "20 SAR / Free over 250 SAR",
+                "description": "Get your order delivered right to your doorstep. Free shipping on orders over 250 SAR, otherwise 20 SAR delivery fee applies."
+            },
+            "branchPickup": {
+                "title": "Branch Pickup",
+                "time": "Ready within 24 hours",
+                "price": "Free",
+                "description": "Pick up your order from our branch at your convenience. No delivery fees apply."
+            }
+        },
+        "freeShipping": {
+            "title": "Free Delivery on Orders Over 250 SAR!",
+            "description": "Enjoy free home delivery on all orders above 250 SAR anywhere in Saudi Arabia."
+        },
+        "coverage": {
+            "title": "Delivery Coverage",
+            "description": "We deliver to all major cities and regions across Saudi Arabia.",
+            "note": "And many more cities and regions throughout the Kingdom!",
+            "cities": {
+                "riyadh": "Riyadh",
+                "jeddah": "Jeddah",
+                "dammam": "Dammam",
+                "makkah": "Makkah",
+                "madinah": "Madinah",
+                "abha": "Abha",
+                "taif": "Taif",
+                "tabuk": "Tabuk"
+            }
+        },
+        "features": {
+            "title": "Why Choose Our Delivery?",
+            "secure": {
+                "title": "Secure Packaging",
+                "description": "All products are carefully packaged to ensure they arrive in perfect condition."
+            },
+            "tracking": {
+                "title": "Real-Time Tracking",
+                "description": "Track your order every step of the way with our real-time tracking system."
+            },
+            "cod": {
+                "title": "Cash on Delivery",
+                "description": "Pay when you receive your order. Available throughout Saudi Arabia."
+            }
+        },
+        "info": {
+            "title": "Important Information",
+            "point1": "Delivery times are estimates and may vary during peak seasons or holidays.",
+            "point2": "You will receive an SMS and email notification when your order is out for delivery.",
+            "point3": "Please ensure someone is available to receive the order at the delivery address.",
+            "point4": "For remote areas, delivery may take an additional 1-2 business days."
+        },
+        "contact": {
+            "title": "Questions About Shipping?",
+            "description": "Our customer support team is here to help with any shipping-related inquiries.",
+            "emailButton": "Email Support",
+            "callButton": "Call: 0575637926"
+        }
     },
     "termsOfService": {
         "title": "Terms of Service",
-        "description": "Read our terms of service."
+        "description": "Read our terms of service.",
+        "meta": {
+            "title": "Terms of Service - Ekleelabha",
+            "description": "Read the terms and conditions for using Ekleelabha's website and services."
+        },
+        "hero": {
+            "title": "Terms of Service",
+            "subtitle": "Please read these terms carefully before using our website and services.",
+            "lastUpdated": "Last updated: February 2026"
+        },
+        "introduction": "Welcome to Ekleelabha. By accessing and using our website (www.ekleelabha.com), you acknowledge and agree to be bound by these Terms of Service. These terms govern your use of our website, products, and services. If you do not agree to these terms, please do not use our website.",
+        "sections": {
+            "acceptance": {
+                "title": "1. Acceptance of Terms",
+                "content": "By using and accessing our website, you acknowledge and agree to be bound by these terms, and you agree to comply with all applicable laws and regulations. You acknowledge that you are responsible for compliance with any applicable local laws. All materials on this site are protected by applicable copyright and trademark laws."
+            },
+            "account": {
+                "title": "2. Account Registration & Use",
+                "intro": "To use certain features of our website, such as making purchases, you must create an account. By creating an account, you agree to:",
+                "points": {
+                    "accurate": "Provide accurate, complete, and up-to-date information about yourself",
+                    "confidential": "Keep your password and account information confidential and secure",
+                    "responsible": "Accept responsibility for all activities that occur under your account",
+                    "age": "Confirm that you are at least 18 years old, or have parental/guardian consent"
+                }
+            },
+            "orders": {
+                "title": "3. Products & Orders",
+                "content": "When you place an order on our website, you are making an offer to purchase products subject to these terms. We reserve the right to accept or decline your order at our discretion.",
+                "points": {
+                    "prices": "All prices are displayed in Saudi Riyals (SAR) and include VAT where applicable",
+                    "availability": "Product availability is subject to change without notice",
+                    "cancel": "We reserve the right to cancel orders in cases of pricing errors, suspected fraud, or stock unavailability",
+                    "quality": "We guarantee 100% authentic products from authorized suppliers"
+                }
+            },
+            "payment": {
+                "title": "4. Payment",
+                "points": {
+                    "methods": "We accept payment via credit/debit cards (Visa, Mastercard, Mada), Apple Pay, and Cash on Delivery",
+                    "currency": "All transactions are processed in Saudi Riyals (SAR)",
+                    "refunds": "Refunds for canceled orders will be processed within 7-14 business days"
+                }
+            },
+            "delivery": {
+                "title": "5. Delivery",
+                "points": {
+                    "fees": "Delivery fees apply for orders below certain thresholds",
+                    "freeShipping": "Free shipping is available for qualifying orders",
+                    "times": "Delivery times vary by location and product availability"
+                }
+            },
+            "returns": {
+                "title": "6. Returns & Refunds",
+                "intro": "We want you to be satisfied with your purchase. If you need to return a product, please note the following:",
+                "points": {
+                    "period": "Returns must be initiated within 14 days of purchase",
+                    "condition": "Items must be unused, unopened, and in their original packaging",
+                    "receipt": "Proof of purchase is required for all returns",
+                    "refundTime": "Approved refunds will be processed within 7-14 business days"
+                },
+                "exceptions": {
+                    "title": "Returns are not accepted for:",
+                    "opened": "Products that have been opened, used, or tampered with",
+                    "damaged": "Items damaged by the customer",
+                    "special": "Products requiring special storage conditions"
+                }
+            },
+            "disclaimer": {
+                "title": "7. Disclaimer",
+                "content": "The information and products on our website are provided for general informational purposes. While we strive for accuracy, we do not guarantee that all information is complete, current, or error-free. We are not liable for any damages arising from the use of our website or products. Always read product labels and consult professionals when necessary."
+            },
+            "intellectual": {
+                "title": "8. Intellectual Property",
+                "content": "All content on this website, including text, graphics, logos, images, and software, is the property of Ekleelabha and is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works without our prior written consent."
+            },
+            "governing": {
+                "title": "9. Governing Law",
+                "content": "These terms and conditions are governed by and construed in accordance with the laws of the Kingdom of Saudi Arabia. You irrevocably submit to the exclusive jurisdiction of the courts of Saudi Arabia for any disputes arising from these terms or your use of our website."
+            },
+            "modifications": {
+                "title": "10. Modifications",
+                "content": "Ekleelabha reserves the right to modify these terms at any time without prior notice. By continuing to use our website after changes are posted, you accept the modified terms. We encourage you to review this page periodically for updates."
+            }
+        },
+        "contact": {
+            "title": "Questions?",
+            "content": "If you have any questions about these Terms of Service, please contact our customer support team at support@ekleelabha.com or call us at 0575637926."
+        }
     },
     "contact": {
-        "pageTitle": "Get in Touch",
-        "pageDescription": "Have questions about our products or services? We're here to help. Fill out the form or reach out to us directly using the contact information below.",
-        "phone": "Phone",
-        "email": "Email",
-        "address": "Address",
+        "pageTitle": "Let Us Help You",
+        "pageDescription": "Have questions about our products or services? We're here to help. Reach out to us through any of the channels below.",
+        "quickContactTitle": "Contact Us Directly",
+        "phone": "Call Us",
+        "email": "Email Us",
+        "address": "Our Location",
+        "whatsapp": "WhatsApp",
+        "whatsappDesc": "Chat with us instantly",
+        "workingHours": "Working Hours",
+        "workingHoursDesc": "Sat-Thu: 9AM-9PM",
+        "mayHelpYou": "These May Help You",
+        "helpLinks": {
+            "faq": "Frequently Asked Questions",
+            "shipping": "Shipping Policy",
+            "returns": "Returns & Refunds"
+        },
         "formTitle": "Send us a Message",
-        "formDescription": "We usually respond within 24 hours.",
-        "nameLabel": "Name",
-        "namePlaceholder": "Your name",
-        "emailLabel": "Email",
+        "formDescription": "Fill out the form below and we'll get back to you within 24 hours.",
+        "nameLabel": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "emailLabel": "Email Address",
         "emailPlaceholder": "your.email@example.com",
         "subjectLabel": "Subject",
-        "subjectPlaceholder": "How can we help?",
+        "subjectPlaceholder": "How can we help you?",
         "messageLabel": "Message",
         "messagePlaceholder": "Tell us more about your inquiry...",
+        "messageHint": "Please provide as much detail as possible",
         "sendButton": "Send Message",
         "sending": "Sending...",
         "successMessage": "Message sent successfully! We will get back to you soon.",
+        "locationTitle": "Our Location",
+        "mapTitle": "Ekleelabha Location Map",
+        "supportInfoTitle": "Customer Support",
+        "supportInfo1": "Our customer support team is available Saturday through Thursday, from 9 AM to 9 PM.",
+        "supportInfo2": "For urgent inquiries, please call us directly or send a WhatsApp message.",
+        "supportInfo3": "We strive to respond to all emails within 24 business hours.",
+        "callUs": "Call us",
+        "emailUs": "Email us",
+        "openMap": "Open in Google Maps",
+        "contactInfoHeading": "Contact Information",
         "validation": {
             "nameMin": "Name must be at least 2 characters",
-            "emailInvalid": "Invalid email address",
+            "emailInvalid": "Please enter a valid email address",
             "subjectMin": "Subject must be at least 5 characters",
             "messageMin": "Message must be at least 10 characters"
         }
     },
-    "help": {
-        "title": "Help Center",
-        "description": "Welcome to our support hub. Browse the topics below to find the help you need.",
-        "stillNeedHelp": "Still need help?",
-        "supportDescription": "Our support team is available to assist you with any questions or issues.",
-        "contactSupport": "Contact Support",
-        "categories": {
-            "faq": {
-                "title": "FAQ",
-                "description": "Find answers to frequently asked questions."
+    "paymentMethods": {
+        "title": "Payment Methods",
+        "description": "View all accepted payment methods.",
+        "meta": {
+            "title": "Payment Methods - Ekleelabha",
+            "description": "Discover all the payment options available at Ekleelabha including cards, digital wallets, and buy now pay later services."
+        },
+        "hero": {
+            "title": "Payment Methods",
+            "subtitle": "We offer a variety of secure payment options for your convenience. Choose the method that works best for you."
+        },
+        "sections": {
+            "cards": "Credit & Debit Cards",
+            "wallets": "Digital Wallets",
+            "others": "Other Payment Options"
+        },
+        "whyChoose": "Why Shop With Us?",
+        "features": {
+            "secure": {
+                "title": "100% Secure",
+                "description": "All transactions are encrypted and processed through trusted payment gateways."
             },
-            "shipping": {
-                "title": "Shipping Info",
-                "description": "Learn about shipping rates, times, and policies."
+            "variety": {
+                "title": "Multiple Options",
+                "description": "Choose from cards, digital wallets, or buy now pay later services."
             },
-            "returns": {
-                "title": "Returns & Refunds",
-                "description": "Understand our return policy and process."
-            },
-            "terms": {
-                "title": "Terms of Service",
-                "description": "Read our terms and conditions of use."
-            },
-            "privacy": {
-                "title": "Privacy Policy",
-                "description": "See how we protect your personal data."
-            },
-            "contact": {
-                "title": "Contact Us",
-                "description": "Get in touch with our support team."
+            "cod": {
+                "title": "Cash on Delivery",
+                "description": "Pay when you receive your order at your doorstep."
             }
+        },
+        "info": {
+            "title": "Important Information",
+            "point1": "All prices are displayed in Saudi Riyals (SAR) and include VAT.",
+            "point2": "Your card will be charged when you confirm your order.",
+            "point3": "For canceled orders, refunds are processed within 7-14 business days.",
+            "point4": "Buy Now Pay Later options (Tabby, Tamara) are subject to approval."
         }
     }
 }

@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { Minus, Plus, Heart, ShoppingCart } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
-
-// مكونات react-native-reusables
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-
-// Redux Hooks
-import { useAddToCartMutation } from '@/store/features/cart/cartSlice';
-import { useAddToWishlistMutation } from '@/store/features/wishlist/wishlistSlice';
-
-// افترضنا وجود i18n بسيط أو استبدله بـ useTranslations الخاص بك
-const t = (key: string) => key;
+import React, { useState } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { Minus, Plus, Heart, ShoppingCart } from "lucide-react-native";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { useAddToCartMutation } from "@/store/features/cart/cartSlice";
+import { useAddToWishlistMutation } from "@/store/features/wishlist/wishlistSlice";
+import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
+import Toast from 'react-native-toast-message';
 
 interface ProductActionsProps {
   product: any;
@@ -22,6 +16,7 @@ interface ProductActionsProps {
 }
 
 export const ProductActions = ({ product, selectedOptions }: ProductActionsProps) => {
+  const { t } = useTranslation('products');
   const [quantity, setQuantity] = useState(1);
   const [addToCart, { isLoading: isAdding }] = useAddToCartMutation();
   const [addToWishlist] = useAddToWishlistMutation();
@@ -38,8 +33,11 @@ export const ProductActions = ({ product, selectedOptions }: ProductActionsProps
     const selectedCount = Object.keys(selectedOptions).length;
 
     if (requiredOptions > 0 && selectedCount < requiredOptions) {
-      // هنا يفضل استخدام Toast.show من مكتبة تنبيهات النيتف
-      console.log(t('ProductDetail.selectAllOptions'));
+      Toast.show({
+        type: 'error',
+        text1: t('ProductDetail.error', 'Error'),
+        text2: t('ProductDetail.selectAllOptions', 'Please select all options'),
+      });
       return;
     }
 
@@ -47,73 +45,103 @@ export const ProductActions = ({ product, selectedOptions }: ProductActionsProps
       await addToCart({
         product_id: product.id,
         quantity,
-        option: selectedOptions,
+        option: selectedOptions
       }).unwrap();
 
+      Toast.show({
+        type: 'success',
+        text1: t('ProductDetail.success', 'Success'),
+        text2: t('ProductDetail.addedToCart', 'Added to cart successfully'),
+      });
+
       if (buyNow) {
-        router.push('/cart');
+        router.push("/(tabs)/(cart)");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Add to cart failed", error);
+      Toast.show({
+        type: 'error',
+        text1: t('ProductDetail.error', 'Error'),
+        text2: t('ProductDetail.addToCartFailed', 'Failed to add to cart'),
+      });
+    }
+  };
+  
+  const handleAddToWishlist = async () => {
+    try {
+        await addToWishlist({ product_id: product.id }).unwrap();
+        Toast.show({
+            type: 'success',
+            text1: t('ProductDetail.success', 'Success'),
+            text2: t('ProductCard.addedToWishlist', 'Added to wishlist'),
+        });
+    } catch (error) {
+        console.error("Add to wishlist failed", error);
+        Toast.show({
+            type: 'error',
+            text1: t('ProductDetail.error', 'Error'),
+            text2: t('ProductCard.wishlistFailed', 'Failed to add to wishlist'),
+        });
     }
   };
 
   return (
-    <View className="flex-col gap-4 p-2">
-      <View className="flex-row items-center justify-center gap-2">
+    <View className="gap-4">
+      {/* Quantity & Add to Cart Row */}
+      <View className="flex-row items-center gap-4">
         {/* Quantity Selector */}
-
-        <Button
-          className="h-10 w-full flex-row gap-2 rounded-full bg-primary "
-          onPress={() => handleAddToCart(false)}
-          disabled={!product.in_stock || isAdding}>
-          <ShoppingCart size={20} color="white" />
-          <Text className="text-md font-bold text-primary-foreground">
-            {t('ProductDetail.addToCart')}
-          </Text>
-        </Button>
-      </View>
-
-      {/* Main Buttons */}
-      <View className="flex-row items-center justify-center gap-2">
-        <View className="h-10 flex-row items-center overflow-hidden rounded-full border border-input bg-background">
+        <View className="flex-row items-center bg-secondary rounded-lg h-12 border border-input">
           <Button
             variant="ghost"
-            className="h-full w-10 items-center justify-center active:bg-muted"
-            onPress={() => updateQty(quantity - 1)}>
+            size="icon"
+            className="w-10 h-full"
+            onPress={() => updateQty(quantity - 1)}
+          >
             <Minus size={18} className="text-foreground" />
           </Button>
-
-          <View className="w-12 items-center justify-center">
-            <Text className="text-lg font-bold">{quantity}</Text>
+          
+          <View className="w-10 items-center justify-center">
+             <Text className="text-sm font-bold">{quantity}</Text>
           </View>
-
+          
           <Button
-            variant="ghost"
-            className="h-full w-10 items-center justify-center active:bg-muted"
-            onPress={() => updateQty(quantity + 1)}>
+            variant="ghost" 
+            size="icon"
+            className="w-10 h-full"
+            onPress={() => updateQty(quantity + 1)}
+          >
             <Plus size={18} className="text-foreground" />
           </Button>
         </View>
 
-        <View>
-          {/* Wishlist Button */}
-          <Button
-            variant="outline"
-            className="h-12 flex-1 rounded-full border-input px-4"
-            onPress={() => addToWishlist({ product_id: product.id })}>
-            <Heart size={22} className="text-foreground" />
-          </Button>
-        </View>
+        {/* Add to Cart Button */}
         <Button
-          variant="secondary"
-          className="h-10 w-[52%] rounded-full"
-          onPress={() => handleAddToCart(true)}
-          disabled={!product.in_stock || isAdding}>
-          <Text className="text-md font-bold text-secondary-foreground">
-            {t('ProductDetail.buyNow')}
-          </Text>
+          size="lg"
+          className="flex-1 h-12 flex-row gap-2"
+          onPress={() => handleAddToCart(false)}
+          disabled={!product.in_stock || isAdding}
+        >
+          {isAdding ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <>
+              <ShoppingCart size={20} color="white" />
+              <Text className="text-white font-bold text-base">
+                {t('ProductDetail.addToCart')}
+              </Text>
+            </>
+          )}
         </Button>
+
+         {/* Wishlist Button - Optional placement */}
+         <Button
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 border-input"
+            onPress={handleAddToWishlist}
+          >
+            <Heart size={20} className="text-foreground" />
+          </Button>
       </View>
     </View>
   );

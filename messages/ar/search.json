@@ -43,11 +43,17 @@
         "filters": "الفلاتر",
         "clearAll": "مسح الكل",
         "showResults": "عرض النتائج",
-        "categories": "الفئات",
-        "priceRange": "نطاق السعر",
+        "categories": "التصنيفات",
+        "priceRange": "السعر",
         "promotions": "العروض",
         "brands": "الماركات",
-        "availability": "التوفر"
+        "availability": "التوفر",
+        "apply": "تطبيق",
+        "reset": "إعادة ضبط",
+        "search": "بحث...",
+        "onSale": "التخفيضات",
+        "status": "الحالة",
+        "noResults": "لا توجد نتائج"
     },
     "SearchSuggestions": {
         "relatedTo": "متعلق بـ \"{query}\""

@@ -31,7 +31,7 @@ export default function HomeContextLayout() {
       <Stack.Screen name="brands/[id]" />
       
       {/* Search Route */}
-      <Stack.Screen name="search/index" />
+      <Stack.Screen name="(search)" />
     </Stack>
   );
 }

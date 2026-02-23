@@ -4,55 +4,91 @@
 
 @layer base {
   :root {
+    /* === Backgrounds === */
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 180 10% 10%;
+
+    /* === Cards & Popovers === */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 180 10% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 63%;
+    --popover-foreground: 180 10% 10%;
+
+    /* === Primary (Teal #2c7c7b) === */
+    --primary: 179 47% 33%;
+    --primary-foreground: 0 0% 100%;
+
+    /* === Secondary (Light Teal Surface) === */
+    --secondary: 178 30% 95%;
+    --secondary-foreground: 179 47% 25%;
+
+    /* === Muted (Subtle Backgrounds & Labels) === */
+    --muted: 180 15% 95%;
+    --muted-foreground: 180 5% 45%;
+
+    /* === Accent (Warm Gold for highlights & CTAs) === */
+    --accent: 40 80% 55%;
+    --accent-foreground: 40 90% 15%;
+
+    /* === Destructive (Error Red) === */
+    --destructive: 0 84% 60%;
+
+    /* === Borders & Inputs === */
+    --border: 180 10% 88%;
+    --input: 180 10% 88%;
+    --ring: 179 47% 33%;
+
+    /* === Radius === */
     --radius: 0.625rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    /* === Chart Colors === */
+    --chart-1: 179 47% 33%;
+    --chart-2: 40 80% 55%;
+    --chart-3: 210 55% 50%;
+    --chart-4: 340 65% 55%;
+    --chart-5: 25 85% 60%;
   }
 
   .dark:root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 70.9% 59.4%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 300 0% 45%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* === Dark Backgrounds === */
+    --background: 180 15% 6%;
+    --foreground: 180 10% 95%;
+
+    /* === Dark Cards & Popovers === */
+    --card: 180 12% 9%;
+    --card-foreground: 180 10% 95%;
+    --popover: 180 12% 9%;
+    --popover-foreground: 180 10% 95%;
+
+    /* === Primary (Lighter Teal for dark mode) === */
+    --primary: 179 45% 50%;
+    --primary-foreground: 180 15% 6%;
+
+    /* === Secondary === */
+    --secondary: 180 15% 14%;
+    --secondary-foreground: 180 10% 90%;
+
+    /* === Muted === */
+    --muted: 180 10% 14%;
+    --muted-foreground: 180 8% 60%;
+
+    /* === Accent (Gold stays warm in dark mode) === */
+    --accent: 40 75% 50%;
+    --accent-foreground: 40 90% 95%;
+
+    /* === Destructive === */
+    --destructive: 0 70% 55%;
+
+    /* === Borders & Inputs === */
+    --border: 180 10% 18%;
+    --input: 180 10% 18%;
+    --ring: 179 45% 50%;
+
+    /* === Chart Colors (brighter for dark bg) === */
+    --chart-1: 179 45% 50%;
+    --chart-2: 40 75% 55%;
+    --chart-3: 210 60% 55%;
+    --chart-4: 340 70% 60%;
+    --chart-5: 25 85% 65%;
   }
 }

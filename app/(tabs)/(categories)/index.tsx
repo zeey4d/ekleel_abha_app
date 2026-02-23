@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Pressable, FlatList, Image, Dimensions } from 'react-native';
+import { View, ScrollView, Pressable, FlatList, Image, Dimensions, TouchableOpacity } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { useGetCategoryTreeQuery } from '@/store/features/categories/categoriesSlice';
@@ -9,7 +9,9 @@ import { cn } from '@/lib/utils';
 import { getImageUrl } from '@/lib/image-utils';
 import { Search } from 'lucide-react-native';
 import { Input } from '@/components/ui/input';
-import { SearchBar } from '@/components/layout/header/SearchBar';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = width * 0.28;
@@ -18,6 +20,9 @@ export default function MegaMenu() {
   const router = useRouter();
   const { data: categoryState, isLoading } = useGetCategoryTreeQuery({});
   const categories = categoryState?.tree || [];
+      const { t } = useTranslation('home');
+  const insets = useSafeAreaInsets();
+  
   
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -32,7 +37,7 @@ export default function MegaMenu() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 flex-row ">
+      <View className="flex-1 flex-row " style={{ paddingTop: insets.top }}>
         <View className="w-[100px] border-r border-border p-2 gap-2">
            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-16 w-full rounded-md" />)}
         </View>
@@ -44,15 +49,28 @@ export default function MegaMenu() {
   }
 
   return (
-    <Animated.View className="flex-1 bg-background mt-10" entering={FadeIn.duration(600)}>
+    <Animated.View className="flex-1 bg-background" entering={FadeIn.duration(600)} style={{ paddingTop: insets.top }}>
       {/* Header with Search */}
       <View className="px-4 py-3 border-b border-border bg-background z-10">
         {/* <View className="flex-row items-center bg-secondary/50 rounded-lg px-3 py-2">
           <Search size={20} className="text-muted-foreground mr-2" />
           <Text className="text-muted-foreground">Search categories...</Text>
         </View> */}
-        <View className="h-10 flex-row-reverse items-center rounded-full bg-[#f5f5f5] ml-2">
-          <SearchBar />
+        <View className="h-10 flex-row items-center rounded-full bg-[#f5f5f5] ml-2">
+                          <TouchableOpacity 
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    console.log('🔍 Opening Search Landing Page');
+                    router.push("/(tabs)/(categories)/(context)/(search)");
+                  }}
+                  className="relative flex-row items-center rounded-full px-4 h-10 border border-transparent"
+                >
+                  <Search size={20} color="#64748b" />
+                  
+                  <Text className="flex-1 ml-2 text-base text-slate-400">
+                    {t('Header.searchPlaceholder', { defaultValue: 'ابحث عن المنتجات...' })}
+                  </Text>
+                </TouchableOpacity>
         </View>
       </View>
 

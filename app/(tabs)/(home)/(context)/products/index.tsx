@@ -1,5 +1,1 @@
-// import ProductsPage from '@/components/shop/product/ProductsPage';
-
-// export default ProductsPage;
-
-export { default } from '@/components/features/product/ProductsContent';
+export { default } from '@/components/screens/products/ProductsScreen';

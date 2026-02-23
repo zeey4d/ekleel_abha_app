@@ -1,7 +1,6 @@
-// src/features/notifications/notificationsSlice.ts
 import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
 import { apiSlice } from '../api/apiSlice';
-import { RootState } from '@/store/store';
+import { RootState, AppDispatch } from '@/store/store';
 
 import { Notification, GetNotificationsParams, NotificationStates, PaginatedResponse } from '@/store/types';
 
@@ -219,3 +218,40 @@ export const selectNotificationsPagination = (state: RootState) => {
 };
 
 export default notificationsSlice;
+
+/**
+ * Injects a real-time push notification into the RTK cache.
+ * - Deduplicates by ID
+ * - Uses EntityAdapter.addOne (respects sortComparer)
+ * - Increments unreadCount
+ * - Increments pagination.total
+ */
+export function injectPushNotification(
+  dispatch: AppDispatch,
+  notification: Notification,
+  queryParams: GetNotificationsParams = { page: 1, limit: 15 }
+): void {
+  dispatch(
+    notificationsSlice.util.updateQueryData(
+      'getNotifications',
+      queryParams,
+      (draft: NotificationStates) => {
+        // Deduplicate — if ID already in cache, skip
+        if (draft.entities[notification.id]) return;
+
+        // Insert via adapter (auto-sorted by date_added desc)
+        notificationsAdapter.addOne(draft, notification);
+
+        // Update unread count
+        if (!notification.read) {
+          draft.unreadCount += 1;
+        }
+
+        // Update pagination total
+        if (draft.pagination) {
+          draft.pagination.total += 1;
+        }
+      }
+    )
+  );
+}

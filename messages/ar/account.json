@@ -1,6 +1,7 @@
 {
     "title": "حسابي",
     "dashboard": "لوحة التحكم",
+    "preferences": "تفضيلاتي",
     "orders": "الطلبات",
     "addresses": "العناوين",
     "profile": "تفاصيل الحساب",
@@ -53,5 +54,8 @@
     "addToCart": "إضافة للسلة",
     "outOfStock": "نفد من المخزون",
     "removedFromWishlist": "تم الحذف من القائمة",
-    "failedToRemove": "فشل حذف العنصر"
+    "failedToRemove": "فشل حذف العنصر",
+    "companySection": "عن إكليل أبها",
+    "helpSection": "المساعدة والدعم",
+    "addressNotFound": "العنوان غير موجود"
 }

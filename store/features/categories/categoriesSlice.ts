@@ -37,6 +37,10 @@ export const categoriesSlice = apiSlice.injectEndpoints({
         params.append('include_products', include_products.toString());
         return `/categories?${params.toString()}`;
       },
+      
+      // 🕐 Long-lived: Categories rarely change
+      keepUnusedDataFor: 3600, // 1 hour
+      
       // FIX: Unwrap the 'data' property here
       transformResponse: (response: CategoryApiResponse): CategoryState => {
         // console.log('🔍 Raw API Response:', response);

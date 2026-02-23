@@ -1,5 +1,5 @@
-import { View, Text, Image, FlatList, Pressable } from 'react-native';
-import { ArrowRight } from 'lucide-react-native';
+import { View, Text, Image, FlatList, Pressable, I18nManager } from 'react-native';
+import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -11,20 +11,31 @@ interface Category {
 }
 
 export const FeaturedCategories = ({ categories }: { categories: Category[] }) => {
-  const { t } = useTranslation('home');
+  const { t, i18n } = useTranslation('home');
+  const isArabic = i18n.language === 'ar';
   const router = useRouter();
 
   if (!categories || categories.length === 0) return null;
 
   return (
     <View className="p-0 ">
-      <View className="mb-4 flex-row items-center justify-between">
+      <View
+        className="mb-4 flex-row items-center justify-between"
+        style={
+          isArabic && !I18nManager.isRTL ? { flexDirection: 'row-reverse' } : undefined
+        }>
         <Text className="text-lg font-bold text-foreground">{t('FeaturedCategories.title')}</Text>
         <Pressable
           onPress={() => router.push('/(tabs)/(home)/(context)/categories' as any)}
-          className="flex-row items-center">
-          <Text className="mr-2 font-medium text-primary">{t('FeaturedCategories.viewAll')}</Text>
-          <ArrowRight size={18} color="#000000ff" />
+          className="flex-row items-center gap-2"
+          style={isArabic && !I18nManager.isRTL ? { flexDirection: 'row-reverse' } : undefined}
+        >
+          <Text className="font-medium text-primary">{t('FeaturedCategories.viewAll')}</Text>
+          {isArabic ? (
+            <ArrowLeft size={18} color="#000000ff" />
+          ) : (
+            <ArrowRight size={18} color="#000000ff" />
+          )}
         </Pressable>
       </View>
 
@@ -35,7 +46,8 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Pressable 
-            className="mr-4 w-20 items-center"
+            className="w-20 items-center"
+            style={{ marginEnd: 16 }}
             onPress={() => {
               router.push(`/(tabs)/(home)/(context)/categories/${item.id}` as any);
             }}

@@ -1,68 +1,67 @@
-import React from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
-import { getImageUrl } from '@/lib/image-utils';
+import React, { useRef, useState, useEffect } from 'react';
+import { View, Text, FlatList, Pressable, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { getImageUrl } from '@/lib/image-utils';
+import { getAppRoute } from '@/lib/url-utils';
 
 interface PromoGridProps {
   banners: Array<{
     id: number;
     url: string;
     image: string | null;
+    title?: string;
   }>;
 }
+
+const { width } = Dimensions.get('window');
+const ITEM_WIDTH = width * 0.85; 
+const ITEM_SPACING = 12;
 
 export function PromoGrid({ banners }: PromoGridProps) {
   const { t } = useTranslation('home');
   const router = useRouter();
+  const flatListRef = useRef<FlatList>(null);
+  const [current, setCurrent] = useState(0);
 
-  if (!banners || banners.length < 5) return null;
+  if (!banners || banners.length === 0) return null;
 
-  const topRow = banners.slice(0, 2);
-  const middleBanner = banners[2];
-  const bottomRow = banners.slice(3, 5);
+  // Auto-scroll logic (optional, mimics web carousel autoplay)
+  useEffect(() => {
+     if (banners.length <= 1) return;
+     const timer = setInterval(() => {
+        const nextIndex = current === banners.length - 1 ? 0 : current + 1;
+        flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+        setCurrent(nextIndex);
+     }, 4000); // 4 seconds
+     return () => clearInterval(timer);
+  }, [current, banners.length]);
 
-  const renderTile = (banner: { id: number; url: string; image: string | null }, wide = false) => (
+  const onMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / (ITEM_WIDTH + ITEM_SPACING));
+    setCurrent(index);
+  };
+
+  const renderItem = ({ item }: { item: any }) => (
     <Pressable
-      key={banner.id}
       onPress={() => {
-        if (!banner.url) {
-          router.push('/(tabs)/(home)/(context)/categories/[id]' as any);
-          return;
-        }
-
-        // 1. Clean Language Prefix
-        // Removes /ar/, /en/, ar/, en/ from start
-        let cleanUrl = banner.url.replace(/^\/?(ar|en)\//, '/');
-        
-        // Ensure leading slash
-        if (!cleanUrl.startsWith('/')) {
-          cleanUrl = '/' + cleanUrl;
-        }
-
-        // 2. Map Web Routes to App Routes
-        // Example: /categories/360 -> /content/categories/360
-        if (cleanUrl.startsWith('/categories/')) {
-          cleanUrl = cleanUrl.replace('/(tabs)/(home)/(context)/categories/[id]', '/(tabs)/(home)/(context)/categories/[id]');
-        } else if (cleanUrl.startsWith('/products/')) {
-           // Assuming product structure is similar or check existing files
-           // Checking file tree: app/(tabs)/(home)/content/products/[id] exists?
-           // Or app/(tabs)/(shop)/products/[id]?
-           // Let's assume /content/products/ based on consistency, or keep as is if unsure.
-           // Safe bet: The user specifically complained about categories.
-           cleanUrl = cleanUrl.replace('/(tabs)/(home)/(context)/products/[id]', '/(tabs)/(home)/(context)/products/[id]'); 
-        }
-
-        console.log('Navigating to:', cleanUrl);
-        router.push(cleanUrl as any);
+        const route = getAppRoute(item.url);
+        if (route) router.push(route as any);
       }}
-      className="overflow-hidden rounded-sm bg-gray-100"
-      style={{ width: wide ? '100%' : '48%', aspectRatio: wide ? 4 / 1 : 16 / 9 }}>
-      {banner.image ? (
+      className="rounded-xl overflow-hidden bg-gray-100 ml-3 first:ml-3 last:mr-3"
+      style={{ 
+        width: ITEM_WIDTH, 
+        aspectRatio: 16 / 9,
+      }}
+    >
+      {item.image ? (
         <Image
-          source={{ uri: getImageUrl(banner.image) }}
+          source={{ uri: getImageUrl(item.image) }}
           style={{ width: '100%', height: '100%' }}
-          resizeMode="cover"
+          contentFit="cover"
+          transition={300}
         />
       ) : (
         <View className="flex-1 items-center justify-center">
@@ -73,15 +72,32 @@ export function PromoGrid({ banners }: PromoGridProps) {
   );
 
   return (
-    <View className="w-full ">
-      {/* Top Row */}
-      <View className="mb-4 flex-row justify-between">{topRow.map((b) => renderTile(b))}</View>
+    <View className="w-full py-4 bg-transparent">
+      <FlatList
+        ref={flatListRef}
+        data={banners}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={ITEM_WIDTH + ITEM_SPACING} // Snap to item width + margin
+        decelerationRate="fast"
+        contentContainerStyle={{ paddingRight: 16 }} // Initial padding
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        onScrollToIndexFailed={() => {}} // Catch error if scroll fails
+      />
 
-      {/* Middle Wide Banner */}
-      <View className="mb-4">{renderTile(middleBanner, true)}</View>
-
-      {/* Bottom Row */}
-      <View className="flex-row justify-between">{bottomRow.map((b) => renderTile(b))}</View>
+            {/* Pagination Dots */}
+      <View className="flex-row justify-center items-center absolute bottom-6 w-full gap-2">
+        {banners.map((_, index) => (
+          <View
+            key={index}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              current === index ? 'w-6 bg-white/90' : 'w-2 bg-white/50'
+            }`}
+          />
+        ))}
+      </View>
     </View>
   );
 }

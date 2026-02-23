@@ -260,8 +260,8 @@ export const searchSlice = apiSlice.injectEndpoints({
 
         return tags;
       },
-      // Keep search results cached for 5 minutes
-      keepUnusedDataFor: 300,
+      // Keep search results cached for 1 minute
+      keepUnusedDataFor: 60,
     }),
 
     // --- Autocomplete Search ---

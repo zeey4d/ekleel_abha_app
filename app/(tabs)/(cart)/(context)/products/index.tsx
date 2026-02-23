@@ -1,1 +1,1 @@
-export { default } from '@/components/features/product/ProductsContent';
+export { default } from '@/components/screens/products/ProductsScreen';

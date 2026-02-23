@@ -20,9 +20,9 @@ export const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) 
   if (!testimonials?.length) return null;
 
   return (
-    <View className="rounded-3xl bg-muted px-4 py-12">
+    <View className="rounded-3xl bg-muted px-4 py-8">
       {/* Header */}
-      <View className="mb-10 items-center">
+      <View className="mb-6 items-center">
         <Text className="text-center text-2xl font-bold text-foreground">
           {t('Testimonials.title')}
         </Text>
@@ -34,7 +34,7 @@ export const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) 
         data={testimonials.slice(0, 3)}
         keyExtractor={(item) => item.id.toString()}
         numColumns={1}
-        contentContainerStyle={{ gap: 16 }}
+        contentContainerStyle={{ gap: 12 }}
         renderItem={({ item }) => (
           <View className="relative rounded-2xl border border-border bg-card p-6">
             {/* Quote Icon */}

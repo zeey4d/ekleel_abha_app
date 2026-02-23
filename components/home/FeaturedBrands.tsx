@@ -22,7 +22,7 @@ export const FeaturedBrands = ({ brands }: { brands: Brand[] }) => {
   if (!brands?.length) return null;
 
   return (
-    <View className="w-[96%] self-center mb-7">
+    <View className="w-[96%] self-center mb-7 ">
       {/* Title */}
       <Text className="text-lg font-bold text-foreground mb-6">
         {t('FeaturedBrands.title')}

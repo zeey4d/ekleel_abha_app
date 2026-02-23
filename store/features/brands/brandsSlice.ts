@@ -61,6 +61,27 @@ export const brandsSlice = apiSlice.injectEndpoints({
               { type: "Brand" as const, id: "LIST" },
             ]
           : [{ type: "Brand" as const, id: "LIST" }],
+      // 🕐 Long-lived: Brands rarely change
+      keepUnusedDataFor: 3600,
+      // Support Infinite Scroll
+      serializeQueryArgs: ({ queryArgs }) => {
+        const { page, ...rest } = queryArgs;
+        return rest; // Group by all args except 'page'
+      },
+      merge: (currentCache, newItems, { arg }) => {
+        if (arg.page === 1) {
+          // Reset cache if page 1
+          brandsAdapter.setAll(currentCache, newItems.ids.map((id) => newItems.entities[id]!));
+        } else {
+          // Append new items
+          brandsAdapter.addMany(currentCache, newItems.ids.map((id) => newItems.entities[id]!));
+        }
+        // Update meta
+        currentCache.meta = newItems.meta;
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.page !== previousArg?.page;
+      },
     }),
 
     // --- Get Brand by ID ---
@@ -70,6 +91,7 @@ export const brandsSlice = apiSlice.injectEndpoints({
         return responseData.data;
       },
       providesTags: (result, error, id) => [{ type: "Brand" as const, id }],
+      keepUnusedDataFor: 3600,
     }),
 
     // --- Get Featured Brands ---
@@ -83,6 +105,7 @@ export const brandsSlice = apiSlice.injectEndpoints({
         return responseData.data;
       },
       providesTags: [{ type: "Brand" as const, id: "FEATURED" }],
+      keepUnusedDataFor: 3600,
     }),
 
     // --- Get Brands by Letter ---

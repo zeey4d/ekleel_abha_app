@@ -1,14 +1,19 @@
 import { Stack } from 'expo-router';
-import AppHeader from '@/components/navigation/AppHeader';
+import React from 'react';
 
-export default function AuthLayout() {
+export default function AccountLayout() {
   return (
     <Stack
       screenOptions={{
-                headerShown: false,
-
+        headerShown: false,
         animation: 'slide_from_right',
       }}
-    />
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name="orders" />
+      <Stack.Screen name="addresses" />
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="language" />
+    </Stack>
   );
 }

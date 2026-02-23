@@ -32,12 +32,16 @@
         "viewAll": "View All"
     },
     "ProductSort": {
-        "sortBy": "Sort by:",
+        "sortBy": "Sort by",
         "sortPlaceholder": "Sort by",
         "newest": "Newest",
         "oldest": "Oldest",
         "priceLowHigh": "Price: Low to High",
-        "priceHighLow": "Price: High to Low"
+        "priceHighLow": "Price: High to Low",
+        "nameAZ": "Name: A-Z",
+        "nameZA": "Name: Z-A",
+        "apply": "Apply",
+        "reset": "Reset"
     },
     "Filters": {
         "title": "Filters",

@@ -126,6 +126,35 @@ export const cartSlice = apiSlice.injectEndpoints({
         { type: 'Cart' as const, id },
         { type: 'Cart' as const, id: 'CURRENT' }
       ],
+      async onQueryStarted({ id, quantity }, { dispatch, queryFulfilled }) {
+        // Optimistic update for 'getCart' (Authenticated)
+        const patchResult = dispatch(
+          cartSlice.util.updateQueryData('getCart', undefined, (draft) => {
+            const item = draft.entities[id];
+            if (item) {
+              const diff = quantity - item.quantity;
+              item.quantity = quantity;
+              
+              // Optimistically update summary counts if available
+              if (draft.summary) {
+                if (draft.summary.total_items !== undefined) {
+                    draft.summary.total_items += diff;
+                }
+                 if (draft.summary.item_count !== undefined) {
+                    draft.summary.item_count += diff;
+                }
+                // We can't easily update total price without knowing unit price calculation rules (tax etc)
+                // But showing the quantity update immediately is the most important part.
+              }
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
 
     // --- Remove Item from Cart ---

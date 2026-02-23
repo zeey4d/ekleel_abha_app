@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
-import { useRouter } from 'expo-router'; // البديل لـ next/navigation
+import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ArrowRight } from 'lucide-react-native';
 import { getImageUrl } from '@/lib/image-utils';
-import { Badge } from '../ui/badge'; // تأكد أن هذا المكون يدعم Native
+import { Badge } from '../ui/badge'; 
 
 interface Category {
   id: number;
@@ -17,39 +17,38 @@ export const CategoryCard = ({ category }: { category: Category }) => {
   const router = useRouter();
 
   const handlePress = () => {
-    // التوجيه إلى المسار الديناميكي [id]
-    // سيفترض المسار: app/categories/[id].tsx
     router.push(`/categories/${category.id}`);
   };
 
   return (
     <Pressable
       onPress={handlePress}
-      // محاكاة تأثير الـ hover باستخدام الـ state الخاص بـ Pressable
-      className={({ pressed }) =>
-        `relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white ${pressed ? 'scale-[0.98] border-slate-200 opacity-90' : ''} `
-      }>
+      style={({ pressed }) => [
+        styles.card,
+        pressed && styles.cardPressed
+      ]}
+    >
       {/* Image Container */}
-      <View className="relative aspect-square overflow-hidden bg-slate-50">
+      <View style={styles.imageContainer}>
         {category.image ? (
           <Image
             source={{ uri: getImageUrl(category.image) }}
-            className="h-full w-full"
+            style={styles.image}
             resizeMode="cover"
           />
         ) : (
-          <View className="h-full w-full items-center justify-center bg-slate-100">
-            <Text className="text-4xl font-bold text-slate-300 opacity-20">{category.name[0]}</Text>
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.placeholderText}>{category.name[0]}</Text>
           </View>
         )}
 
-        {/* Overlay - في Native نستخدم View بلون شفاف لأن التدرج يحتاج مكتبة إضافية */}
-        <View className="absolute inset-0 bg-black/20" />
+        {/* Overlay */}
+        <View style={styles.overlay} />
 
         {/* Count Badge */}
-        <View className="absolute right-3 top-3">
-          <Badge className="rounded-md bg-white/90 px-2 py-1">
-            <Text className="text-xs font-medium text-slate-800">
+        <View style={styles.badgeWrapper}>
+          <Badge style={styles.badgeCustom}>
+            <Text style={styles.badgeText}>
               {category.product_count || 0} Items
             </Text>
           </Badge>
@@ -57,20 +56,106 @@ export const CategoryCard = ({ category }: { category: Category }) => {
       </View>
 
       {/* Content */}
-      <View className="items-center p-5">
-        <Text className="mb-1 text-lg font-bold text-slate-900">{category.name}</Text>
+      <View style={styles.content}>
+        <Text style={styles.title} numberOfLines={1}>{category.name}</Text>
 
         {category.children_count !== undefined && category.children_count > 0 && (
-          <Text className="mb-3 text-xs text-slate-500">
+          <Text style={styles.subtitle}>
             {category.children_count} Subcategories
           </Text>
         )}
 
-        <View className="flex-row items-center gap-1">
-          <Text className="text-sm font-medium text-primary">Shop Now</Text>
-          <ArrowRight size={16} color="#007AFF" />
+        <View style={styles.footer}>
+          <Text style={styles.shopNowText}>Shop Now</Text>
+          <ArrowRight size={14} color="#007AFF" />
         </View>
       </View>
     </Pressable>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    flex: 1,
+    position: 'relative',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#f1f5f9', // slate-100
+    backgroundColor: '#ffffff',
+  },
+  cardPressed: {
+    transform: [{ scale: 0.98 }],
+    borderColor: '#e2e8f0', // slate-200
+    opacity: 0.9,
+  },
+  imageContainer: {
+    position: 'relative',
+    aspectRatio: 1,
+    overflow: 'hidden',
+    backgroundColor: '#f8fafc', // slate-50
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+  },
+  placeholderContainer: {
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f1f5f9',
+  },
+  placeholderText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#cbd5e1', // slate-300
+    opacity: 0.5,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  badgeWrapper: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
+  },
+  badgeCustom: {
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#1e293b', // slate-800
+  },
+  content: {
+    alignItems: 'center',
+    padding: 16,
+  },
+  title: {
+    marginBottom: 4,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0f172a', // slate-900
+  },
+  subtitle: {
+    marginBottom: 12,
+    fontSize: 12,
+    color: '#64748b', // slate-500
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  shopNowText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#007AFF',
+    marginRight: 4,
+  },
+});

@@ -22,6 +22,8 @@ export default function CartLayout() {
         options={{
           title: 'Cart',
           headerShown: true,
+          headerBackVisible: false,   // ✅ يخفي زر الرجوع
+
         }}
       />
       
