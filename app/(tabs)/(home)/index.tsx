@@ -19,7 +19,7 @@ import { DealsOfTheDay } from '@/components/home/DealsOfTheDay';
 import { Testimonials } from '@/components/home/Testimonials';
 import HomeHeader from '@/components/layout/header/HomeHeader';
 import { useRouter } from 'expo-router';
-import { VerticalPromoGrid } from '@/components/home/VerticalPromoGrid';
+import { HeroPromoBanners } from '@/components/home/HeroPromoBanners';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
@@ -75,7 +75,14 @@ export default function HomeScreen() {
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
-        <HeroSlider banners={heroBanners} />
+        {/* <HeroSlider banners={heroBanners} /> */}
+
+          {sidebarBanners.length > 0 && (
+
+                <HeroSlider banners={sidebarBanners} />
+                          )}
+
+
 
         <View className="px-3">
           <View className="py-5">
@@ -84,11 +91,10 @@ export default function HomeScreen() {
 
           <NewArrivals products={data?.new_arrivals || []} />
 
-          {/* Promo Grid 1 */}
-          {/* <PromoGrid banners={data.banner.slice(-10, -5)} /> */}
 
-          {sidebarBanners.length > 0 && (
-            <VerticalPromoGrid banners={sidebarBanners} />
+          {heroBanners.length > 0 && (
+                        // <VerticalPromoGrid banners={heroBanners} />
+            <HeroPromoBanners banners={heroBanners} />
           )}
 
           <View className="py-5">

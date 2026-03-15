@@ -3,10 +3,11 @@ import { Tabs } from 'expo-router';
 import { HomeIcon, LayersIcon, ShoppingCartIcon, HeartIcon, UserIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Platform } from 'react-native';
+import { Platform, Image, View, Text } from 'react-native';
 import { useAppSelector } from '@/store/hooks';
 import { selectTotalCartItems, useGetCartQuery } from '@/store/features/cart/cartSlice';
 import { selectWishlistCount, useGetWishlistQuery } from '@/store/features/wishlist/wishlistSlice';
+import { useGetMeQuery } from '@/store/features/auth/authSlice';
 
 export default function TabsLayout() {
   const { t } = useTranslation('tabs');
@@ -15,6 +16,8 @@ export default function TabsLayout() {
   // Ensure data is loaded
   useGetCartQuery();
   useGetWishlistQuery({});
+  const { data: user } = useGetMeQuery();
+  const isAuthenticated = !!user;
 
   const cartCount = useAppSelector(selectTotalCartItems);
   const wishlistCount = useAppSelector(selectWishlistCount);
@@ -81,7 +84,22 @@ export default function TabsLayout() {
         name="(account)"
         options={{
           title: t('Account'),
-          tabBarIcon: ({ color, size }) => <UserIcon size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => {
+            if (isAuthenticated && user) {
+               return (
+                 <View style={{ width: size + 4, height: size + 4, borderRadius: (size + 4) / 2, overflow: 'hidden', borderWidth: 1.5, borderColor: color, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f3f4f6' }}>
+                    {(user as any).avatar ? (
+                      <Image source={{ uri: (user as any).avatar }} style={{ width: '100%', height: '100%' }} />
+                    ) : (
+                      <Text style={{ fontSize: size * 0.5, fontWeight: 'bold', color: color }}>
+                        {user.full_name?.[0]?.toUpperCase() || user.firstname?.[0]?.toUpperCase() || (user as any).name?.[0]?.toUpperCase() || 'U'}
+                      </Text>
+                    )}
+                 </View>
+               );
+            }
+            return <UserIcon size={size} color={color} />;
+          },
         }}
       />
     </Tabs>

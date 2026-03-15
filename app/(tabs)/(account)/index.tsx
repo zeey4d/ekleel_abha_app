@@ -20,7 +20,7 @@ import {
   LogOut
 } from "lucide-react-native";
 
-import ServiceRow from "@/components/layout/info/ServiceRow";
+import ServiceRow from "@/components/info/ServiceRow";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -31,6 +31,7 @@ export default function AccountScreen() {
   const { t } = useTranslation(['account', 'info']);
   const { language } = useLanguage();
   const { width } = Dimensions.get("window");
+  const isRtl = language === 'ar';
   const imageSize = width / 1.75;
   
   const { data: user, isLoading, error } = useGetMeQuery();
@@ -94,27 +95,35 @@ export default function AccountScreen() {
         showsVerticalScrollIndicator={false}
         className="px-4 pt-0"
       >
-        <View className="flex-1 items-center justify-center ">
-          <Image
-            source={require("@/assets/images/aka_g.png")}
-            style={{ width: imageSize, height: imageSize }}
-            resizeMode="contain"
-            className=""
-          />
+        <View className="flex-1 items-center justify-center mt-4">
+          {!isAuthenticated && (
+            <Image
+              source={require("@/assets/images/aka_g.png")}
+              style={{ width: imageSize, height: imageSize }}
+              resizeMode="contain"
+              className="mb-2"
+            />
+          )}
 
           {isAuthenticated && user && (
-            <View className="items-center mb-8 w-full ">
-              {/* <View className="w-24 h-24 bg-white rounded-full items-center justify-center mb-3 shadow-sm border border-gray-100">
-                 <Text className="text-3xl font-bold text-primary">
-                    {user.firstname?.[0]?.toUpperCase() || user.name?.[0]?.toUpperCase() || 'A'}
-                 </Text>
-              </View> */}
-              <Text className="text-xl font-bold text-slate-800 mb-1">
-                {user.full_name || `${user.firstname} ${user.lastname}` || user.name}
+            <View className="items-center mb-8 w-full mt-6">
+              <View className="w-28 h-28 bg-white rounded-full items-center justify-center mb-4 shadow-sm border-2 border-slate-50 overflow-hidden">
+                 {(user as any).avatar ? (
+                     <Image source={{ uri: (user as any).avatar }} style={{ width: '100%', height: '100%' }} />
+                 ) : (
+                     <Text className="text-4xl font-bold text-yellow-600">
+                        {user.full_name?.[0]?.toUpperCase() || user.firstname?.[0]?.toUpperCase() || (user as any).name?.[0]?.toUpperCase() || 'U'}
+                     </Text>
+                 )}
+              </View>
+              <Text className="text-2xl font-bold text-slate-800 mb-1 font-cairo">
+                {user.full_name || `${user.firstname} ${user.lastname}` || (user as any).name}
               </Text>
-              <Text className="text-sm text-slate-500 font-medium">
-                {user.email}
-              </Text>
+              <View className="bg-slate-100 px-4 py-1.5 rounded-full mt-1">
+                <Text className="text-sm text-slate-600 font-medium">
+                  {user.email}
+                </Text>
+              </View>
             </View>
           )}
 
@@ -137,13 +146,14 @@ export default function AccountScreen() {
              </View>
            </>
         ) : (
-             <View className="items-center mb-10 ">
+             <View className="items-center mb-10 mt-2">
             <TouchableOpacity
                 onPress={() => router.push("/(auth)/login")}
-                className="bg-white w-full py-3 rounded-full items-center active:opacity-80 border border-gray-200"
+                className="bg-yellow-500 w-full py-4 rounded-2xl items-center flex-row justify-center active:opacity-80 shadow-sm"
             >
-                <Text className="text-black text-base font-semibold font-cairo">
-                {t('account:login') || "Login / Create Account"}
+                <User color="white" size={24} style={{ marginRight: 8, marginLeft: isRtl ? 8 : 0 }} />
+                <Text className="text-white text-lg font-bold font-cairo">
+                  {t('account:login') || "تسجيل الدخول / إنشاء حساب"}
                 </Text>
             </TouchableOpacity>
             </View>

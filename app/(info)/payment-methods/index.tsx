@@ -107,11 +107,16 @@ export default function PaymentMethodsPage() {
                                       ),}} />
 
             {/* Hero Section */}
-            <View className="bg-foreground py-16 px-4 items-center">
+            <View className="bg-foreground py-16 px-4 items-center relative overflow-hidden">
+                <Image 
+                  source={require("@/assets/images/aka_g.png")} 
+                  style={{ width: 128, height: 128, marginBottom: 24 }} 
+                  contentFit="contain" 
+                />
                 <View className="w-16 h-16 rounded-full bg-yellow-500/20 items-center justify-center mb-6">
                     <CreditCard size={32} color="#d4af37" />
                 </View>
-                <Text className="text-3xl font-bold mb-4 text-white text-center">
+                <Text className="text-3xl font-bold mb-4 text-white text-center font-cairo">
                     {t('paymentMethods.hero.title')}
                 </Text>
                 <Text className="text-lg text-white/80 text-center px-4">

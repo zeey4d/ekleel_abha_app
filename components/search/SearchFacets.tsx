@@ -297,17 +297,17 @@ export default function SearchFacets({ facets, onFilterChange, onApply, onClose,
 const styles = StyleSheet.create({
   container: {},
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
     gap: 8,
   },
   // -- Chip styles --
   facetChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    backgroundColor: '#ffffffff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#e5e7eb',

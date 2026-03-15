@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Linking, TextInput, Pressable, Alert } from "react-native";
+import { View, ScrollView, Linking, TextInput, Pressable, Alert, Image } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -78,11 +78,16 @@ export default function ContactPage() {
        }} />
 
       {/* Hero Section */}
-      <View className="bg-foreground py-16 px-4 items-center">
+      <View className="bg-foreground py-16 px-4 items-center relative overflow-hidden">
+        <Image 
+          source={require("@/assets/images/aka_g.png")} 
+          className="w-32 h-32 mb-6" 
+          resizeMode="contain" 
+        />
         <View className="w-16 h-16 rounded-full bg-yellow-500/20 items-center justify-center mb-6">
           <Headphones size={32} color="#d4af37" />
         </View>
-        <Text className="text-3xl font-bold mb-4 text-white text-center">
+        <Text className="text-3xl font-bold mb-4 text-white text-center font-cairo">
           {t("contact.pageTitle")}
         </Text>
         <Text className="text-lg text-white/80 text-center">

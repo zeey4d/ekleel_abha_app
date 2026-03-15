@@ -99,11 +99,10 @@ export default function AboutPage() {
                     <Text className="text-start leading-6 text-muted-foreground">{t('about.story.paragraph3')}</Text>
                 </View>
 
-                {/* Image Placeholder or Asset */}
+                {/* Site Logo */}
                 <View className="items-center justify-center bg-yellow-500/5 rounded-2xl p-8 aspect-square mb-8">
-                    {/* Using require for local image if available, or placeholder */}
                     <Image
-                        source={require('@/assets/images/icon.png')} // Replace with actual asset if available, or keep generic
+                        source={require('@/assets/images/aka_g.png')} 
                         className="w-48 h-48"
                         resizeMode="contain"
                     />
