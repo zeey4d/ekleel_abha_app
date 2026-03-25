@@ -1,1 +1,1 @@
-export { default } from '@/components/screens/products/BestSellersPageScreen';
+export { default } from '@/features/products/screens/BestSellersPageScreen';

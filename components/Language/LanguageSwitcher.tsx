@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
 
   const handleLanguageChange = (langCode: string) => {
     if (langCode !== language) {
-      changeLanguage(langCode);
+      changeLanguage(langCode as 'ar' | 'en');
     }
   };
 

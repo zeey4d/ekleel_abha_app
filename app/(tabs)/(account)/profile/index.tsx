@@ -1,1 +1,1 @@
-export { default } from '@/components/screens/account/ProfileFormScreen';
+export { default } from '@/features/account/screens/ProfileFormScreen';

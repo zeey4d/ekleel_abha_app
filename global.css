@@ -38,6 +38,10 @@
     --input: 180 10% 88%;
     --ring: 179 47% 33%;
 
+    /* === Skeleton Styles === */
+    --skeleton: 180 15% 90%;
+    --skeleton-foreground: 180 15% 95%;
+
     /* === Radius === */
     --radius: 0.625rem;
 
@@ -83,6 +87,10 @@
     --border: 180 10% 18%;
     --input: 180 10% 18%;
     --ring: 179 45% 50%;
+
+    /* === Skeleton Styles === */
+    --skeleton: 180 10% 20%;
+    --skeleton-foreground: 180 10% 25%;
 
     /* === Chart Colors (brighter for dark bg) === */
     --chart-1: 179 45% 50%;

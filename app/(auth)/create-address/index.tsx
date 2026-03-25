@@ -48,7 +48,7 @@ export default function CreateAddressScreen() {
             const result = await addAddress(addressPayload).unwrap();
             console.log('Address creation success:', result);
             Alert.alert(t('createAddress.success'));
-            router.replace('/(tabs)');
+            router.replace('/');
         } catch (error: any) {
             console.error('Failed to add address:', error);
 

@@ -1,1 +1,1 @@
-export { default } from '@/components/screens/account/AddressListScreen';
+export { default } from '@/features/account/screens/AddressListScreen';

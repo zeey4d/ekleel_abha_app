@@ -92,7 +92,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
       <Animated.View style={[styles.locationContainer, animatedLocationStyle]}>
         <TouchableOpacity
           onPress={() =>
-            router.push('/(tabs)/(home)/(context)/location-selector')
+            router.push('/(tabs)/(home)/(context)/location-selector' as any)
           }
           style={styles.locationContent}
         >
@@ -115,7 +115,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
         <View className=' mt-2' style={styles.iconsRow}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => router.push(`/(tabs)/(home)/(context)/brands`)}
+            onPress={() => router.push(`/(tabs)/(home)/(context)/brands` as any)}
             accessibilityLabel="الماركات"
             accessible
           >
@@ -124,7 +124,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
 
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => router.push(`/(tabs)/(home)/(context)/notifications`)}
+            onPress={() => router.push(`/(tabs)/(home)/(context)/notifications` as any)}
             accessibilityLabel="الإشعارات"
             accessible
           >
@@ -140,7 +140,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
         activeOpacity={0.9}
         onPress={() => {
           console.log('🔍 Opening Search Landing Page');
-          router.push("/(tabs)/(home)/(context)/(search)");
+          router.push("/(tabs)/(home)/(context)/(search)" as any);
         }}
         className="relative flex-row items-center  rounded-full px-4 h-10 border border-transparent"
       >

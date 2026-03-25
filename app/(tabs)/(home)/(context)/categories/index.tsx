@@ -1,1 +1,1 @@
-export { default } from '@/components/screens/categories/CategoriesListScreen';     
+export { default } from '@/features/categories/screens/CategoriesListScreen';

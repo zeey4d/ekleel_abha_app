@@ -98,6 +98,8 @@ export const apiSlice = createApi({
     'AdminLanguage',
     'AdminAttribute',
     'AdminAttributeGroup',
+    'AdminOption',
+    'AdminShipment',
     'AdminAnalytics',
     'AdminNotification',
     'AdminReturn',

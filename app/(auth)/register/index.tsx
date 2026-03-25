@@ -63,7 +63,7 @@ export default function RegisterScreen() {
         const checkAuth = async () => {
             const isAuth = await authStorage.isAuthenticated();
             if (isAuth) {
-                router.replace('/(tabs)');
+                router.replace('/');
             }
         };
         checkAuth();

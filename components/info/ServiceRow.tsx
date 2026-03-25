@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Text, Pressable, View } from "react-native";
+import { Text, TouchableHighlight, View } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
@@ -32,31 +32,35 @@ export default function ServiceRow({
   };
 
   return (
-    <Pressable
+    <TouchableHighlight
       onPress={handlePress}
+      underlayColor="#f1f5f9"
+      style={{ backgroundColor: "#ffffff" }}
       className={[
-        "bg-white flex-row items-center p-5 gap-3",
-        !isLast && "border-b border-gray-100",
-        "active:opacity-80",
-      ].join(" ")}
+        !isLast && "border-b border-gray-300",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      {/* Icon */}
-      <Icon size={22} color="#0baa92ff" />
+      <View className="flex-row items-center p-5 gap-3">
+        {/* Icon */}
+        <Icon size={22} color="#0baa92ff" />
 
-      {/* Title */}
-      <Text className="flex-1 text-base text-slate-700 font-cairo">
-        {title}
-      </Text>
-
-      {/* Optional Value */}
-      {value && (
-        <Text className="text-[#1D64A1] font-medium font-cairo">
-          {value}
+        {/* Title */}
+        <Text className="flex-1 text-base text-slate-700 font-cairo">
+          {title}
         </Text>
-      )}
 
-      {/* Arrow */}
-      <ChevronRight size={18} color="#D1D5DB" className="rtl:rotate-180" />
-    </Pressable>
+        {/* Optional Value */}
+        {value && (
+          <Text className="text-[#1D64A1] font-medium font-cairo">
+            {value}
+          </Text>
+        )}
+
+        {/* Arrow */}
+        <ChevronRight size={18} color="#D1D5DB" className="rtl:rotate-180" />
+      </View>
+    </TouchableHighlight>
   );
 }

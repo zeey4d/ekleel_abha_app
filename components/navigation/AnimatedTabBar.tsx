@@ -151,7 +151,7 @@ export default function AnimatedTabBar({
         const { options } = descriptors[route.key];
         
         // Skip hidden tabs (href: null)
-        if (options.href === null) {
+        if ((options as any).href === null) {
           return null;
         }
 

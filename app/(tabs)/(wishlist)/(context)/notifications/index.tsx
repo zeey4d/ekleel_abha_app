@@ -1,1 +1,1 @@
-export { default } from '@/components/screens/notifications/notificationsScreens';     
+export { default } from '@/features/notifications/screens/notificationsScreens';

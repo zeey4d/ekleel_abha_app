@@ -14,6 +14,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -41,7 +43,7 @@ export function useNotificationsBootstrap(
 
   const handleNotification = useCallback(
     (event: Notifications.Notification) => {
-      const payload = event.request.content.data as PushNotificationPayload | undefined;
+      const payload = event.request.content.data as unknown as PushNotificationPayload | undefined;
       
       // If payload is empty, we might still want to show it, but for now we focus on data injection
       // We can construct a notification even without data if title/body exists

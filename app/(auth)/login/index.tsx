@@ -52,7 +52,7 @@ export default function LoginScreen() {
         const checkAuth = async () => {
             const isAuth = await authStorage.isAuthenticated();
             if (isAuth) {
-                router.replace('/(tabs)');
+                router.replace('/');
             }
         };
         checkAuth();
@@ -81,7 +81,7 @@ export default function LoginScreen() {
                 await AsyncStorage.removeItem('guest_session_id');
             }
 
-            router.replace('/(tabs)');
+            router.replace('/');
         } catch (err: any) {
             console.error('Login error:', err);
             const errorMessage = err?.data?.message || t('login.invalidCredentials');
