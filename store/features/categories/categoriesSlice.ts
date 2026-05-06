@@ -3,21 +3,21 @@ import { createSelector, createEntityAdapter, EntityState } from "@reduxjs/toolk
 import { apiSlice } from "../api/apiSlice";
 import { RootState } from '@/store/store';
 
-import { 
-  Category, 
-  ProductParams, 
-  GetProductsByCategoryArgs, 
-  GetCategoryTreeParams, 
-  CategoryState, 
-  CategoryApiResponse, 
+import {
+  Category,
+  ProductParams,
+  GetProductsByCategoryArgs,
+  GetCategoryTreeParams,
+  CategoryState,
+  CategoryApiResponse,
   CategoryDetailResponse
- } from '@/store/types';
+} from '@/store/types';
 
 
 // --- Entity Adapter for Categories ---
 const categoriesAdapter = createEntityAdapter<Category, number>({
   selectId: (category: Category) => category.id,
-  sortComparer: false, // No sorting since we preserve API order
+  sortComparer: (a: Category, b: Category) => (a.sort_order || 0) - (b.sort_order || 0), // Sorted by sort_order
 });
 
 const initialCategoriesState: CategoryState = categoriesAdapter.getInitialState({
@@ -37,19 +37,10 @@ export const categoriesSlice = apiSlice.injectEndpoints({
         params.append('include_products', include_products.toString());
         return `/categories?${params.toString()}`;
       },
-      
-      // 🕐 Long-lived: Categories rarely change
-      keepUnusedDataFor: 3600, // 1 hour
-      
-      // FIX: Unwrap the 'data' property here
       transformResponse: (response: CategoryApiResponse): CategoryState => {
-        // console.log('🔍 Raw API Response:', response);
-        // console.log('🔍 Response.data:', response.data);
-
         const categoriesData = response.data;
 
         if (!categoriesData) {
-          console.error('❌ No data in response!');
           return {
             ...initialCategoriesState,
             tree: [],
@@ -76,15 +67,10 @@ export const categoriesSlice = apiSlice.injectEndpoints({
         );
 
         // Store the tree structure separately
-        const finalState = {
+        return {
           ...state,
           tree: categoriesData,
         };
-
-        // console.log('✅ Final transformed state:', finalState);
-        // console.log('✅ Tree data:', finalState.tree);
-
-        return finalState;
       },
       providesTags: (result, error, arg) =>
         result
@@ -95,18 +81,13 @@ export const categoriesSlice = apiSlice.injectEndpoints({
           : [{ type: "Category" as const, id: "TREE" }],
     }),
 
-    // --- Get Category by ID ---
-    getCategoryById: builder.query<CategoryDetailResponse['data'], number>({
-      query: (id) => `/categories/${id}`,
-      // FIX: Unwrap the 'data' property here
-      transformResponse: (response: CategoryDetailResponse) => response.data,
-      providesTags: (result, error, id) => [{ type: "Category", id }],
-    }),
+    // --- Get Category by ID (details + products + filters) ---
+    getCategoryById: builder.query<CategoryDetailResponse['data'], number | GetProductsByCategoryArgs>({
+      query: (arg) => {
+        const id = typeof arg === 'number' ? arg : arg.id;
+        const params = typeof arg === 'object' ? arg.params : {};
 
-    // --- Get Products by Category ---
-    getProductsByCategory: builder.query<any, GetProductsByCategoryArgs>({
-      query: ({ id, params = {} }) => {
-        const { page = 1, limit = 15, sort = 'newest', min_price, max_price, attributes } = params;
+        const { page = 1, limit = 15, sort = 'best_selling', min_price, max_price, attributes } = params || {};
         const queryParams = new URLSearchParams();
         queryParams.append('page', page.toString());
         queryParams.append('limit', limit.toString());
@@ -118,6 +99,30 @@ export const categoriesSlice = apiSlice.injectEndpoints({
 
         return `/categories/${id}?${queryParams.toString()}`;
       },
+      transformResponse: (response: CategoryDetailResponse) => response.data,
+      providesTags: (result, error, arg) => {
+        const id = typeof arg === 'number' ? arg : arg.id;
+        return [{ type: "Category", id }];
+      },
+    }),
+
+    // --- Get Products by Category (with pagination, sorting, filtering) ---
+    getProductsByCategory: builder.query<CategoryDetailResponse, GetProductsByCategoryArgs>({
+      query: ({ id, params = {} }) => {
+        const { page = 1, limit = 15, sort = 'best_selling', min_price, max_price, attributes } = params;
+        const queryParams = new URLSearchParams();
+        queryParams.append('page', page.toString());
+        queryParams.append('limit', limit.toString());
+        queryParams.append('sort', sort);
+
+        if (min_price !== undefined) queryParams.append('min_price', min_price.toString());
+        if (max_price !== undefined) queryParams.append('max_price', max_price.toString());
+        if (attributes) queryParams.append('attributes', attributes);
+
+        return `/categories/${id}?${queryParams.toString()}`;
+      },
+      // The controller show() returns: { data: { ...category, products, filters }, meta: { ...pagination } }
+      // We return the full response so callers can access both data and meta
       providesTags: (result, error, { id }) => [
         { type: "Category", id },
         { type: "Product", id: "LIST" },
@@ -131,11 +136,20 @@ export const categoriesSlice = apiSlice.injectEndpoints({
         params.append('include_products', include_products.toString());
         return `/categories/${id}/children?${params.toString()}`;
       },
-      // FIX: Unwrap the 'data' property here
       transformResponse: (response: { data: Category[] }) => response.data,
       providesTags: (result, error, { id }) => [
         { type: "Category", id: `children-${id}` }
       ],
+    }),
+
+    // --- Get Category IDs ---
+    getCategoryIds: builder.query<number[], void>({
+      query: () => `/categories/ids`,
+      transformResponse: (responseData: { data: number[]; total: number }): number[] => {
+        return responseData.data || [];
+      },
+      providesTags: [{ type: "Category" as const, id: "IDS" }],
+      keepUnusedDataFor: 60,
     }),
   }),
 });
@@ -144,6 +158,7 @@ export const categoriesSlice = apiSlice.injectEndpoints({
 export const {
   useGetCategoryTreeQuery,
   useGetCategoryByIdQuery,
+  useGetCategoryIdsQuery,
   useGetProductsByCategoryQuery,
   useGetCategoryChildrenQuery,
 } = categoriesSlice;

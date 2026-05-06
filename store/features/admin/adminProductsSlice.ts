@@ -18,6 +18,10 @@ export interface AdminProduct {
     quantity: number;
     status: number;
     image?: string;
+    image_small?: string;
+    image_medium?: string;
+    image_large?: string;
+    image_xlarge?: string;
     manufacturer_id?: number;
     manufacturer_name?: string;
     shipping?: number;
@@ -38,6 +42,7 @@ export interface AdminProduct {
     date_modified: string;
     import_batch?: string | null;
     maximum?: number;
+    maxmum?: number; // DB typo mapping
     stock_status_id?: number;
 
     // English description fields
@@ -68,11 +73,17 @@ export interface AdminProduct {
         name_en?: string;
         name_ar?: string;
     }>;
+    tags?: Array<{
+        tag_id: number;
+        name: string;
+    }>;
     images?: Array<{
         product_image_id: number;
         image: string;
         sort_order: number;
     }>;
+    prev_product_id?: number | null;
+    next_product_id?: number | null;
 }
 
 export interface AdminProductsParams {
@@ -81,6 +92,8 @@ export interface AdminProductsParams {
     search?: string;
     status?: number | null;
     category_id?: number;
+    manufacturer_id?: number;
+    brand_id?: number; // Alias supported by backend
 }
 
 export interface CreateProductPayload {
@@ -143,6 +156,9 @@ export interface CreateProductPayload {
 
     // Category IDs
     category_ids?: number[];
+
+    // Tag IDs
+    tag_ids?: number[];
 }
 
 export interface UpdateProductPayload {
@@ -206,6 +222,9 @@ export interface UpdateProductPayload {
 
         // Category IDs
         category_ids?: number[];
+
+        // Tag IDs
+        tag_ids?: number[];
     };
 }
 
@@ -228,6 +247,10 @@ function createFormData(data: Record<string, any>): FormData {
             value.forEach((id: number) => {
                 formData.append('category_ids[]', id.toString());
             });
+        } else if (key === 'tag_ids' && Array.isArray(value)) {
+            value.forEach((id: number) => {
+                formData.append('tag_ids[]', id.toString());
+            });
         } else if (typeof value === 'boolean') {
             formData.append(key, value ? '1' : '0');
         } else if (typeof value === 'object') {
@@ -247,8 +270,30 @@ function hasFiles(data: Record<string, any>): boolean {
     return false;
 }
 
+export interface ExportProductsCsvParams {
+    manufacturer_id?: number | number[] | string | null;
+    brand_id?: number | number[] | string | null; // Alias supported by backend
+    category_id?: number | number[] | string | null;
+    status?: number | null;
+    stock_level?: 'in_stock' | 'out_of_stock' | 'low_stock' | null;
+    low_stock_threshold?: number;
+    export_by_id?: boolean;
+    order_by?: string;
+    order_dir?: 'asc' | 'desc';
+}
+
 export interface BulkUpdateStatusPayload {
     ids: number[];
+    status: boolean;
+}
+
+export interface BulkUpdateStatusByCategoryPayload {
+    category_id: number;
+    status: boolean;
+}
+
+export interface BulkUpdateStatusByBrandPayload {
+    manufacturer_id: number;
     status: boolean;
 }
 
@@ -412,6 +457,26 @@ export const adminProductsSlice = apiSlice.injectEndpoints({
             invalidatesTags: [{ type: 'AdminProduct' as const, id: 'LIST' }],
         }),
 
+        // Bulk update product status by category
+        bulkUpdateAdminProductsStatusByCategory: builder.mutation<{ success: boolean; message: string }, BulkUpdateStatusByCategoryPayload>({
+            query: (data) => ({
+                url: '/admin/products/bulk-update-status-by-category',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: [{ type: 'AdminProduct' as const, id: 'LIST' }],
+        }),
+
+        // Bulk update product status by brand
+        bulkUpdateAdminProductsStatusByBrand: builder.mutation<{ success: boolean; message: string }, BulkUpdateStatusByBrandPayload>({
+            query: (data) => ({
+                url: '/admin/products/bulk-update-status-by-brand',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: [{ type: 'AdminProduct' as const, id: 'LIST' }],
+        }),
+
         // Bulk update product price
         bulkUpdateAdminProductsPrice: builder.mutation<{ success: boolean; message: string }, BulkUpdatePricePayload>({
             query: (data) => ({
@@ -431,6 +496,42 @@ export const adminProductsSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: [{ type: 'AdminProduct' as const, id: 'LIST' }],
         }),
+
+        // Export products to CSV
+        exportAdminProductsCsv: builder.mutation<string, ExportProductsCsvParams | void>({
+            query: (params) => ({
+                url: '/admin/products/export',
+                method: 'GET',
+                params: params ? params : undefined,
+                responseHandler: (response) => response.text(),
+            }),
+        }),
+
+        // Import products from CSV
+        importAdminProductsCsv: builder.mutation<{ success: boolean; message: string; data: { created: number; updated: number; disabled: number; errors: string[] } }, { file: File, handle_missing: boolean }>({
+            query: ({ file, handle_missing }) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('handle_missing', handle_missing ? '1' : '0');
+
+                return {
+                    url: '/admin/products/import',
+                    method: 'POST',
+                    body: formData,
+                    formData: true,
+                };
+            },
+            invalidatesTags: [{ type: 'AdminProduct' as const, id: 'LIST' }],
+        }),
+
+        // Download products CSV template
+        downloadAdminProductsCsvTemplate: builder.mutation<string, void>({
+            query: () => ({
+                url: '/admin/products/import-template',
+                method: 'GET',
+                responseHandler: (response) => response.text(),
+            }),
+        }),
     }),
 });
 
@@ -444,8 +545,13 @@ export const {
     useDeleteAdminProductMutation,
     useBulkDeleteAdminProductsMutation,
     useBulkUpdateAdminProductsStatusMutation,
+    useBulkUpdateAdminProductsStatusByCategoryMutation,
+    useBulkUpdateAdminProductsStatusByBrandMutation,
     useBulkUpdateAdminProductsPriceMutation,
     useBulkUpdateAdminProductsStockMutation,
+    useExportAdminProductsCsvMutation,
+    useImportAdminProductsCsvMutation,
+    useDownloadAdminProductsCsvTemplateMutation,
 } = adminProductsSlice;
 
 // Selectors

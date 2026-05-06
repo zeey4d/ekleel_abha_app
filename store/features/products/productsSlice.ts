@@ -1,4 +1,4 @@
-// src/features/products/productsSlice.ts
+2// src/features/products/productsSlice.ts
 import { createSelector, createEntityAdapter, EntityState } from "@reduxjs/toolkit";
 import { apiSlice } from "../api/apiSlice";
 import { RootState } from "@/store/store";
@@ -19,6 +19,10 @@ export interface Product {
   discount_percentage: number;
   quantity: number;
   image?: string;
+  image_small?: string;
+  image_medium?: string;
+  image_large?: string;
+  image_xlarge?: string;
   manufacturer?: string;
   in_stock: boolean;
   average_rating: number;
@@ -53,7 +57,6 @@ export interface GetProductsParams {
   page?: number;
   per_page?: number;
   brand?: string | null;
-  search?: string | null;
 }
 
 export interface GetProductsResponse {
@@ -129,7 +132,6 @@ export const productsSlice = apiSlice.injectEndpoints({
         page = 1,
         per_page = 20,
         brand = null,
-        search = null,
       }) => {
         const params = new URLSearchParams({
           page: page.toString(),
@@ -141,7 +143,6 @@ export const productsSlice = apiSlice.injectEndpoints({
         if (min_price !== null) params.append("min_price", min_price.toString());
         if (max_price !== null) params.append("max_price", max_price.toString());
         if (brand) params.append("brand", brand);
-        if (search) params.append("search", search);
 
         return `/products?${params.toString()}`;
       },
@@ -163,8 +164,6 @@ export const productsSlice = apiSlice.injectEndpoints({
             { type: "Product" as const, id: "LIST" },
           ]
           : [{ type: "Product" as const, id: "LIST" }],
-      // ⏱️ Medium-lived: Product lists are reasonably stable
-      keepUnusedDataFor: 180, // 3 minutes
     }),
 
     // --- Get Single Product by ID ---
@@ -205,7 +204,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         return Array.isArray(responseData.data) ? responseData.data : [];
       },
       providesTags: [{ type: "Product" as const, id: "TOP" }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get New Arrival Products ---
@@ -215,7 +214,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         return Array.isArray(responseData.data) ? responseData.data : [];
       },
       providesTags: [{ type: "Product" as const, id: "NEW" }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get Products on Deal ---
@@ -229,7 +228,17 @@ export const productsSlice = apiSlice.injectEndpoints({
         return responseData.data || [];
       },
       providesTags: [{ type: "Product" as const, id: "DEALS" }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
+    }),
+
+    // --- Get Product IDs ---
+    getProductIds: builder.query<number[], void>({
+      query: () => `/products/ids`,
+      transformResponse: (responseData: { data: number[]; total: number }): number[] => {
+        return responseData.data || [];
+      },
+      providesTags: [{ type: "Product" as const, id: "IDS" }],
+      keepUnusedDataFor: 60,
     }),
   }),
 });
@@ -238,6 +247,7 @@ export const productsSlice = apiSlice.injectEndpoints({
 export const {
   useGetProductsQuery,
   useGetProductByIdQuery,
+  useGetProductIdsQuery,
   useGetRelatedProductsQuery,
   useGetSimilarProductsQuery,
   useGetTopProductsQuery,

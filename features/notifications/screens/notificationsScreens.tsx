@@ -14,7 +14,7 @@ import {
   selectAllNotifications, 
   selectUnreadCount 
 } from '@/store/features/notifications/notificationsSlice';
-import { useNotificationsBootstrap } from '@/store/features/notifications/useNotificationsBootstrap';
+// import { useNotificationsBootstrap } from '@/store/features/notifications/useNotificationsBootstrap';
 import { Notification } from '@/store/types';
 
 // Simple Notification Item Component
@@ -57,7 +57,7 @@ export default function NotificationsScreen() {
   const dispatch = useAppDispatch();
   
   // 1. Bootstrap Push Notifications
-  useNotificationsBootstrap();
+  // useNotificationsBootstrap();
 
   // 2. Fetch Data
   const { 

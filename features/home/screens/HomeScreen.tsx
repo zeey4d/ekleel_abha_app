@@ -1,39 +1,135 @@
-import { Text } from '@/components/ui/text';
+import React, { Suspense, lazy, useMemo, useCallback } from 'react';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import Animated, {
   FadeIn,
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
-import { View, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import '@/i18n/config';
-import { NewArrivals } from '@/features/home/components/NewArrivals';
 
+// Store
 import { useGetHomepageContentQuery } from '@/store/features/cms/cmsSlice';
+
+// Layout
+import HomeHeader from '@/components/layout/header/HomeHeader';
+
+// Above-the-fold components (loaded immediately for fast first paint)
 import { HeroSlider } from '@/features/home/components/HeroSlider';
 import { FeaturedCategories } from '@/features/home/components/FeaturedCategories';
-import { PromoGrid } from '@/features/home/components/PromoGrid';
-import { TopSellingProducts } from '@/features/home/components/TopSellingProducts';
-import { FeaturedBrands } from '@/features/brands/components/FeaturedBrands';
-import { DealsOfTheDay } from '@/features/home/components/DealsOfTheDay';
-import { Testimonials } from '@/features/home/components/Testimonials';
-import HomeHeader from '@/components/layout/header/HomeHeader';
-import { useRouter } from 'expo-router';
+import { NewArrivals } from '@/features/home/components/NewArrivals';
 import { HeroPromoBanners } from '@/features/home/components/HeroPromoBanners';
-import { Skeleton } from '@/components/ui/skeleton';
 
+// Below-the-fold components (lazy-loaded to reduce initial bundle cost)
+const TopSellingProducts = lazy(() =>
+  import('@/features/home/components/TopSellingProducts').then((m) => ({
+    default: m.TopSellingProducts,
+  })),
+);
+const FeaturedBrands = lazy(() =>
+  import('@/features/brands/components/FeaturedBrands').then((m) => ({
+    default: m.FeaturedBrands,
+  })),
+);
+const DealsOfTheDay = lazy(() =>
+  import('@/features/home/components/DealsOfTheDay').then((m) => ({
+    default: m.DealsOfTheDay,
+  })),
+);
+const PromoGrid = lazy(() =>
+  import('@/features/home/components/PromoGrid').then((m) => ({
+    default: m.PromoGrid,
+  })),
+);
+const Testimonials = lazy(() =>
+  import('@/features/home/components/Testimonials').then((m) => ({
+    default: m.Testimonials,
+  })),
+);
+
+// UI
+import { Skeleton } from '@/components/ui/skeleton';
+import { Text } from '@/components/ui/text';
+
+// ─────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────
+
+interface BannerItem {
+  banner_type: string;
+  [key: string]: unknown;
+}
+
+// ─────────────────────────────────────────────
+// Lazy-loading fallback
+// ─────────────────────────────────────────────
+
+const SectionLoadingFallback = () => (
+  <View className="items-center justify-center py-12">
+    <ActivityIndicator size="large" color="#10b981" />
+  </View>
+);
+
+// ─────────────────────────────────────────────
+// Banner filtering helper
+// ─────────────────────────────────────────────
+
+function useBannersByType(banners: BannerItem[] | undefined) {
+  return useMemo(() => {
+    if (!banners) return { sidebar: [], hero: [], promo: [], desktopHero: [], mobileHero: [], wideContent: [], largePortrait: [], smallPortrait: [] };
+
+    const sidebar: BannerItem[] = [];
+    const hero: BannerItem[] = [];
+    const promo: BannerItem[] = [];
+    const desktopHero: BannerItem[] = [];
+    const mobileHero: BannerItem[] = [];
+    const wideContent: BannerItem[] = [];
+    const largePortrait: BannerItem[] = [];
+    const smallPortrait: BannerItem[] = [];
+
+    for (const b of banners) {
+      switch (b.banner_type) {
+        case 'sidebar':
+          sidebar.push(b);
+          break;
+        case 'hero':
+          hero.push(b);
+          break;
+        case 'promo':
+          promo.push(b);
+          break;
+        case 'desktop_hero':
+          desktopHero.push(b);
+          break;
+        case 'mobile_hero':
+          mobileHero.push(b);
+          break;
+        case 'wide_content':
+          wideContent.push(b);
+          break;
+        case 'large_portrait':
+          largePortrait.push(b);
+          break;
+        case 'small_portrait':
+          smallPortrait.push(b);
+          break;
+      }
+    }
+
+    return { sidebar, hero, promo, desktopHero, mobileHero, wideContent, largePortrait, smallPortrait };
+  }, [banners]);
+}
+
+// ─────────────────────────────────────────────
+// HomeScreen
+// ─────────────────────────────────────────────
 
 export default function HomeScreen() {
   const { t } = useTranslation('home');
   const { data, isLoading, error } = useGetHomepageContentQuery();
-  const router = useRouter();
   const scrollY = useSharedValue(0);
-    const sidebarBanners = data?.banner?.filter((b) => b.banner_type === 'sidebar') || [];
-      const heroBanners = data?.banner?.filter((b) => b.banner_type === 'hero') || [];
-        const promoBanners = data?.banner?.filter((b) => b.banner_type === 'promo') || [];
 
-
-
+  const { sidebar, hero, promo, desktopHero, mobileHero, wideContent, largePortrait, smallPortrait } = useBannersByType(data?.banner);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -41,14 +137,16 @@ export default function HomeScreen() {
     },
   });
 
+  // ── Loading state ──────────────────────────
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
+      <View className="flex-1 bg-background">
         <HomePageSkeleton />
       </View>
     );
   }
 
+  // ── Error state ────────────────────────────
   if (error || !data) {
     return (
       <View className="flex-1 justify-center items-center bg-background px-4">
@@ -56,16 +154,15 @@ export default function HomeScreen() {
           {t('title')}
         </Text>
         <Text className="text-gray-500 mb-4">
-          حدث خطأ أثناء تحميل البيانات
+          {t('error', { defaultValue: 'حدث خطأ أثناء تحميل البيانات' })}
         </Text>
       </View>
     );
   }
 
+  // ── Main content ───────────────────────────
   return (
     <View className="flex-1 bg-background">
-      {/* Language Toggle Button */}
-
       <HomeHeader scrollY={scrollY} />
 
       <Animated.ScrollView
@@ -73,48 +170,59 @@ export default function HomeScreen() {
         entering={FadeIn.duration(800)}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
-        {/* <HeroSlider banners={heroBanners} /> */}
+        {/* ── Hero Slider ─────────────────── */}
+        {(desktopHero.length > 0 || mobileHero.length > 0) && (
+          <HeroSlider banners={mobileHero.length > 0 ? mobileHero : desktopHero} />
+        )}
 
-          {sidebarBanners.length > 0 && (
-
-                <HeroSlider banners={sidebarBanners} />
-                          )}
-
-
-
-        <View className="px-3">
-          <View className="py-5">
-            <FeaturedCategories categories={data?.featured_categories || []} />
+        <View>
+          {/* ── Featured Categories ────────── */}
+          <View>
+            <FeaturedCategories categories={data.featured_categories ?? []} />
           </View>
 
-          <NewArrivals products={data?.new_arrivals || []} />
+          {/* ── New Arrivals ──────────────── */}
+          <NewArrivals products={data.new_arrivals ?? []} />
 
+          {/* ── Hero Promo Banners ─────────── */}
+          {hero.length > 0 && <HeroPromoBanners banners={hero} />}
 
-          {heroBanners.length > 0 && (
-                        // <VerticalPromoGrid banners={heroBanners} />
-            <HeroPromoBanners banners={heroBanners} />
-          )}
-
+          {/* ── Below-the-fold (lazy) ──────── */}
           <View className="py-5">
-            <TopSellingProducts products={data?.top_selling_products || []} />
+            <Suspense fallback={<SectionLoadingFallback />}>
+              <TopSellingProducts products={data.top_selling_products ?? []} />
+            </Suspense>
           </View>
 
-          <FeaturedBrands brands={data?.featured_brands || []} />
+          <Suspense fallback={<SectionLoadingFallback />}>
+            <FeaturedBrands brands={data.featured_brands ?? []} />
+          </Suspense>
 
-          <DealsOfTheDay products={data?.deals_of_the_day || []} />
+          <Suspense fallback={<SectionLoadingFallback />}>
+            <DealsOfTheDay products={data.deals_of_the_day ?? []} />
+          </Suspense>
 
-          {promoBanners.length > 0 && (
-            <PromoGrid banners={promoBanners} />
+          {promo.length > 0 && (
+            <Suspense fallback={<SectionLoadingFallback />}>
+              <PromoGrid banners={promo} />
+            </Suspense>
           )}
-          <Testimonials testimonials={data?.testimonials || []} />
+
+          <Suspense fallback={<SectionLoadingFallback />}>
+            <Testimonials testimonials={data.testimonials ?? []} />
+          </Suspense>
         </View>
       </Animated.ScrollView>
     </View>
   );
 }
 
+// ─────────────────────────────────────────────
+// Skeleton loading placeholder
+// ─────────────────────────────────────────────
 
 export function HomePageSkeleton() {
   return (
@@ -123,7 +231,6 @@ export function HomePageSkeleton() {
       className="flex-1 bg-white"
     >
       <View className="space-y-2 pb-2">
-
         {/* Hero Skeleton */}
         <View className="w-full h-[400px] bg-slate-100 relative">
           <View className="absolute bottom-20 left-4 space-y-4">
@@ -134,14 +241,10 @@ export function HomePageSkeleton() {
         </View>
 
         <View className="px-1 space-y-4">
-
           {/* Trust Badges Skeleton */}
           <View className="flex-row flex-wrap justify-between gap-y-4">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton
-                key={i}
-                className="h-24 w-[48%] rounded-xl"
-              />
+            {Array.from({ length: 4 }, (_, i) => (
+              <Skeleton key={i} className="h-24 w-[48%] rounded-xl" />
             ))}
           </View>
 
@@ -151,13 +254,9 @@ export function HomePageSkeleton() {
               <Skeleton className="h-8 w-48" />
               <Skeleton className="h-4 w-20" />
             </View>
-
             <View className="flex-row flex-wrap justify-between gap-y-6">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className="w-[30%] aspect-square rounded-full"
-                />
+              {Array.from({ length: 6 }, (_, i) => (
+                <Skeleton key={i} className="w-[30%] aspect-square rounded-full" />
               ))}
             </View>
           </View>
@@ -167,7 +266,7 @@ export function HomePageSkeleton() {
 
           {/* Products Grid Skeleton */}
           <View className="flex-row flex-wrap justify-between gap-y-6">
-            {[...Array(4)].map((_, i) => (
+            {Array.from({ length: 4 }, (_, i) => (
               <View key={i} className="w-[48%] space-y-3">
                 <Skeleton className="aspect-[4/3] rounded-xl" />
                 <Skeleton className="h-4 w-3/4" />
@@ -175,7 +274,6 @@ export function HomePageSkeleton() {
               </View>
             ))}
           </View>
-
         </View>
       </View>
     </ScrollView>

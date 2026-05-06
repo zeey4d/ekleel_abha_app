@@ -17,9 +17,15 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
 
   if (!categories || categories.length === 0) return null;
 
+  // Group categories into chunks of 2 for the 2-row layout
+  const chunkedCategories = [];
+  for (let i = 0; i < categories.length; i += 2) {
+    chunkedCategories.push(categories.slice(i, i + 2));
+  }
+
   return (
     <View className="p-0 ">
-      <View
+      {/* <View
         className="mb-4 flex-row items-center justify-between"
         style={
           isArabic && !I18nManager.isRTL ? { flexDirection: 'row-reverse' } : undefined
@@ -37,40 +43,46 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
             <ArrowRight size={18} color="#000000ff" />
           )}
         </Pressable>
-      </View>
+      </View> */}
 
       <FlatList
-        data={categories}
+        data={chunkedCategories}
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingHorizontal: 4 }}
+        keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
-          <Pressable 
-            className="w-20 items-center"
-            style={{ marginEnd: 16 }}
-            onPress={() => {
-              router.push(`/(tabs)/(home)/(context)/categories/${item.id}` as any);
-            }}
-          >
-            {item.image ? (
-              <Image
-                source={{ uri: getImageUrl(item.image) }}
-                style={{ width: 80, height: 80, borderRadius: 40 }}
-                resizeMode="cover"
-              />
-            ) : (
-              <View
-                className="items-center justify-center bg-slate-200"
-                style={{ width: 80, height: 80, borderRadius: 40 }}>
-                <Text className="text-xs text-slate-400">{t('FeaturedCategories.noImage')}</Text>
-              </View>
-            )}
-            <Text
-              className="mt-2 text-center text-sm font-medium text-foreground"
-              numberOfLines={1}>
-              {item.name}
-            </Text>
-          </Pressable>
+          <View style={{ marginEnd: 16 }}>
+            {item.map((category, index) => (
+              <Pressable 
+                key={category.id}
+                style={{ width: 76, alignItems: 'center', marginBottom: index === 0 ? 16 : 0 }}
+                onPress={() => {
+                  router.push(`/(tabs)/(home)/(context)/categories/${category.id}` as any);
+                }}
+              >
+                {category.image ? (
+                  <Image
+                    source={{ uri: getImageUrl(category.image) }}
+                    style={{ width: 70, height: 70, borderRadius: 35 }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View
+                    className="items-center justify-center bg-slate-200"
+                    style={{ width: 70, height: 70, borderRadius: 35 }}>
+                    <Text className="text-[10px] text-slate-400 text-center">{t('FeaturedCategories.noImage')}</Text>
+                  </View>
+                )}
+                <Text
+                  className="mt-2 text-center text-xs font-medium text-foreground"
+                  style={{ lineHeight: 16 }}
+                  numberOfLines={2}>
+                  {category.name}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         )}
       />
     </View>

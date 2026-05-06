@@ -23,6 +23,7 @@ export interface AdminBanner {
     type_name?: string;
     type_code?: string;
     status: number;
+    is_home_page: number;
     title_en?: string;
     link_en?: string;
     image_en?: string;
@@ -41,14 +42,17 @@ export interface AdminBannersParams {
     per_page?: number;
     search?: string;
     status?: number;
+    is_home_page?: number;
     banner_type_id?: number;
     language_id?: number;
+    category_id?: number;
 }
 
 export interface CreateBannerPayload {
     name: string;
     banner_type_id: number;
     status: boolean;
+    is_home_page?: boolean;
     title_en: string;
     link_en?: string;
     image_en: File;
@@ -64,6 +68,7 @@ export interface UpdateBannerPayload {
         name?: string;
         banner_type_id?: number;
         status?: boolean;
+        is_home_page?: boolean;
         title_en?: string;
         link_en?: string;
         image_en?: File | string;
@@ -81,6 +86,10 @@ export interface BulkUpdateStatusPayload {
 
 export interface BulkDeletePayload {
     ids: number[];
+}
+
+export interface ReorderBannersPayload {
+    banners: Array<{ banner_id: number; sort_order: number }>;
 }
 
 export interface AdminBannersState extends EntityState<AdminBanner, number> {
@@ -118,6 +127,11 @@ function createBannerFormData(data: Record<string, any>): FormData {
     Object.entries(data).forEach(([key, value]) => {
         if (value === undefined || value === null) return;
 
+        // Do not send existing image paths back to the server. Send if empty (user deleted image).
+        if ((key === 'image_en' || key === 'image_ar') && typeof value === 'string' && value !== '') {
+            return;
+        }
+
         if (value instanceof File) {
             formData.append(key, value);
         } else if (typeof value === 'boolean') {
@@ -128,11 +142,6 @@ function createBannerFormData(data: Record<string, any>): FormData {
     });
 
     return formData;
-}
-
-// Check if payload contains files
-function hasFiles(data: Record<string, any>): boolean {
-    return data.image_en instanceof File || data.image_ar instanceof File;
 }
 
 // Entity Adapter
@@ -199,20 +208,18 @@ export const adminBannersSlice = apiSlice.injectEndpoints({
         getAdminBannerFormData: builder.query<BannerFormData, void>({
             query: () => '/admin/banners/create',
             transformResponse: (response: any) => response.data,
-            keepUnusedDataFor: 3600, // Cache for 1 hour
+            keepUnusedDataFor: 60, // Cache for 1 hour
         }),
 
         // Create banner (with FormData support for image uploads)
         createAdminBanner: builder.mutation<AdminBanner, CreateBannerPayload>({
             query: (data) => {
-                const useFormData = hasFiles(data);
-                const body = useFormData ? createBannerFormData(data) : data;
+                const body = createBannerFormData(data);
 
                 return {
                     url: '/admin/banners',
                     method: 'POST',
                     body,
-                    formData: useFormData,
                 };
             },
             transformResponse: (response: any) => ({
@@ -225,23 +232,14 @@ export const adminBannersSlice = apiSlice.injectEndpoints({
         // Update banner (with FormData support for image uploads)
         updateAdminBanner: builder.mutation<AdminBanner, UpdateBannerPayload>({
             query: ({ id, data }) => {
-                const useFormData = hasFiles(data);
-                const body = useFormData ? createBannerFormData(data) : data;
+                const body = createBannerFormData(data);
 
                 // For FormData with PUT, we need to use POST with _method override
-                if (useFormData) {
-                    (body as FormData).append('_method', 'PUT');
-                    return {
-                        url: `/admin/banners/${id}`,
-                        method: 'POST',
-                        body,
-                        formData: true,
-                    };
-                }
+                body.append('_method', 'PUT');
 
                 return {
                     url: `/admin/banners/${id}`,
-                    method: 'PUT',
+                    method: 'POST',
                     body,
                 };
             },
@@ -286,6 +284,16 @@ export const adminBannersSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: [{ type: 'AdminBanner' as const, id: 'LIST' }],
         }),
+
+        // Reorder banners (update sort_order on all language variants)
+        reorderAdminBanners: builder.mutation<{ success: boolean; message: string }, ReorderBannersPayload>({
+            query: (data) => ({
+                url: '/admin/banners/reorder',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: [{ type: 'AdminBanner' as const, id: 'LIST' }],
+        }),
     }),
 });
 
@@ -300,6 +308,7 @@ export const {
     useDeleteAdminBannerMutation,
     useBulkDeleteAdminBannersMutation,
     useBulkUpdateAdminBannersStatusMutation,
+    useReorderAdminBannersMutation,
 } = adminBannersSlice;
 
 // Selectors

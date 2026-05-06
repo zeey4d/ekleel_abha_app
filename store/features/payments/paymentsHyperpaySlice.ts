@@ -6,6 +6,54 @@ import { CreateOrderPayload } from '@/store/types';
 // --- Types ---
 
 /**
+ * Supported payment methods with brand-specific entity IDs
+ * Maps to backend getEntityIdForPaymentMethod()
+ */
+export type PaymentMethod =
+  | 'credit_card'
+  | 'visa'
+  | 'master'
+  | 'mastercard'
+  | 'amex'
+  | 'mada'
+  | 'apple_pay'
+  | 'applepay'
+  | 'google_pay'
+  | 'googlepay'
+  | 'stc_pay'
+  | 'stcpay'
+  | 'stc_bank'
+  | 'tamara'
+  | 'tabby'
+  | 'paypal'
+  | 'sadad'
+  | 'cod';
+
+/**
+ * Payment method to HyperPay brand mapping
+ * Used by frontend to determine which brands to request from HyperPay widget
+ */
+export const PAYMENT_METHOD_BRANDS: Record<string, string> = {
+  credit_card: 'VISA MASTER',
+  visa: 'VISA',
+  master: 'MASTER',
+  mastercard: 'MASTER',
+  amex: 'AMEX',
+  mada: 'MADA',
+  apple_pay: 'APPLEPAY',
+  applepay: 'APPLEPAY',
+  google_pay: 'GOOGLEPAY',
+  googlepay: 'GOOGLEPAY',
+  stc_pay: 'STC_PAY',
+  stcpay: 'STC_PAY',
+  stc_bank: 'STC_BANK',
+  tamara: 'TAMARA',
+  tabby: 'TABBY',
+  paypal: 'PAYPAL',
+  sadad: 'SADAD',
+};
+
+/**
  * Request payment data for hosted checkout
  * Supports 'DB' (Debit) and 'PA' (Pre-Authorization)
  */
@@ -55,6 +103,12 @@ export interface HyperPayPaymentResponse {
     [key: string]: any;
   };
 
+  /**
+   * Base URL for the HyperPay script (e.g. test vs live)
+   * Returned by backend to ensure environment consistency
+   */
+  baseUrl?: string;
+
   // Legacy/wrapped response fields (for backwards compatibility)
   success?: boolean;
   message?: string;
@@ -73,7 +127,37 @@ export interface HyperPayPaymentResponse {
 }
 
 /**
- * Payment status response (Phase 3)
+ * Verify payment response (Phase 3)
+ * Backend returns: { status, orderId, message, details }
+ */
+export interface VerifyPaymentResponse {
+  status: 'paid' | 'failed' | 'pending';
+  orderId: number;
+  message: string;
+  details?: string;
+  raw_response?: {
+    id?: string;
+    paymentType?: string;
+    paymentBrand?: string;
+    amount?: string;
+    currency?: string;
+    result?: {
+      code: string;
+      description: string;
+    };
+    card?: {
+      bin?: string;
+      last4Digits?: string;
+      holder?: string;
+      expiryMonth?: string;
+      expiryYear?: string;
+    };
+    [key: string]: any;
+  };
+}
+
+/**
+ * Payment status response (for status check endpoints)
  */
 export interface PaymentStatusResponse {
   success: boolean;
@@ -143,7 +227,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      */
     requestPayment: builder.mutation<HyperPayPaymentResponse, CreateOrderPayload>({
       query: (paymentData) => ({
-        url: '/orders/create',
+        url: '/payment/hyperpay/orders/create',
         method: 'POST',
         body: paymentData,
       }),
@@ -153,10 +237,11 @@ export const paymentsSlice = apiSlice.injectEndpoints({
     /**
      * Verify Payment
      * Verifies payment status with HyperPay and updates order
+     * Backend returns: { status, orderId, message, details }
      */
-    verifyPayment: builder.query<PaymentStatusResponse, { resourcePath: string; orderId: string }>({
+    verifyPayment: builder.query<VerifyPaymentResponse, { resourcePath: string; orderId: string }>({
       query: ({ resourcePath, orderId }) => ({
-        url: '/payment/verify',
+        url: '/payment/hyperpay/verify',
         params: { resourcePath, orderId },
       }),
       providesTags: (result, error, { orderId }) => [
@@ -170,7 +255,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      */
     capturePayment: builder.mutation<HyperPayPaymentResponse, PaymentPostActionRequest>({
       query: ({ orderId, ...paymentData }) => ({
-        url: `/payment/capture/${orderId}`,
+        url: `/admin/hyperpay/payments/${orderId}/capture`,
         method: 'POST',
         body: paymentData,
       }),
@@ -186,7 +271,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      */
     rebillPayment: builder.mutation<HyperPayPaymentResponse, PaymentPostActionRequest>({
       query: ({ orderId, ...paymentData }) => ({
-        url: `/payment/rebill/${orderId}`,
+        url: `/admin/hyperpay/payments/${orderId}/rebill`,
         method: 'POST',
         body: paymentData,
       }),
@@ -202,7 +287,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      */
     refundPayment: builder.mutation<HyperPayPaymentResponse, PaymentPostActionRequest>({
       query: ({ orderId, ...paymentData }) => ({
-        url: `/payment/refund/${orderId}`,
+        url: `/admin/hyperpay/payments/${orderId}/refund`,
         method: 'POST',
         body: paymentData,
       }),
@@ -218,7 +303,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      */
     reversePayment: builder.mutation<HyperPayPaymentResponse, PaymentPostActionRequest>({
       query: ({ orderId, ...paymentData }) => ({
-        url: `/payment/reverse/${orderId}`,
+        url: `/admin/hyperpay/payments/${orderId}/reverse`,
         method: 'POST',
         body: paymentData,
       }),
@@ -233,7 +318,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      * Checks the current payment status for an order
      */
     getPaymentStatusByOrder: builder.query<PaymentStatusResponse, number>({
-      query: (orderId) => `/payment/status/order/${orderId}`,
+      query: (orderId) => `/payment/hyperpay/status/order/${orderId}`,
       providesTags: (result, error, orderId) => [
         { type: 'Order' as const, id: orderId },
       ],
@@ -245,7 +330,7 @@ export const paymentsSlice = apiSlice.injectEndpoints({
      * The checkout ID is passed as a query parameter
      */
     processPaymentCallback: builder.query<PaymentCallbackResponse, string>({
-      query: (checkoutId) => `/payment/callback?id=${checkoutId}`,
+      query: (checkoutId) => `/payment/hyperpay/callback?id=${checkoutId}`,
       // Callback updates the order, so invalidate order cache
       async onQueryStarted(checkoutId, { dispatch, queryFulfilled }) {
         try {
@@ -323,6 +408,7 @@ export const PAYMENT_TYPE_LABELS: Record<string, string> = {
  * Payment status labels for UI display
  */
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  paid: 'Paid',
   success: 'Success',
   failed: 'Failed',
   captured: 'Captured',

@@ -29,6 +29,31 @@ export const authStorage = {
       console.error('Error removing token:', error);
     }
   },
+  getAdminToken: async () => {
+    try {
+      return await AsyncStorage.getItem('admin_auth_token');
+    } catch (error) {
+      console.error('Error getting admin token:', error);
+      return null;
+    }
+  },
+  setAdminToken: async (token: string) => {
+    try {
+      await AsyncStorage.setItem('admin_auth_token', token);
+    } catch (error) {
+      console.error('Error setting admin token:', error);
+    }
+  },
+  removeAdminToken: async () => {
+    try {
+      await AsyncStorage.removeItem('admin_auth_token');
+    } catch (error) {
+      console.error('Error removing admin token:', error);
+    }
+  },
+  isAdminTokenExpired: () => {
+    return false;
+  },
   getLocale: () => {
     return i18next.language || 'ar';
   },

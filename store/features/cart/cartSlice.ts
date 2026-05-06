@@ -88,9 +88,41 @@ export const cartSlice = apiSlice.injectEndpoints({
     addGuestItem: builder.mutation<CartResponse, AddGuestCartItemPayload>({
       query: (body) => ({
         url: '/cart/guest/items',
-                // url: '/cart/add',
         method: 'POST',
         body,
+      }),
+      invalidatesTags: [{ type: 'Cart' as const, id: 'GUEST' }],
+    }),
+
+    updateGuestCartItem: builder.mutation<CartResponse, { id: number; quantity: number; session_id: string }>({
+      query: ({ id, quantity, session_id }) => ({
+        url: `/cart/guest/items/${id}`,
+        method: 'PUT',
+        body: { quantity, session_id },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Cart' as const, id },
+        { type: 'Cart' as const, id: 'GUEST' }
+      ],
+    }),
+
+    removeGuestFromCart: builder.mutation<CartResponse, { id: number; session_id: string }>({
+      query: ({ id, session_id }) => ({
+        url: `/cart/guest/items/${id}`,
+        method: 'DELETE',
+        body: { session_id },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Cart' as const, id },
+        { type: 'Cart' as const, id: 'GUEST' }
+      ],
+    }),
+
+    clearGuestCart: builder.mutation<CartResponse, { session_id: string }>({
+      query: ({ session_id }) => ({
+        url: '/cart/guest',
+        method: 'DELETE',
+        body: { session_id },
       }),
       invalidatesTags: [{ type: 'Cart' as const, id: 'GUEST' }],
     }),
@@ -107,8 +139,7 @@ export const cartSlice = apiSlice.injectEndpoints({
     // --- Add Item to Cart ---
     addToCart: builder.mutation<CartResponse, AddToCartPayload>({
       query: (cartItem) => ({
-        url: '/cart/items',
-                // url: '/cart/add',
+        url: '/cart/add', // The unified endpoint
         method: 'POST',
         body: cartItem,
       }),
@@ -126,35 +157,6 @@ export const cartSlice = apiSlice.injectEndpoints({
         { type: 'Cart' as const, id },
         { type: 'Cart' as const, id: 'CURRENT' }
       ],
-      async onQueryStarted({ id, quantity }, { dispatch, queryFulfilled }) {
-        // Optimistic update for 'getCart' (Authenticated)
-        const patchResult = dispatch(
-          cartSlice.util.updateQueryData('getCart', undefined, (draft) => {
-            const item = draft.entities[id];
-            if (item) {
-              const diff = quantity - item.quantity;
-              item.quantity = quantity;
-              
-              // Optimistically update summary counts if available
-              if (draft.summary) {
-                if (draft.summary.total_items !== undefined) {
-                    draft.summary.total_items += diff;
-                }
-                 if (draft.summary.item_count !== undefined) {
-                    draft.summary.item_count += diff;
-                }
-                // We can't easily update total price without knowing unit price calculation rules (tax etc)
-                // But showing the quantity update immediately is the most important part.
-              }
-            }
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
     }),
 
     // --- Remove Item from Cart ---
@@ -189,6 +191,9 @@ export const {
   useClearCartMutation,
   useGetGuestCartQuery,
   useAddGuestItemMutation,
+  useUpdateGuestCartItemMutation,
+  useRemoveGuestFromCartMutation,
+  useClearGuestCartMutation,
   useMergeGuestCartMutation,
 } = cartSlice;
 

@@ -106,7 +106,12 @@ export const adminCouponsSlice = apiSlice.injectEndpoints({
                 const state = adminCouponsAdapter.setAll(initialState, response.data.data);
                 return {
                     ...state,
-                    pagination: response.data.meta || response.data,
+                    pagination: {
+                        current_page: response.data.current_page,
+                        per_page: response.data.per_page,
+                        total: response.data.total,
+                        total_pages: response.data.last_page,
+                    },
                 };
             },
             providesTags: (result) =>
@@ -151,7 +156,7 @@ export const adminCouponsSlice = apiSlice.injectEndpoints({
         }),
 
         // Delete coupon
-        deleteAdminCoupon: builder.mutation<{ message: string }, number>({
+        deleteAdminCoupon: builder.mutation<{ success: boolean; message: string }, number>({
             query: (id) => ({
                 url: `/admin/coupons/${id}`,
                 method: 'DELETE',
@@ -163,7 +168,7 @@ export const adminCouponsSlice = apiSlice.injectEndpoints({
         }),
 
         // Bulk delete coupons
-        bulkDeleteAdminCoupons: builder.mutation<{ message: string }, number[]>({
+        bulkDeleteAdminCoupons: builder.mutation<{ success: boolean; message: string }, number[]>({
             query: (ids) => ({
                 url: '/admin/coupons/bulk-delete',
                 method: 'POST',
@@ -173,7 +178,7 @@ export const adminCouponsSlice = apiSlice.injectEndpoints({
         }),
 
         // Bulk update coupon status
-        bulkUpdateAdminCouponsStatus: builder.mutation<{ message: string }, BulkUpdateStatusPayload>({
+        bulkUpdateAdminCouponsStatus: builder.mutation<{ success: boolean; message: string }, BulkUpdateStatusPayload>({
             query: (data) => ({
                 url: '/admin/coupons/bulk-update-status',
                 method: 'POST',

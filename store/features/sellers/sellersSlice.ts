@@ -91,7 +91,7 @@ export interface SellerProductsResponse {
 // --- Entity Adapter for Sellers ---
 const sellersAdapter = createEntityAdapter<Seller, string | number>({
   selectId: (seller: Seller) => seller.id,
-  sortComparer: (a: Seller, b: Seller) => 
+  sortComparer: (a: Seller, b: Seller) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
 });
 
@@ -118,31 +118,31 @@ export const sellersSlice = apiSlice.injectEndpoints({
           meta: responseData.meta,
         };
       },
-      providesTags: (result, error, arg) => 
-        result 
-          ? [...result.ids.map((id) => ({ type: 'Seller' as const, id })), { type: 'Seller' as const, id: 'LIST' }] 
+      providesTags: (result, error, arg) =>
+        result
+          ? [...result.ids.map((id) => ({ type: 'Seller' as const, id })), { type: 'Seller' as const, id: 'LIST' }]
           : [{ type: 'Seller' as const, id: 'LIST' }],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
-    
+
     // --- Get Seller by ID ---
     getSellerById: builder.query<Seller, string | number>({
       query: (id) => `/sellers/${id}`,
       providesTags: (result, error, id) => [{ type: 'Seller' as const, id }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
-    
+
     // --- Get Seller Products ---
     getSellerProducts: builder.query<SellerProductsResponse, GetSellerProductsParams>({
       query: ({ id, page = 1, limit = 20 }) => ({
         url: `/sellers/${id}/products`,
         params: { page, limit }
       }),
-      providesTags: (result, error, { id }) => 
+      providesTags: (result, error, { id }) =>
         [{ type: 'Seller' as const, id: `products-${id}` }, { type: 'Product' as const, id: 'LIST' }],
       keepUnusedDataFor: 300,
     }),
-    
+
     // --- Apply to Become Seller ---
     applyToBecomeSeller: builder.mutation<any, ApplyToBecomeSellerPayload>({
       query: (applicationData) => ({
@@ -170,7 +170,7 @@ export const {
   selectAll: selectAllSellers,
   selectById: selectSellerById,
   selectIds: selectSellerIds,
-} = sellersAdapter.getSelectors<RootState>((state) => 
+} = sellersAdapter.getSelectors<RootState>((state) =>
   sellersSlice.endpoints.getSellers.select({})(state).data || initialSellersState
 );
 
@@ -193,7 +193,7 @@ export const selectSellersCount = createSelector(
 );
 
 // Selector for sellers pagination meta
-export const selectSellersMeta = (state: RootState) => 
+export const selectSellersMeta = (state: RootState) =>
   sellersSlice.endpoints.getSellers.select({})(state).data?.meta || null;
 
 export default sellersSlice;

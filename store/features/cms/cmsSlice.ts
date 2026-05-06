@@ -19,8 +19,8 @@ export const cmsSlice = apiSlice.injectEndpoints({
     getHomepageContent: builder.query<HomepageContent, void>({
       query: () => '/pages/home',
       transformResponse: (response: GetHomepageContentResponse) => response.data,
-      providesTags: ['Homepage'],
-      keepUnusedDataFor: 3600,
+      providesTags: ['Homepage', { type: 'AdminLandingPageRow' as const, id: 'LIST' }],
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get About Page Content ---
@@ -28,7 +28,7 @@ export const cmsSlice = apiSlice.injectEndpoints({
       query: () => '/pages/about',
       transformResponse: (response: GetStaticPageResponse) => response.data,
       providesTags: (result, error, slug) => [{ type: 'Page', id: 'about' }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get Static Page by Slug ---
@@ -36,7 +36,7 @@ export const cmsSlice = apiSlice.injectEndpoints({
       query: (slug) => `/pages/${slug}`,
       transformResponse: (response: GetStaticPageResponse) => response.data,
       providesTags: (result, error, slug) => [{ type: 'Page', id: slug }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get Banners ---
@@ -50,7 +50,7 @@ export const cmsSlice = apiSlice.injectEndpoints({
       transformResponse: (response: GetBannersResponse) => response.data,
       providesTags: (result, error, { type }) =>
         [{ type: 'Banner', id: type }, { type: 'Banner', id: 'LIST' }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
   }),
 });
@@ -86,6 +86,16 @@ export const selectBannersByType = createSelector(
 );
 
 // --- Sub-Selectors ---
+
+export const selectHomePageRows = createSelector(
+  [selectHomepageContent],
+  (content) => content?.rows || []
+);
+
+export const selectHomePageBanners = createSelector(
+  [selectHomepageContent],
+  (content) => content?.banner || []
+);
 
 export const selectFeaturedCategories = createSelector(
   [selectHomepageContent],

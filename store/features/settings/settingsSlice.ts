@@ -119,32 +119,39 @@ export const settingsSlice = apiSlice.injectEndpoints({
       providesTags: ['Settings'],
       keepUnusedDataFor: 86400, // Keep for 24 hours as settings rarely change
     }),
-    
+
     // --- Get Shipping Methods ---
     getShippingMethods: builder.query<ShippingSettings, void>({
       query: () => '/settings/shipping',
       providesTags: ['Shipping'],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
-    
+
     // --- Get Return Policy ---
     getReturnPolicy: builder.query<Policy, void>({
       query: () => '/settings/return-policy',
       providesTags: ['Policy'],
       keepUnusedDataFor: 86400,
     }),
-    
+
     // --- Get Privacy Policy ---
     getPrivacyPolicy: builder.query<Policy, void>({
       query: () => '/settings/privacy',
       providesTags: ['Policy'],
       keepUnusedDataFor: 86400,
     }),
-    
+
     // --- Get Static Pages ---
     getPages: builder.query<Pages, void>({
       query: () => '/settings/pages',
       providesTags: ['Page'],
+      keepUnusedDataFor: 86400,
+    }),
+
+    // --- Get Zones by Country ---
+    getCountryZones: builder.query<any[], number>({
+      query: (countryId) => `/countries/${countryId}/zones`,
+      transformResponse: (response: { data: any[] }) => response.data,
       keepUnusedDataFor: 86400,
     }),
   }),
@@ -157,6 +164,7 @@ export const {
   useGetReturnPolicyQuery,
   useGetPrivacyPolicyQuery,
   useGetPagesQuery,
+  useGetCountryZonesQuery,
 } = settingsSlice;
 
 // --- Memoized Selectors ---

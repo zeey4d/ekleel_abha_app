@@ -25,10 +25,11 @@ export const couponsSlice = apiSlice.injectEndpoints({
         }
         return `/coupons/validate?${params.toString()}`;
       },
+      transformResponse: (response: { data: CouponValidation }) => response.data,
       providesTags: (result, error, { code }) => [{ type: 'Coupon', id: code }],
       keepUnusedDataFor: 300, // Keep for 5 minutes
     }),
-    
+
     // --- Get Active Promotions ---
     getActivePromotions: builder.query<PaginatedResponse<Promotion>, GetActivePromotionsParams>({
       query: ({ page = 1, limit = 10, category }) => {
@@ -38,13 +39,13 @@ export const couponsSlice = apiSlice.injectEndpoints({
         if (category) {
           params.append('category', category.toString());
         }
-        return `/coupons/promotions?${params.toString()}`;
+        return `/promotions?${params.toString()}`;
       },
-      providesTags: (result, error, arg) => 
-        result 
-          ? [...result.data.map(promo => ({ type: "Promotion" as const, id: promo.id })), { type: "Promotion" as const, id: 'LIST' }] 
+      providesTags: (result, error, arg) =>
+        result
+          ? [...result.data.map(promo => ({ type: "Promotion" as const, id: promo.id })), { type: "Promotion" as const, id: 'LIST' }]
           : [{ type: "Promotion" as const, id: 'LIST' }],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
   }),
 });
@@ -52,6 +53,7 @@ export const couponsSlice = apiSlice.injectEndpoints({
 // Export auto-generated hooks
 export const {
   useValidateCouponQuery,
+  useLazyValidateCouponQuery,
   useGetActivePromotionsQuery,
 } = couponsSlice;
 
@@ -77,8 +79,8 @@ export const selectPromotionsPagination = (state: RootState, params: GetActivePr
 // Selector for available promotions
 export const selectAvailablePromotions = createSelector(
   [selectActivePromotions, (state, subtotal: number) => subtotal],
-  (promotions, subtotal) => 
-    promotions.filter(promo => 
+  (promotions, subtotal) =>
+    promotions.filter(promo =>
       // In Laravel controller, minimum amount is checked against subtotal
       // We don't have this field in the response, so we assume all are valid for now
       // If we had minimum amount field in the response, we would filter like this:

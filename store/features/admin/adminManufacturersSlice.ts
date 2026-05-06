@@ -60,6 +60,11 @@ function createFormData(data: Record<string, any>): FormData {
     Object.entries(data).forEach(([key, value]) => {
         if (value === undefined || value === null) return;
 
+        // Skip sending image if it's just a string path (from an existing manufacturer)
+        if (key === 'image' && typeof value === 'string') {
+            return;
+        }
+
         if (key === 'image' && value instanceof File) {
             formData.append('image', value);
         } else if (typeof value === 'boolean') {
@@ -72,11 +77,6 @@ function createFormData(data: Record<string, any>): FormData {
     });
 
     return formData;
-}
-
-// Check if payload contains files
-function hasFiles(data: Record<string, any>): boolean {
-    return data.image instanceof File;
 }
 
 // Entity Adapter
@@ -135,14 +135,13 @@ export const adminManufacturersSlice = apiSlice.injectEndpoints({
         // Create manufacturer (with FormData support for image uploads)
         createAdminManufacturer: builder.mutation<AdminManufacturer, CreateManufacturerPayload>({
             query: (data) => {
-                const useFormData = hasFiles(data);
-                const body = useFormData ? createFormData(data) : data;
+                const body = createFormData(data);
 
                 return {
                     url: '/admin/manufacturers',
                     method: 'POST',
                     body,
-                    formData: useFormData,
+                    formData: true,
                 };
             },
             transformResponse: (response: any) => response.data,
@@ -152,24 +151,16 @@ export const adminManufacturersSlice = apiSlice.injectEndpoints({
         // Update manufacturer (with FormData support for image uploads)
         updateAdminManufacturer: builder.mutation<AdminManufacturer, UpdateManufacturerPayload>({
             query: ({ id, data }) => {
-                const useFormData = hasFiles(data);
-                const body = useFormData ? createFormData(data) : data;
+                const body = createFormData(data);
 
                 // For FormData with PUT, we need to use POST with _method override
-                if (useFormData) {
-                    (body as FormData).append('_method', 'PUT');
-                    return {
-                        url: `/admin/manufacturers/${id}`,
-                        method: 'POST',
-                        body,
-                        formData: true,
-                    };
-                }
+                body.append('_method', 'PUT');
 
                 return {
                     url: `/admin/manufacturers/${id}`,
-                    method: 'PUT',
+                    method: 'POST',
                     body,
+                    formData: true,
                 };
             },
             transformResponse: (response: any) => response.data,
@@ -200,6 +191,28 @@ export const adminManufacturersSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: [{ type: 'AdminManufacturer' as const, id: 'LIST' }],
         }),
+
+        // Hard delete manufacturer
+        hardDeleteAdminManufacturer: builder.mutation<{ success: boolean; message: string }, number>({
+            query: (id) => ({
+                url: `/admin/manufacturers/${id}/hard`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: (result, error, id) => [
+                { type: 'AdminManufacturer' as const, id },
+                { type: 'AdminManufacturer' as const, id: 'LIST' },
+            ],
+        }),
+
+        // Bulk hard delete manufacturers
+        bulkHardDeleteAdminManufacturers: builder.mutation<{ success: boolean; message: string }, BulkDeletePayload>({
+            query: (data) => ({
+                url: '/admin/manufacturers/bulk-hard-delete',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: [{ type: 'AdminManufacturer' as const, id: 'LIST' }],
+        }),
     }),
 });
 
@@ -212,6 +225,8 @@ export const {
     useUpdateAdminManufacturerMutation,
     useDeleteAdminManufacturerMutation,
     useBulkDeleteAdminManufacturersMutation,
+    useHardDeleteAdminManufacturerMutation,
+    useBulkHardDeleteAdminManufacturersMutation,
 } = adminManufacturersSlice;
 
 // Selectors

@@ -104,6 +104,48 @@ export interface BulkDeletePayload {
     ids: number[];
 }
 
+export interface CategoryBanner {
+    banner_id: number;
+    name: string;
+    banner_type_id: number;
+    status: number;
+    type_name: string;
+    type_code: string;
+    type_width: number;
+    type_height: number;
+    sort_order: number;
+    title_en?: string;
+    image_en?: string;
+    link_en?: string;
+    title_ar?: string;
+    image_ar?: string;
+    link_ar?: string;
+}
+
+export interface GetCategoryBannersResponse {
+    success: boolean;
+    data: {
+        category_id: number;
+        banners: CategoryBanner[];
+    };
+}
+
+export interface SyncCategoryBannersPayload {
+    categoryId: number;
+    banners: { banner_id: number; sort_order?: number }[];
+}
+
+export interface AddCategoryBannerPayload {
+    categoryId: number;
+    banner_id: number;
+    sort_order?: number;
+}
+
+export interface RemoveCategoryBannerPayload {
+    categoryId: number;
+    bannerId: number;
+}
+
 export interface AdminCategoriesState extends EntityState<AdminCategory, number> {
     loading: boolean;
     error: string | null;
@@ -325,6 +367,44 @@ export const adminCategoriesSlice = apiSlice.injectEndpoints({
                 { type: 'AdminCategory' as const, id: 'PAGINATED_LIST' },
             ],
         }),
+
+        // --- Category Banners (CLP) ---
+        getAdminCategoryBanners: builder.query<GetCategoryBannersResponse, number>({
+            query: (categoryId) => `/admin/categories/${categoryId}/banners`,
+            providesTags: (result, error, id) => [{ type: 'AdminCategoryBanners' as const, id }],
+        }),
+
+        syncAdminCategoryBanners: builder.mutation<{ success: boolean; message: string; data: any }, SyncCategoryBannersPayload>({
+            query: ({ categoryId, banners }) => ({
+                url: `/admin/categories/${categoryId}/banners`,
+                method: 'PUT',
+                body: { banners },
+            }),
+            invalidatesTags: (result, error, { categoryId }) => [
+                { type: 'AdminCategoryBanners' as const, id: categoryId },
+            ],
+        }),
+
+        addAdminCategoryBanner: builder.mutation<{ success: boolean; message: string }, AddCategoryBannerPayload>({
+            query: ({ categoryId, banner_id, sort_order }) => ({
+                url: `/admin/categories/${categoryId}/banners`,
+                method: 'POST',
+                body: { banner_id, sort_order },
+            }),
+            invalidatesTags: (result, error, { categoryId }) => [
+                { type: 'AdminCategoryBanners' as const, id: categoryId },
+            ],
+        }),
+
+        removeAdminCategoryBanner: builder.mutation<{ success: boolean; message: string }, RemoveCategoryBannerPayload>({
+            query: ({ categoryId, bannerId }) => ({
+                url: `/admin/categories/${categoryId}/banners/${bannerId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: (result, error, { categoryId }) => [
+                { type: 'AdminCategoryBanners' as const, id: categoryId },
+            ],
+        }),
     }),
 });
 
@@ -341,6 +421,12 @@ export const {
     useBulkDeleteAdminCategoriesMutation,
     useBulkUpdateAdminCategoriesStatusMutation,
     useBulkUpdateAdminCategoriesParentMutation,
+    // CLP Banner Hooks
+    useGetAdminCategoryBannersQuery,
+    useLazyGetAdminCategoryBannersQuery,
+    useSyncAdminCategoryBannersMutation,
+    useAddAdminCategoryBannerMutation,
+    useRemoveAdminCategoryBannerMutation,
 } = adminCategoriesSlice;
 
 // Selectors

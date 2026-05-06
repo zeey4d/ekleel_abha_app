@@ -49,7 +49,9 @@ export interface Facet {
 export interface SearchFacets {
   [key: string]: Facet | undefined;
   categories?: Facet;
+  category_ids?: Facet;
   brand?: Facet;
+  tags?: Facet;
   price_range?: Facet;
   on_sale?: Facet;
   status?: Facet;
@@ -69,12 +71,19 @@ export interface SearchParams {
   categories?: string[];
   category_ids?: (string | number)[];
   brand?: string[];
+  tags?: string[];
   price_range?: string[];
   on_sale?: boolean | string | null;
   status?: boolean | string | null;
   sort_by?: 'price_asc' | 'price_desc' | 'date_added_desc' | 'date_added_asc' | 'relevance';
   min_price?: number | null;
   max_price?: number | null;
+}
+
+export interface TrackClickParams {
+  doc_id: string;
+  q?: string;
+  position?: number;
 }
 
 export interface AutocompleteParams {
@@ -92,16 +101,25 @@ export interface SearchResponse {
   };
 }
 
+export interface AutocompleteSuggestion {
+  id: string | number;
+  name_en: string;
+  name_ar: string;
+  price: number;
+  image?: string | null;
+  image_small?: string | null;
+  image_medium?: string | null;
+  brand?: string;
+}
+
 export interface AutocompleteResponse {
   success: boolean;
-  suggestions: Array<{
-    id: string | number;
-    name_en?: string;
-    name_ar?: string;
-    price: number;
-    image?: string;
-    main_image?: string;
-  }>;
+  suggestions: AutocompleteSuggestion[];
+}
+
+export interface TrackClickResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface SearchState extends EntityState<Product, string | number> {
@@ -111,14 +129,7 @@ export interface SearchState extends EntityState<Product, string | number> {
   pagination: SearchPagination;
   searchTimeMs: number;
   lastSearchQuery: string | null;
-  suggestions: Array<{
-    id: string | number;
-    name_en?: string;
-    name_ar?: string;
-    price: number;
-    image?: string;
-    main_image?: string;
-  }>;
+  suggestions: AutocompleteSuggestion[];
 }
 
 // --- Entity Adapter for Search Results Normalization ---
@@ -155,6 +166,7 @@ export const searchSlice = apiSlice.injectEndpoints({
         categories = [],
         category_ids = [],
         brand = [],
+        tags = [],
         price_range = [],
         on_sale = null,
         status = null,
@@ -184,6 +196,11 @@ export const searchSlice = apiSlice.injectEndpoints({
         // Brands
         if (brand && brand.length > 0) {
           params.brand = brand;
+        }
+
+        // Tags
+        if (tags && tags.length > 0) {
+          params.tags = tags;
         }
 
         // Price ranges
@@ -260,8 +277,8 @@ export const searchSlice = apiSlice.injectEndpoints({
 
         return tags;
       },
-      // Keep search results cached for 1 minute
-      keepUnusedDataFor: 60,
+      // Keep search results cached for 5 minutes
+      keepUnusedDataFor: 300,
     }),
 
     // --- Autocomplete Search ---
@@ -285,6 +302,19 @@ export const searchSlice = apiSlice.injectEndpoints({
       // Keep autocomplete results cached for 2 minutes
       keepUnusedDataFor: 120,
     }),
+
+    // --- Track Click Event (Typesense Analytics) ---
+    trackClick: builder.mutation<TrackClickResponse, TrackClickParams>({
+      query: ({ doc_id, q, position }) => ({
+        url: '/search/track-click',
+        method: 'POST',
+        body: {
+          doc_id,
+          ...(q && { q }),
+          ...(position !== undefined && { position }),
+        },
+      }),
+    }),
   }),
 });
 
@@ -294,6 +324,7 @@ export const {
   useAutocompleteQuery,
   useLazySearchProductsQuery,
   useLazyAutocompleteQuery,
+  useTrackClickMutation,
 } = searchSlice;
 
 // --- Selectors ---
@@ -411,6 +442,12 @@ export const selectOnSaleFacet = (queryArgs: SearchParams) =>
     return facets.on_sale?.values || [];
   });
 
+// Select tags facets
+export const selectTagFacets = (queryArgs: SearchParams) =>
+  createSelector([selectSearchFacets(queryArgs)], (facets) => {
+    return facets.tags?.values || [];
+  });
+
 // Select available categories from facets
 export const selectAvailableCategories = (queryArgs: SearchParams) =>
   createSelector([selectCategoryFacets(queryArgs)], (categoryFacets) => {
@@ -425,6 +462,15 @@ export const selectAvailablePriceRanges = (queryArgs: SearchParams) =>
   createSelector([selectPriceRangeFacets(queryArgs)], (priceRangeFacets) => {
     return priceRangeFacets.map((facet) => ({
       range: facet.value,
+      count: facet.count,
+    }));
+  });
+
+// Select available tags from facets
+export const selectAvailableTags = (queryArgs: SearchParams) =>
+  createSelector([selectTagFacets(queryArgs)], (tagFacets) => {
+    return tagFacets.map((facet) => ({
+      tag: facet.value,
       count: facet.count,
     }));
   });
