@@ -445,7 +445,7 @@ export const adminShippingSlice = apiSlice.injectEndpoints({
         getCities: builder.query<SmsaCity[], void>({
             query: () => '/admin/shipping/smsa/cities',
             transformResponse: (response: any) => response.data,
-            keepUnusedDataFor: 3600, // Cache for 1 hour
+            keepUnusedDataFor: 60, // Cache for 1 hour
         }),
 
         // Get retail points for a city

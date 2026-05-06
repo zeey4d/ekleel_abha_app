@@ -4,6 +4,17 @@ This document provides an overview of all admin Redux slices created based on th
 
 ## Created Slices
 
+### 0. **adminAuthSlice.ts**
+- **Controller**: `AdminAuthController.php`
+- **Features**:
+  - Admin login and logout
+  - Retrieving current admin profile and permissions
+  - Refreshing admin permissions cache
+  - Listing and showing admin user groups
+  - Updating admin group permissions
+  - Updating admin users' groups
+  - Listing admin users (auth context)
+
 ### 1. **adminProductsSlice.ts**
 - **Controller**: `AdminProductController.php`
 - **Features**:

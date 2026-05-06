@@ -53,7 +53,7 @@ export const ordersSlice = apiSlice.injectEndpoints({
     // This endpoint is primarily for COD orders
     createOrder: builder.mutation<Order, CreateOrderPayload>({
       query: (orderData) => ({
-        url: '/orders/create',
+        url: '/checkout',
         method: 'POST',
         body: orderData,
       }),
@@ -101,20 +101,23 @@ export const ordersSlice = apiSlice.injectEndpoints({
         url: '/orders',
         params: { page, limit }
       }),
-      transformResponse: (responseData: PaginatedResponse<Order> | any): OrderState => {
-        // Normalize the array response
-        // Ensure each order has order_id set
-        const orders = (responseData.data || []).map((order: any) => ({
+      transformResponse: (response: any): OrderState => {
+        // The API returns { data: Order[], meta: { ... } }
+        // response.data is the array of orders
+        const loadedOrders = response.data || [];
+
+        const normalizedOrders = loadedOrders.map((order: any) => ({
           ...order,
-          order_id: order.order_id ?? order.id,
+          order_id: order.id, // Ensure internal ID usage consistency
+          // Ensure products are correctly mapped if present (though index usually has them now)
+          products: order.products || []
         }));
-        const state = ordersAdapter.setAll(initialOrdersState, orders);
+
+        const state = ordersAdapter.setAll(initialOrdersState, normalizedOrders);
+
         return {
           ...state,
-          pagination: {
-            ...responseData.meta,
-            total_pages: responseData.meta?.last_page ?? responseData.meta?.total_pages
-          }
+          pagination: response.meta
         };
       },
       providesTags: (result, error, arg) =>
@@ -126,7 +129,7 @@ export const ordersSlice = apiSlice.injectEndpoints({
 
     // --- Get Order Details ---
     getOrderDetails: builder.query<Order, string | number>({
-      query: (id) => `/orders/${id}`,
+      query: (id) => `/orders/${id}?include=products,totals,history`,
       transformResponse: (response: any): Order => {
         // Handle { data: Order } or direct Order
         const order = response.data || response;
@@ -177,14 +180,7 @@ export const ordersSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [{ type: 'Order' as const, id }],
     }),
 
-    // --- Download Invoice ---
-    downloadInvoice: builder.query<Blob, string | number>({
-      query: (id) => ({
-        url: `/orders/${id}/invoice`,
-        responseHandler: (response) => response.blob(),
-      }),
-      providesTags: (result, error, id) => [{ type: 'Order' as const, id }],
-    }),
+
   }),
 });
 
@@ -195,7 +191,6 @@ export const {
   useGetOrderDetailsQuery,
   useRequestOrderCancellationMutation,
   useRequestReturnRefundMutation,
-  useDownloadInvoiceQuery,
 } = ordersSlice;
 
 // --- Memoized Selectors ---

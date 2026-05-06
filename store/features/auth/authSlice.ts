@@ -18,7 +18,13 @@ import {
   LoginResponse,
   RegisterResponse,
   VerifyRegistrationResponse,
-  UpdateProfileResponse
+  UpdateProfileResponse,
+  RequestDeleteAccountDataPayload,
+  VerifyDeleteAccountDataPayload,
+  RequestDeleteAccountPayload,
+  VerifyDeleteAccountPayload,
+  DeleteRequestResponse,
+  DeleteVerifyResponse
 } from '@/store/types';
 
 
@@ -28,7 +34,7 @@ const handleAuthError = (err: any, action: string) => {
 };
 
 // ==============================
-// Token Management (using authStorage)
+// Token Management (using cookieManager)
 export const authSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<RegisterResponse, RegisterCredentials>({
@@ -121,7 +127,7 @@ export const authSlice = apiSlice.injectEndpoints({
         url: '/auth/me',
       }),
       providesTags: ['User'],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
       transformResponse: (response: UserProfile) => response,
       async onQueryStarted(_, { queryFulfilled }) {
         try {
@@ -219,6 +225,76 @@ export const authSlice = apiSlice.injectEndpoints({
         }
       },
     }),
+
+    requestDeleteAccountData: builder.mutation<DeleteRequestResponse, RequestDeleteAccountDataPayload>({
+      query: (payload) => ({
+        url: '/auth/delete-data/request',
+        method: 'POST',
+        body: payload,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Request delete account data');
+          throw error;
+        }
+      },
+    }),
+
+    verifyDeleteAccountData: builder.mutation<DeleteVerifyResponse, VerifyDeleteAccountDataPayload>({
+      query: (payload) => ({
+        url: '/auth/delete-data/verify',
+        method: 'POST',
+        body: payload,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Verify delete account data');
+          throw error;
+        } finally {
+          await authStorage.removeToken();
+          dispatch(apiSlice.util.invalidateTags(['User', 'Cart', 'Wishlist', 'Order']));
+        }
+      },
+    }),
+
+    requestDeleteAccount: builder.mutation<DeleteRequestResponse, RequestDeleteAccountPayload>({
+      query: (payload) => ({
+        url: '/auth/delete-account/request',
+        method: 'POST',
+        body: payload,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Request delete account');
+          throw error;
+        }
+      },
+    }),
+
+    verifyDeleteAccount: builder.mutation<DeleteVerifyResponse, VerifyDeleteAccountPayload>({
+      query: (payload) => ({
+        url: '/auth/delete-account/verify',
+        method: 'POST',
+        body: payload,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } catch (err) {
+          const error = handleAuthError(err, 'Verify delete account');
+          throw error;
+        } finally {
+          await authStorage.removeToken();
+          dispatch(apiSlice.util.invalidateTags(['User', 'Cart', 'Wishlist', 'Order']));
+        }
+      },
+    }),
   }),
 });
 
@@ -236,6 +312,10 @@ export const {
   useChangePasswordMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useRequestDeleteAccountDataMutation,
+  useVerifyDeleteAccountDataMutation,
+  useRequestDeleteAccountMutation,
+  useVerifyDeleteAccountMutation,
 } = authSlice;
 
 // ==============================
@@ -265,10 +345,9 @@ export const selectAuthError = createSelector(
 // Utility Functions
 // ==============================
 export const checkAuthStatus = async (): Promise<boolean> => {
-  const token = await authStorage.getToken();
-  return !!token && !authStorage.isTokenExpired();
+  return await authStorage.isAuthenticated();
 };
 
-export const getAuthToken = async (): Promise<string | null> => authStorage.getToken();
+export const getAuthToken = async (): Promise<string | null> => await authStorage.getToken();
 
 export default authSlice;

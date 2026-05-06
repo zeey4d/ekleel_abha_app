@@ -57,31 +57,10 @@ export const brandsSlice = apiSlice.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.ids.map((id) => ({ type: "Brand" as const, id })),
-              { type: "Brand" as const, id: "LIST" },
-            ]
+            ...result.ids.map((id) => ({ type: "Brand" as const, id })),
+            { type: "Brand" as const, id: "LIST" },
+          ]
           : [{ type: "Brand" as const, id: "LIST" }],
-      // 🕐 Long-lived: Brands rarely change
-      keepUnusedDataFor: 3600,
-      // Support Infinite Scroll
-      serializeQueryArgs: ({ queryArgs }) => {
-        const { page, ...rest } = queryArgs;
-        return rest; // Group by all args except 'page'
-      },
-      merge: (currentCache, newItems, { arg }) => {
-        if (arg.page === 1) {
-          // Reset cache if page 1
-          brandsAdapter.setAll(currentCache, newItems.ids.map((id) => newItems.entities[id]!));
-        } else {
-          // Append new items
-          brandsAdapter.addMany(currentCache, newItems.ids.map((id) => newItems.entities[id]!));
-        }
-        // Update meta
-        currentCache.meta = newItems.meta;
-      },
-      forceRefetch({ currentArg, previousArg }) {
-        return currentArg?.page !== previousArg?.page;
-      },
     }),
 
     // --- Get Brand by ID ---
@@ -91,7 +70,6 @@ export const brandsSlice = apiSlice.injectEndpoints({
         return responseData.data;
       },
       providesTags: (result, error, id) => [{ type: "Brand" as const, id }],
-      keepUnusedDataFor: 3600,
     }),
 
     // --- Get Featured Brands ---
@@ -105,7 +83,6 @@ export const brandsSlice = apiSlice.injectEndpoints({
         return responseData.data;
       },
       providesTags: [{ type: "Brand" as const, id: "FEATURED" }],
-      keepUnusedDataFor: 3600,
     }),
 
     // --- Get Brands by Letter ---
@@ -128,6 +105,16 @@ export const brandsSlice = apiSlice.injectEndpoints({
         { type: "Brand" as const, id: `LETTER-${letter}` },
       ],
     }),
+
+    // --- Get Brand IDs ---
+    getBrandIds: builder.query<number[], void>({
+      query: () => `/brands/ids`,
+      transformResponse: (responseData: { data: number[]; total: number }) => {
+        return responseData.data || [];
+      },
+      providesTags: [{ type: "Brand" as const, id: "IDS" }],
+      keepUnusedDataFor: 60,
+    }),
   }),
 });
 
@@ -137,6 +124,7 @@ export const brandsSlice = apiSlice.injectEndpoints({
 export const {
   useGetBrandsQuery,
   useGetBrandByIdQuery,
+  useGetBrandIdsQuery,
   useGetFeaturedBrandsQuery,
   useGetBrandsByLetterQuery,
 } = brandsSlice;
@@ -144,7 +132,7 @@ export const {
 // ===============================
 // Memoized Selectors
 // ===============================
-const selectBrandsResult = (params: GetBrandsParams) => 
+const selectBrandsResult = (params: GetBrandsParams) =>
   brandsSlice.endpoints.getBrands.select(params);
 
 export const {
@@ -152,12 +140,12 @@ export const {
   selectById: selectBrandById,
   selectIds: selectBrandIds,
 } = brandsAdapter.getSelectors<RootState>(
-  (state, params: GetBrandsParams = {}) => 
+  (state, params: GetBrandsParams = {}) =>
     selectBrandsResult(params)(state).data || initialBrandsState
 );
 
 // --- Selector: Brands Meta Data ---
-export const selectBrandsMeta = (params: GetBrandsParams = {}) => 
+export const selectBrandsMeta = (params: GetBrandsParams = {}) =>
   createSelector(
     [selectBrandsResult(params)],
     (result) => result.data?.meta || null

@@ -1,2 +1,2 @@
-import MegaMenu from '@/features/categories/screens/MegaMenu';
-export default MegaMenu;
+import CategoriesScreen from '@/features/categories/screens/CategoriesScreen';
+export default CategoriesScreen;

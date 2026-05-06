@@ -5,7 +5,9 @@ import { RootState } from '@/store/store';
 import {
   Address,
   AddressState,
-  AddressResponse
+  AddressResponse,
+  Branch,
+  BranchesResponse
 } from '@/store/types';
 
 
@@ -121,12 +123,14 @@ export const addressesSlice = apiSlice.injectEndpoints({
         } catch (err: any) {
           patchResult.undo();
           // RTK Query error structure: { error: { status, data } }
-          const errorMessage = err?.error?.data?.message || err?.error?.data?.error || err?.message || 'Unknown error';
-          const errorStatus = err?.error?.status || 'N/A';
-          console.error('Failed to add address:', {
+          const errorData = err?.error?.data || err?.data;
+          const errorMessage = errorData?.message || errorData?.error || err?.message || 'Unknown error';
+          const errorStatus = err?.error?.status || err?.status || 'N/A';
+          console.error('Failed to add address (Slice):', {
             status: errorStatus,
             message: errorMessage,
-            fullError: err?.error || err,
+            data: errorData,
+            fullError: err
           });
         }
       },
@@ -249,15 +253,24 @@ export const addressesSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (result, error, id) => [{ type: 'Address' as const, id }, { type: 'Address' as const, id: 'LIST' }],
     }),
+
+    // --- Get Branches ---
+    getBranches: builder.query<Branch[], void>({
+      query: () => '/branches',
+      transformResponse: (response: BranchesResponse) => response.data,
+      providesTags: ['Address'], // Maybe something more fitting, but this works
+    }),
   }),
 });
 
+// Export auto-generated hooks
 // Export auto-generated hooks
 export const {
   useGetUserAddressesQuery,
   useAddAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
+  useGetBranchesQuery,
 } = addressesSlice;
 
 // --- Memoized Selectors ---

@@ -1,4 +1,4 @@
-// store/features/admin/adminPaymentsSlice.ts
+// src/features/admin/adminHyperpayPaymentsSlice.ts
 import { createEntityAdapter, EntityState } from '@reduxjs/toolkit';
 import { apiSlice } from '../api/apiSlice';
 import { RootState } from '@/store/store';
@@ -108,12 +108,12 @@ const initialState: AdminPaymentsState = adminPaymentsAdapter.getInitialState({
 });
 
 // API Slice
-export const adminPaymentsSlice = apiSlice.injectEndpoints({
+export const adminHyperpayPaymentsSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         // Get all payments (paginated with filters)
         getAdminPayments: builder.query<AdminPaymentsState, AdminPaymentsParams>({
             query: (params) => ({
-                url: '/admin/payments',
+                url: '/admin/hyperpay/payments',
                 params,
             }),
             transformResponse: (response: any): AdminPaymentsState => {
@@ -140,15 +140,10 @@ export const adminPaymentsSlice = apiSlice.injectEndpoints({
                     : [{ type: 'AdminPayment' as const, id: 'LIST' }],
         }),
 
-        // Get single payment (using generic get if needed or filtering list)
-        // Note: The new controller doesn't explicit show a 'show' method, so we might need to rely on list filtering or add one.
-        // For now, we optionally keep this if we assume /admin/payments/{id} exists, otherwise we should remove it.
-        // Given only 'index' and 'actions' are shown, we'll assume we fetch list. If specific view is needed, we filter the list.
-
         // Get payments for a specific order
         getPaymentsByOrder: builder.query<AdminPayment[], number>({
             query: (orderId) => ({
-                url: '/admin/payments',
+                url: '/admin/hyperpay/payments',
                 params: { order_id: orderId },
             }),
             transformResponse: (response: any) => response.data || [],
@@ -160,7 +155,7 @@ export const adminPaymentsSlice = apiSlice.injectEndpoints({
         // Capture payment (CP) - capture from pre-auth
         capturePayment: builder.mutation<PaymentActionResponse, PaymentActionPayload>({
             query: ({ order_id, amount, currency }) => ({
-                url: `/admin/payments/${order_id}/capture`,
+                url: `/admin/hyperpay/payments/${order_id}/capture`,
                 method: 'POST',
                 body: { amount, currency },
             }),
@@ -174,7 +169,7 @@ export const adminPaymentsSlice = apiSlice.injectEndpoints({
         // Refund payment (RF) - refund a captured or debited payment
         refundPayment: builder.mutation<PaymentActionResponse, PaymentActionPayload>({
             query: ({ order_id, amount, currency }) => ({
-                url: `/admin/payments/${order_id}/refund`,
+                url: `/admin/hyperpay/payments/${order_id}/refund`,
                 method: 'POST',
                 body: { amount, currency },
             }),
@@ -188,7 +183,7 @@ export const adminPaymentsSlice = apiSlice.injectEndpoints({
         // Rebill payment (RB) - charge again using previous authorization
         rebillPayment: builder.mutation<PaymentActionResponse, PaymentActionPayload>({
             query: ({ order_id, amount, currency }) => ({
-                url: `/admin/payments/${order_id}/rebill`,
+                url: `/admin/hyperpay/payments/${order_id}/rebill`,
                 method: 'POST',
                 body: { amount, currency },
             }),
@@ -202,7 +197,7 @@ export const adminPaymentsSlice = apiSlice.injectEndpoints({
         // Reverse payment (RV) - cancel a pre-auth
         reversePayment: builder.mutation<PaymentActionResponse, PaymentActionPayload>({
             query: ({ order_id, amount, currency }) => ({
-                url: `/admin/payments/${order_id}/reverse`,
+                url: `/admin/hyperpay/payments/${order_id}/reverse`,
                 method: 'POST',
                 body: { amount, currency },
             }),
@@ -213,9 +208,9 @@ export const adminPaymentsSlice = apiSlice.injectEndpoints({
             ],
         }),
 
-        // Keep stats query if there's a stats endpoint (Controller code didn't show one, but slice had it. I'll comment it out or keep as placeholder if backend implements it separarely)
+        // Keep stats query if there's a stats endpoint
         getPaymentStatistics: builder.query<PaymentStats, void>({
-            query: () => '/admin/payments/statistics',
+            query: () => '/admin/hyperpay/payments/statistics', // Assuming pattern follows
             providesTags: ['PaymentStats']
         }),
     }),
@@ -232,7 +227,7 @@ export const {
     useRebillPaymentMutation,
     useReversePaymentMutation,
     useGetPaymentStatisticsQuery,
-} = adminPaymentsSlice;
+} = adminHyperpayPaymentsSlice;
 
 // Selectors
 export const {
@@ -241,7 +236,7 @@ export const {
     selectIds: selectAdminPaymentIds,
 } = adminPaymentsAdapter.getSelectors<RootState>(
     (state) =>
-        adminPaymentsSlice.endpoints.getAdminPayments.select({})(state).data || initialState
+        adminHyperpayPaymentsSlice.endpoints.getAdminPayments.select({})(state).data || initialState
 );
 
-export default adminPaymentsSlice;
+export default adminHyperpayPaymentsSlice;
