@@ -100,7 +100,7 @@ export default function AboutPage() {
                 </View>
 
                 {/* Site Logo */}
-                <View className="items-center justify-center bg-yellow-500/5 rounded-2xl p-8 aspect-square mb-8">
+                <View style={{ aspectRatio: 1 }} className="items-center justify-center bg-yellow-500/5 rounded-2xl p-8 mb-8">
                     <Image
                         source={require('@/assets/images/aka_g.png')} 
                         className="w-48 h-48"

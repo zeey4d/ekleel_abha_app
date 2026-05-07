@@ -167,7 +167,7 @@
 //         keyExtractor={keyExtractor}
 //         onMomentumScrollEnd={onMomentumScrollEnd}
 //         getItemLayout={getItemLayout}
-        
+
 //         // ⚡ FlatList Performance Props
 //         initialNumToRender={1}
 //         maxToRenderPerBatch={2}
@@ -322,56 +322,56 @@ export const HeroSlider = ({ banners = [] }: HeroSliderProps) => {
     },
     []
   );
-const renderItem = useCallback(
-  ({ item }: { item: Banner }) => (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={() => {
-        const route = getAppRoute(item.url);
-        if (route) router.push(route as any);
-      }}
-      style={{ width, height: BANNER_HEIGHT }}
-      className="relative"
-    >
-      {/* Image */}
-      {item.image ? (
-        <Image
-          source={{ uri: getImageUrl(item.image) }}
-          resizeMode="cover"
+  const renderItem = useCallback(
+    ({ item }: { item: Banner }) => (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => {
+          const route = getAppRoute(item.url);
+          if (route) router.push(route as any);
+        }}
+        style={{ width, height: BANNER_HEIGHT }}
+        className="relative"
+      >
+        {/* Image */}
+        {item.image ? (
+          <Image
+            source={{ uri: getImageUrl(item.image) }}
+            resizeMode="cover"
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          />
+        ) : (
+          <View className="h-full w-full items-center justify-center bg-slate-200">
+            <Text className="text-slate-500">{t('HeroSlider.noImage')}</Text>
+          </View>
+        )}
+
+        {/* ✅ Bottom Fade (iOS FIXED) */}
+        <LinearGradient
+          colors={[
+            'rgba(255,255,255,0)',
+            'rgba(255,255,255,0.4)',
+            'rgba(255,255,255,0.85)',
+            '#ffffff',
+          ]}
+          locations={[0, 0.55, 0.8, 1]}
           style={{
-            width: '100%',
-            height: '100%',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 180,
+            zIndex: 10, // 🔥 مهم لـ iOS
+            pointerEvents: 'none',
           }}
         />
-      ) : (
-        <View className="h-full w-full items-center justify-center bg-slate-200">
-          <Text className="text-slate-500">{t('HeroSlider.noImage')}</Text>
-        </View>
-      )}
-
-      {/* ✅ Bottom Fade (iOS FIXED) */}
-      <LinearGradient
-        pointerEvents="none"
-        colors={[
-          'rgba(255,255,255,0)',
-          'rgba(255,255,255,0.4)',
-          'rgba(255,255,255,0.85)',
-          '#ffffff',
-        ]}
-        locations={[0, 0.55, 0.8, 1]}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 180,
-          zIndex: 10, // 🔥 مهم لـ iOS
-        }}
-      />
-    </TouchableOpacity>
-  ),
-  [router, t]
-);
+      </TouchableOpacity>
+    ),
+    [router, t]
+  );
 
 
 
@@ -411,11 +411,10 @@ const renderItem = useCallback(
           {banners.map((_, idx) => (
             <View
               key={idx}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === current
-                  ? 'w-6 bg-[#2c7c7b] shadow-sm'
-                  : 'w-2 bg-white/70'
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 ${idx === current
+                ? 'w-6 bg-[#2c7c7b] shadow-sm'
+                : 'w-2 bg-white/70'
+                }`}
             />
           ))}
         </View>

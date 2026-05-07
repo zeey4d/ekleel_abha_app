@@ -18,7 +18,7 @@ export const ProductGallery = ({ images, mainImage }: ProductGalleryProps) => {
   return (
     <View className="flex-col gap-4">
       {/* Main Image */}
-      <View className="w-full aspect-square bg-white rounded-2xl border border-border p-4 items-center justify-center overflow-hidden">
+      <View style={{ aspectRatio: 1 }} className="w-full bg-white rounded-2xl border border-border p-4 items-center justify-center overflow-hidden">
         <Image
           source={{ uri: getImageUrl(selectedImage) }}
           className="w-full h-full"

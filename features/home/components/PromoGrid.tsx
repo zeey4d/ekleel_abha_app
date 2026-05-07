@@ -84,7 +84,15 @@ export function PromoGrid({ banners }: PromoGridProps) {
         decelerationRate="fast"
         contentContainerStyle={{ paddingRight: 16 }} // Initial padding
         onMomentumScrollEnd={onMomentumScrollEnd}
-        onScrollToIndexFailed={() => {}} // Catch error if scroll fails
+        getItemLayout={(_, index) => ({
+          length: ITEM_WIDTH + ITEM_SPACING,
+          offset: (ITEM_WIDTH + ITEM_SPACING) * index,
+          index,
+        })}
+        onScrollToIndexFailed={(info) => {
+          const offset = info.index * (ITEM_WIDTH + ITEM_SPACING);
+          flatListRef.current?.scrollToOffset({ offset, animated: true });
+        }}
       />
 
             {/* Pagination Dots */}

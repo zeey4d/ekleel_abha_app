@@ -97,7 +97,7 @@ export default function BrandsScreen() {
       className="flex-1 mb-4"
       style={{ maxWidth: '31%' }}
     >
-      <View className="aspect-square bg-white rounded-xl border border-border items-center justify-center p-4">
+      <View style={{ aspectRatio: 1 }} className="bg-white rounded-xl border border-border items-center justify-center p-4">
         {item?.image ? (
           <Image
             source={{ uri: getImageUrl(item.image) }}
@@ -164,7 +164,7 @@ export default function BrandsScreen() {
                       onPress={() => router.push(`brands/${item.id}` as any)}
                       className="mr-4 w-24"
                     >
-                      <View className="aspect-square bg-white rounded-xl border border-border items-center justify-center p-4">
+                      <View style={{ aspectRatio: 1 }} className="bg-white rounded-xl border border-border items-center justify-center p-4">
                         {item.image ? (
                           <Image
                             source={{ uri: getImageUrl(item.image) }}

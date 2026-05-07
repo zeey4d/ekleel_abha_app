@@ -100,10 +100,7 @@ const BannerCarousel = ({ banners }: { banners: Banner[] }) => {
                 borderRadius: 4,
                 width: idx === activeIndex ? 24 : 8,
                 backgroundColor: idx === activeIndex ? '#ffffffff' : 'rgba(255, 255, 255, 0.7)',
-                shadowColor: idx === activeIndex ? '#000' : 'transparent',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: idx === activeIndex ? 0.2 : 0,
-                shadowRadius: 1.41,
+                boxShadow: idx === activeIndex ? '0px 1px 1.41px rgba(0, 0, 0, 0.2)' : undefined,
                 elevation: idx === activeIndex ? 2 : 0,
               }}
             />

@@ -17,7 +17,7 @@ function AvatarImage({
   className,
   ...props
 }: AvatarPrimitive.ImageProps & React.RefAttributes<AvatarPrimitive.ImageRef>) {
-  return <AvatarPrimitive.Image className={cn('aspect-square size-full', className)} {...props} />;
+  return <AvatarPrimitive.Image style={{ aspectRatio: 1 }} className={cn('size-full', className)} {...props} />;
 }
 
 function AvatarFallback({

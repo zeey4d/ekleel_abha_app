@@ -54,7 +54,7 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
         renderItem={({ item }) => (
           <View style={{ marginEnd: 16 }}>
             {item.map((category, index) => (
-              <Pressable 
+              <Pressable
                 key={category.id}
                 style={{ width: 76, alignItems: 'center', marginBottom: index === 0 ? 16 : 0 }}
                 onPress={() => {

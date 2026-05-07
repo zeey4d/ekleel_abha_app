@@ -3,7 +3,7 @@ const { hairlineWidth } = require('nativewind/theme');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './features/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
@@ -69,6 +69,9 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
+  },
+  corePlugins: {
+    aspectRatio: false,
   },
   future: {
     hoverOnlyWhenSupported: true,

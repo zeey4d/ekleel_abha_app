@@ -14,6 +14,10 @@ import { ProductCard } from '@/features/products/components/ProductCard';
 import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
+const ITEM_WIDTH = width * 0.45;
+const ITEM_SPACING = 12;
+
+
 
 interface ProductCarouselProps {
   products: any[];
@@ -56,6 +60,17 @@ export const ProductCarousel = ({
     return () => clearInterval(interval);
   }, [products]);
 
+  const getItemLayout = (_: any, index: number) => ({
+    length: ITEM_WIDTH + ITEM_SPACING,
+    offset: (ITEM_WIDTH + ITEM_SPACING) * index,
+    index,
+  });
+
+  const onScrollToIndexFailed = (info: { index: number }) => {
+    const offset = info.index * (ITEM_WIDTH + ITEM_SPACING);
+    flatListRef.current?.scrollToOffset({ offset, animated: true });
+  };
+
   if (!products?.length) return null;
 
   return (
@@ -91,9 +106,11 @@ export const ProductCarousel = ({
         horizontal
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
-        snapToInterval={width * 0.45}
+        snapToInterval={ITEM_WIDTH + ITEM_SPACING}
         decelerationRate="fast"
         contentContainerStyle={{ paddingHorizontal: 8 }}
+        getItemLayout={getItemLayout}
+        onScrollToIndexFailed={onScrollToIndexFailed}
         renderItem={({ item }) => (
           <View style={styles.item}>
             <ProductCard product={item} />

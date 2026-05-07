@@ -228,10 +228,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
+        boxShadow: '0px -3px 10px rgba(0, 0, 0, 0.1)',
       },
       android: { elevation: 10 },
     }),
@@ -329,10 +326,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: '#2c7c7b',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        boxShadow: '0px 4px 8px rgba(44, 124, 123, 0.3)',
       },
       android: { elevation: 4 },
     }),

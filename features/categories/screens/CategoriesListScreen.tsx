@@ -36,10 +36,7 @@ export default function CategoriesListScreen() {
                     onPress={() => router.push(`categories/${item.id}` as any)}
                     className="flex-row items-center bg-white p-4 rounded-[20px] border border-slate-100/80 active:bg-slate-50 transition-colors"
                     style={[{
-                        shadowColor: '#94a3b8',
-                        shadowOffset: { width: 0, height: 6 },
-                        shadowOpacity: 0.08,
-                        shadowRadius: 16,
+                        boxShadow: '0px 6px 16px rgba(148, 163, 184, 0.08)',
                         elevation: 3,
                     }, isRtlStyle ? { flexDirection: 'row-reverse' } : undefined]}
                 >
@@ -104,10 +101,7 @@ export default function CategoriesListScreen() {
                                     onPress={() => router.push(`categories/${child.id}` as any)}
                                     className={`bg-white px-4 py-2 rounded-full border border-slate-200 active:bg-slate-50 mb-2 ${isRtlStyle ? 'ml-2' : 'mr-2'}`}
                                     style={{
-                                        shadowColor: '#cbd5e1',
-                                        shadowOffset: { width: 0, height: 2 },
-                                        shadowOpacity: 0.1,
-                                        shadowRadius: 4,
+                                        boxShadow: '0px 2px 4px rgba(203, 213, 225, 0.1)',
                                         elevation: 1,
                                     }}
                                 >

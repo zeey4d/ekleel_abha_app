@@ -20,7 +20,7 @@ export const BrandCard = ({ brand }: { brand: Brand }) => {
       onPress={() => router.push(`/(tabs)/(shop)/brands/${brand.id}` as any)}
       className="flex-col items-center"
     >
-      <View className="w-full aspect-square bg-white border border-slate-100 rounded-2xl p-6 items-center justify-center mb-3 relative">
+      <View style={{ aspectRatio: 1 }} className="w-full bg-white border border-slate-100 rounded-2xl p-6 items-center justify-center mb-3 relative">
         {brand.image ? (
           <Image
             source={{ uri: getImageUrl(brand.image) }}

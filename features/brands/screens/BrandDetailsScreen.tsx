@@ -219,7 +219,7 @@ function BrandPageSkeleton() {
       <View className="flex-row flex-wrap justify-between">
         {[1, 2, 3, 4].map(i => (
           <View key={i} className="w-[48%] mb-4">
-            <Skeleton className="aspect-square w-full rounded-2xl mb-2" />
+            <Skeleton style={{ aspectRatio: 1 }} className="w-full rounded-2xl mb-2" />
             <Skeleton className="h-4 w-3/4 mb-1" />
           </View>
         ))}

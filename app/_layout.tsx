@@ -1,12 +1,34 @@
 import '@/global.css';
 import '@/i18n/config';
 
+import { LogBox, Platform } from 'react-native';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
 import { useEffect } from 'react';
 import { AppProviders } from '@/providers/AppProviders';
+
+// Suppress deprecation warnings from library internals (react-native-web/reanimated)
+// These come from NativeWind shadow utilities and react-native-reanimated's View props
+if (Platform.OS !== 'web') {
+  LogBox.ignoreLogs([
+    'props.pointerEvents is deprecated',
+    '"shadow*" style props are deprecated',
+  ]);
+} else {
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    const msg = typeof args[0] === 'string' ? args[0] : '';
+    if (
+      msg.includes('props.pointerEvents is deprecated') ||
+      msg.includes('style props are deprecated')
+    ) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+}
 
 export {
   ErrorBoundary,

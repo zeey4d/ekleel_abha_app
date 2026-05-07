@@ -38,10 +38,7 @@ export const TrustBadges = () => {
           className="flex-row items-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm"
           style={{
             // إضافة ظل خفيف يتناسب مع أندرويد و iOS
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 2,
+            boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
             elevation: 2,
           }}
         >

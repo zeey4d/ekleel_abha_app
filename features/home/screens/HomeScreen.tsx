@@ -256,7 +256,7 @@ export function HomePageSkeleton() {
             </View>
             <View className="flex-row flex-wrap justify-between gap-y-6">
               {Array.from({ length: 6 }, (_, i) => (
-                <Skeleton key={i} className="w-[30%] aspect-square rounded-full" />
+                <Skeleton key={i} style={{ aspectRatio: 1 }} className="w-[30%] rounded-full" />
               ))}
             </View>
           </View>
@@ -268,7 +268,7 @@ export function HomePageSkeleton() {
           <View className="flex-row flex-wrap justify-between gap-y-6">
             {Array.from({ length: 4 }, (_, i) => (
               <View key={i} className="w-[48%] space-y-3">
-                <Skeleton className="aspect-[4/3] rounded-xl" />
+                <Skeleton style={{ aspectRatio: 4 / 3 }} className="rounded-xl" />
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
               </View>
