@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   ActivityIndicator, 
   Pressable, 
-  StyleSheet 
+  StyleSheet,
+  Dimensions
 } from 'react-native';
 import { ChevronLeft, Sparkles } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -125,11 +126,15 @@ export default function NewArrivalsScreen() {
             </Text>
           </View>
         )}
-        renderItem={({ item }) => (
-          <View className="w-[48%] mb-4">
-            <ProductCard product={item} />
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const { width } = Dimensions.get('window');
+          const itemWidth = (width - 32 - 12) / 2;
+          return (
+            <View style={{ width: itemWidth, marginBottom: 16 }}>
+              <ProductCard product={item} />
+            </View>
+          );
+        }}
         ListFooterComponent={() => (
           <View className="py-6 items-center">
             {visibleCount < allProducts.length ? (
@@ -159,12 +164,15 @@ export default function NewArrivalsScreen() {
 }
 
 function NewArrivalsSkeleton() {
+  const { width } = Dimensions.get('window');
+  const itemWidth = (width - 32 - 12) / 2;
+
   return (
     <View className="flex-1 bg-white p-4 pt-24">
       <Stack.Screen options={{ headerShown: true, title: "New Arrivals", headerTransparent: true }} />
       <View className="flex-row flex-wrap justify-between">
         {[...Array(6)].map((_, i) => (
-          <View key={i} className="w-[48%] mb-6">
+          <View key={i} style={{ width: itemWidth, marginBottom: 24 }}>
             <Skeleton className="h-48 w-full rounded-2xl" />
             <View className="mt-3 space-y-2">
               <Skeleton className="h-4 w-3/4 rounded-md" />

@@ -131,11 +131,16 @@ export default function ProductsScreen() {
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         
-        renderItem={({ item }) => (
-          <View className="flex-1 max-w-[50%]">
-             <ProductCard product={item} layout="grid" />
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const { width } = Dimensions.get('window');
+          // width minus paddingHorizontal (32) minus gap (12) divided by 2
+          const itemWidth = (width - 32 - 12) / 2;
+          return (
+            <View style={{ width: itemWidth }}>
+               <ProductCard product={item} layout="grid" />
+            </View>
+          );
+        }}
         
         ListEmptyComponent={() => (
           !isFetching ? (
@@ -177,11 +182,11 @@ function ProductGridSkeleton() {
   const itemWidth = (width - 44) / 2; 
 
   return (
-    <View className="p-4 flex-row flex-wrap gap-3">
+    <View className="p-4 flex-row flex-wrap justify-between">
       {[...Array(6)].map((_, i) => (
         <View 
           key={i} 
-          style={{ width: itemWidth }} 
+          style={{ width: itemWidth, marginBottom: 12 }} 
           className="bg-card p-3 rounded-xl border border-border/50 shadow-sm"
         >
           <Skeleton className="w-full h-40 rounded-lg bg-secondary/50" />

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { View, Text, FlatList, Image, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, FlatList, Image, ActivityIndicator, Pressable, Dimensions } from 'react-native';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react-native';
@@ -180,11 +180,15 @@ export default function BrandDetailsScreen() {
                     </View>
                 }
 
-                renderItem={({ item }) => (
-                    <View style={{ width: '48%', marginBottom: 16 }}>
+                renderItem={({ item }) => {
+                    const { width } = Dimensions.get('window');
+                    const itemWidth = (width - 32 - 12) / 2; // paddingHorizontal is 16 (32 total), gap is pushed by justify-between
+                    return (
+                    <View style={{ width: itemWidth, marginBottom: 16 }}>
                         <ProductCard product={item} />
                     </View>
-                )}
+                    );
+                }}
 
                 ListEmptyComponent={
                     !isFetching ? (
@@ -208,17 +212,21 @@ export default function BrandDetailsScreen() {
 }
 
 function BrandPageSkeleton() {
+  const { width } = Dimensions.get('window');
+  // px-4 = 16 padding on sides, so total 32 horizontal padding
+  const itemWidth = (width - 32 - 16) / 2;
+
   return (
     <View className="flex-1 bg-background px-4 pt-6">
       <Stack.Screen options={{ headerShown: true, title: 'Loading...' }} />
       <Skeleton className="h-32 w-full rounded-2xl mb-6" />
       <View className="flex-row justify-between mb-6">
-        <Skeleton className="h-10 w-[45%] rounded-full" />
-        <Skeleton className="h-10 w-[45%] rounded-full" />
+        <Skeleton style={{ width: itemWidth }} className="h-10 rounded-full" />
+        <Skeleton style={{ width: itemWidth }} className="h-10 rounded-full" />
       </View>
       <View className="flex-row flex-wrap justify-between">
         {[1, 2, 3, 4].map(i => (
-          <View key={i} className="w-[48%] mb-4">
+          <View key={i} style={{ width: itemWidth, marginBottom: 16 }}>
             <Skeleton style={{ aspectRatio: 1 }} className="w-full rounded-2xl mb-2" />
             <Skeleton className="h-4 w-3/4 mb-1" />
           </View>

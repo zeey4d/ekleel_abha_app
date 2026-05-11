@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useMemo, useCallback } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import Animated, {
   FadeIn,
   useAnimatedScrollHandler,
@@ -225,6 +225,12 @@ export default function HomeScreen() {
 // ─────────────────────────────────────────────
 
 export function HomePageSkeleton() {
+  const { width } = Dimensions.get('window');
+  // Container padding is 4 (px-1 -> 4px horizontal padding, but let's say total horizontal space is ~8px. Actually `px-1` is 4px total padding if 2px each side. Let's use 16px as standard).
+  // Assuming full width minus minimal padding.
+  const twoColWidth = (width - 24) / 2; // 2 items with some spacing
+  const threeColWidth = (width - 48) / 3;
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -242,9 +248,9 @@ export function HomePageSkeleton() {
 
         <View className="px-1 space-y-4">
           {/* Trust Badges Skeleton */}
-          <View className="flex-row flex-wrap justify-between gap-y-4">
+          <View className="flex-row flex-wrap justify-between">
             {Array.from({ length: 4 }, (_, i) => (
-              <Skeleton key={i} className="h-24 w-[48%] rounded-xl" />
+              <Skeleton key={i} style={{ width: twoColWidth, marginBottom: 16 }} className="h-24 rounded-xl" />
             ))}
           </View>
 
@@ -254,9 +260,9 @@ export function HomePageSkeleton() {
               <Skeleton className="h-8 w-48" />
               <Skeleton className="h-4 w-20" />
             </View>
-            <View className="flex-row flex-wrap justify-between gap-y-6">
+            <View className="flex-row flex-wrap justify-between">
               {Array.from({ length: 6 }, (_, i) => (
-                <Skeleton key={i} style={{ aspectRatio: 1 }} className="w-[30%] rounded-full" />
+                <Skeleton key={i} style={{ width: threeColWidth, aspectRatio: 1, marginBottom: 24 }} className="rounded-full" />
               ))}
             </View>
           </View>
@@ -265,9 +271,9 @@ export function HomePageSkeleton() {
           <Skeleton className="h-96 w-full rounded-3xl" />
 
           {/* Products Grid Skeleton */}
-          <View className="flex-row flex-wrap justify-between gap-y-6">
+          <View className="flex-row flex-wrap justify-between">
             {Array.from({ length: 4 }, (_, i) => (
-              <View key={i} className="w-[48%] space-y-3">
+              <View key={i} style={{ width: twoColWidth, marginBottom: 24 }} className="space-y-3">
                 <Skeleton style={{ aspectRatio: 4 / 3 }} className="rounded-xl" />
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />

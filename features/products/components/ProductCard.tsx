@@ -150,7 +150,7 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
             </Text>
           ) : null}
          
-          <Text className="text-sm text-gray-800 text-left font-medium w-full" numberOfLines={1}>
+          <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-sm text-gray-800 text-left font-medium w-full" numberOfLines={1}>
             {displayName}
           </Text>
 
@@ -195,11 +195,11 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
 
         <View className="flex-1 p-3 justify-between">
           <View>
-            <Text className="text-lg font-bold text-foreground mb-1" numberOfLines={1}>
+            <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-lg font-bold text-foreground mb-1" numberOfLines={1}>
               {displayName}
             </Text>
             {displayDescription ? (
-              <Text className="text-xs text-muted-foreground line-clamp-2" numberOfLines={2}>
+              <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-xs text-muted-foreground line-clamp-2" numberOfLines={2}>
                 {displayDescription}
               </Text>
             ) : null}
@@ -328,7 +328,7 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
         </Text>
 
         {/* Name */}
-        <Text className="text-xs font-bold text-foreground line-clamp-2 min-h-[32px]" numberOfLines={2}>
+        <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-xs font-bold text-foreground line-clamp-2 min-h-[32px]" numberOfLines={2}>
           {displayName}
         </Text>
 

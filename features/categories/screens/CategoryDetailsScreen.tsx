@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { View, FlatList, Pressable, Text, ActivityIndicator } from 'react-native';
+import { View, FlatList, Pressable, Text, ActivityIndicator, Dimensions } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react-native';
@@ -155,11 +155,16 @@ export default function CategoryDetailsScreen() {
                     </View>
                 }
                 
-                renderItem={({ item }) => (
-                    <View style={{ width: '48%' }} className="mb-4">
+                renderItem={({ item }) => {
+                    const { width } = Dimensions.get('window');
+                    // FlatList padding is 16 on each side (32), space between items is approx 12
+                    const itemWidth = (width - 32 - 12) / 2;
+                    return (
+                    <View style={{ width: itemWidth }} className="mb-4">
                         <ProductCard product={item} />
                     </View>
-                )}
+                    );
+                }}
                 
                 ListEmptyComponent={
                     !isProdLoading ? (
@@ -184,6 +189,10 @@ export default function CategoryDetailsScreen() {
 }
 
 function CategorySkeleton() {
+  const { width } = Dimensions.get('window');
+  // Container has p-4 (32 total), items spaced by ~16
+  const itemWidth = (width - 32 - 16) / 2;
+
   return (
     <View className="flex-1 p-4 gap-4">
       <Stack.Screen options={{ headerShown: true, title: 'Loading...' }} />
@@ -192,9 +201,9 @@ function CategorySkeleton() {
         <Skeleton className="h-10 w-24 rounded-full" />
         <Skeleton className="h-10 w-24 rounded-full" />
       </View>
-      <View className="flex-row flex-wrap gap-4">
-        <Skeleton className="h-60 w-[45%] rounded-xl" />
-        <Skeleton className="h-60 w-[45%] rounded-xl" />
+      <View className="flex-row flex-wrap justify-between">
+        <Skeleton style={{ width: itemWidth, height: 240, marginBottom: 16 }} className="rounded-xl" />
+        <Skeleton style={{ width: itemWidth, height: 240, marginBottom: 16 }} className="rounded-xl" />
       </View>
     </View>
   );
