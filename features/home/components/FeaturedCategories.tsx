@@ -58,7 +58,7 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
                 key={category.id}
                 style={{ width: 76, alignItems: 'center', marginBottom: index === 0 ? 16 : 0 }}
                 onPress={() => {
-                  router.push(`/(tabs)/(home)/(context)/categories/${category.id}` as any);
+                  router.push(`/(tabs)/(home)/(context)/categories/clp/${category.id}` as any);
                 }}
               >
                 {category.image ? (

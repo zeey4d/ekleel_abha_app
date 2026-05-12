@@ -46,6 +46,10 @@ export default function CategoriesScreen() {
     router.push(`/(tabs)/(categories)/(context)/categories/${id}` as any);
   };
 
+  const handleClpPress = (id: number) => {
+    router.push(`/(tabs)/(categories)/(context)/categories/clp/${id}` as any);
+  };
+
   if (isLoading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
@@ -144,10 +148,39 @@ export default function CategoriesScreen() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
             >
+              {/* Category Banner / CLP Link */}
+              {activeCategory.image && (
+                <Pressable
+                  onPress={() => handleClpPress(activeCategory.id)}
+                  className="mb-6 rounded-2xl overflow-hidden bg-slate-100 relative"
+                  style={{ height: 140 }}
+                >
+                  <Image
+                    source={{ uri: getImageUrl(activeCategory.image) }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                  <View className="absolute inset-0 bg-black/20 items-center justify-center p-4">
+                    <Text className="text-white text-xl font-extrabold text-center shadow-sm">
+                      {activeCategory.name}
+                    </Text>
+                    <View className="mt-2 bg-white/90 px-4 py-1.5 rounded-full shadow-sm">
+                      <Text className="text-primary text-[10px] font-bold uppercase tracking-wider">
+                        {t('browseAll', 'تصفح الكل')}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              )}
+
               {/* Category Header */}
-              <View className="mb-6">
-                <Text className="text-lg font-bold text-slate-900 mb-1">{activeCategory.name}</Text>
-                <View className="w-10 h-1 bg-primary rounded-full" />
+              <View className="mb-6 flex-row items-center justify-between">
+                <View>
+                  <Text className="text-lg font-extrabold text-slate-900 mb-1">
+                    {t('subcategories', 'الأقسام الفرعية')}
+                  </Text>
+                  <View className="w-8 h-1 bg-primary rounded-full" />
+                </View>
               </View>
 
               {/* Subcategories Grid */}
