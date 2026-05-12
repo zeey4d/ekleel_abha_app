@@ -265,13 +265,16 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
     <Pressable 
       onPress={navigateToProduct}
       className={cn(
-        "bg-card border border-border rounded-xl overflow-hidden shadow-sm flex-1",
+        "bg-card border border-border rounded-xl overflow-hidden shadow-sm",
         isOutOfStock && "opacity-80"
       )}
     >
       {/* Image Area */}
       <View 
-        className="relative w-full bg-white border-b border-border/50 items-center justify-center p-2"
+        className={cn(
+          "relative w-full bg-white border-b border-border/50 items-center justify-center",
+          variant === "compact" ? "p-1" : "p-2"
+        )}
         style={{ aspectRatio: 0.8 }}
       >
         <Image
@@ -280,22 +283,24 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
           resizeMode="contain"
         />
 
-        {/* Wishlist Button */}
-        <TouchableOpacity
-          onPress={handleWishlist}
-          className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-background/80"
-        >
-           <Icon 
-             as={Heart} 
-             size={18} 
-             className={isInWishlist ? "text-red-500 fill-red-500" : "text-muted-foreground"} 
-           />
-        </TouchableOpacity>
+        {/* Wishlist Button - Hidden in compact for simplicity */}
+        {variant !== "compact" && (
+          <TouchableOpacity
+            onPress={handleWishlist}
+            className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-background/80"
+          >
+             <Icon 
+               as={Heart} 
+               size={18} 
+               className={isInWishlist ? "text-red-500 fill-red-500" : "text-muted-foreground"} 
+             />
+          </TouchableOpacity>
+        )}
 
         {/* Out of Stock Badge */}
         {isOutOfStock && (
-          <View className="absolute top-2 left-2 bg-muted border border-border px-2 py-1 rounded">
-             <Text className="text-[10px] font-bold text-muted-foreground uppercase">
+          <View className="absolute top-2 left-2 bg-muted border border-border px-1.5 py-0.5 rounded">
+             <Text className="text-[8px] font-bold text-muted-foreground uppercase">
                {t('ProductCard.outOfStock', 'Out of Stock')}
              </Text>
           </View>
@@ -303,8 +308,8 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
 
         {/* Discount Badge */}
         {!isOutOfStock && isOnSale && discountPercentage > 0 && (
-          <View className="absolute top-2 left-2 bg-primary px-2 py-1 rounded">
-            <Text className="text-[10px] font-bold text-primary-foreground">
+          <View className={cn("absolute bg-primary px-1.5 py-0.5 rounded", variant === "compact" ? "top-1 left-1" : "top-2 left-2")}>
+            <Text className="text-[9px] font-bold text-primary-foreground">
               -{discountPercentage}%
             </Text>
           </View>
@@ -312,36 +317,42 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
       </View>
 
       {/* Content */}
-      <View className="p-3 gap-1">
-        {/* Rating */}
-        <View className="flex-row items-center gap-1">
-           <Text className="text-xs font-semibold text-foreground">
-             {rating > 0 ? rating.toFixed(1) : '5.0'}
-           </Text>
-           <Icon as={Star} size={12} className="text-yellow-500 fill-yellow-500" />
-           <Text className="text-[10px] text-muted-foreground">({reviewCount})</Text>
-        </View>
+      <View className={variant === "compact" ? "p-2 gap-0.5" : "p-3 gap-1"}>
+        {/* Rating - Hidden in compact */}
+        {variant !== "compact" && (
+          <View className="flex-row items-center gap-1">
+             <Text className="text-xs font-semibold text-foreground">
+               {rating > 0 ? rating.toFixed(1) : '5.0'}
+             </Text>
+             <Icon as={Star} size={12} className="text-yellow-500 fill-yellow-500" />
+             <Text className="text-[10px] text-muted-foreground">({reviewCount})</Text>
+          </View>
+        )}
 
         {/* Brand */}
-        <Text className="text-[10px] font-medium text-primary uppercase tracking-wider">
+        <Text className={cn("font-medium text-primary uppercase tracking-wider", variant === "compact" ? "text-[8px]" : "text-[10px]")}>
           {brandName}
         </Text>
 
         {/* Name */}
-        <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-xs font-bold text-foreground line-clamp-2 min-h-[32px]" numberOfLines={2}>
+        <Text 
+          style={{ minWidth: 0, flexShrink: 1 }} 
+          className={cn("font-bold text-foreground", variant === "compact" ? "text-[10px] leading-4 h-[32px]" : "text-xs line-clamp-2 min-h-[32px]")} 
+          numberOfLines={2}
+        >
           {displayName}
         </Text>
 
         {/* Price & Action */}
-        <View className="flex-row justify-between items-end mt-2">
+        <View className="flex-row justify-between items-end mt-1">
           <View>
             {isOnSale && originalPrice > 0 && (
-              <Text className="text-[10px] text-muted-foreground line-through">
+              <Text className="text-[8px] text-muted-foreground line-through">
                 {originalPrice.toFixed(0)}
               </Text>
             )}
-            <Text className="text-sm font-bold text-primary">
-              {finalPrice.toFixed(0)} <Text className="text-[10px] font-normal">SAR</Text>
+            <Text className={cn("font-bold text-primary", variant === "compact" ? "text-xs" : "text-sm")}>
+              {finalPrice.toFixed(0)} <Text className="text-[9px] font-normal">SAR</Text>
             </Text>
           </View>
 
@@ -349,11 +360,12 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
             onPress={handleAddToCart}
             disabled={isAdding || isOutOfStock}
             className={cn(
-              "w-8 h-8 rounded-full bg-primary/10 items-center justify-center",
+              "rounded-full bg-primary/10 items-center justify-center",
+              variant === "compact" ? "w-6 h-6" : "w-8 h-8",
               (isAdding || isOutOfStock) && "opacity-50"
             )}
           >
-            <Icon as={ShoppingCart} size={16} className="text-primary" />
+            <Icon as={ShoppingCart} size={variant === "compact" ? 12 : 16} className="text-primary" />
           </TouchableOpacity>
         </View>
       </View>

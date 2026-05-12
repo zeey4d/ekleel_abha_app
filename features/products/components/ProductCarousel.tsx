@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   FlatList,
@@ -12,12 +12,11 @@ import { Link } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width * 0.45;
 const ITEM_SPACING = 12;
-
-
 
 interface ProductCarouselProps {
   products: any[];
@@ -32,67 +31,36 @@ export const ProductCarousel = ({
 }: ProductCarouselProps) => {
   const { t, i18n } = useTranslation('products');
   const isArabic = i18n.language === 'ar';
-  // Force row-reverse if language is Arabic but native layout is LTR (desync fix)
-  const headerStyle = [
-    styles.header,
-    isArabic && !I18nManager.isRTL && { flexDirection: 'row-reverse' } as const,
-  ];
+  const isRTLOverride = isArabic && !I18nManager.isRTL;
 
   const flatListRef = useRef<FlatList>(null);
-  const indexRef = useRef(0);
-
-  // Autoplay
-  useEffect(() => {
-    if (!products?.length) return;
-
-    const interval = setInterval(() => {
-      indexRef.current =
-        indexRef.current === products.length - 1
-          ? 0
-          : indexRef.current + 1;
-
-      flatListRef.current?.scrollToIndex({
-        index: indexRef.current,
-        animated: true,
-      });
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [products]);
-
-  const getItemLayout = (_: any, index: number) => ({
-    length: ITEM_WIDTH + ITEM_SPACING,
-    offset: (ITEM_WIDTH + ITEM_SPACING) * index,
-    index,
-  });
-
-  const onScrollToIndexFailed = (info: { index: number }) => {
-    const offset = info.index * (ITEM_WIDTH + ITEM_SPACING);
-    flatListRef.current?.scrollToOffset({ offset, animated: true });
-  };
 
   if (!products?.length) return null;
 
   return (
-    <View style={styles.container}>
+    <View className="mb-8 min-h-[280px]">
       {/* Header */}
-      <View style={headerStyle}>
+      <View
+        className={cn(
+          "px-4 mb-4 flex-row justify-between items-center",
+          isRTLOverride && "flex-row-reverse"
+        )}
+      >
         <Text className="text-xl font-bold">{title}</Text>
 
         {href && (
           <Link href={href as any} asChild>
-            <TouchableOpacity 
-              activeOpacity={0.7} 
-              className="flex-row items-center gap-1"
-              style={headerStyle[1] /* Applies the conditional row-reverse */}
+            <TouchableOpacity
+              activeOpacity={0.7}
+              className={cn("flex-row items-center gap-1", isRTLOverride && "flex-row-reverse")}
             >
               <Text className="text-primary text-sm font-medium">
                 {t('ProductCarousel.viewAll')}
               </Text>
               {isArabic ? (
-                <ArrowLeft size={16} color="#000000ff" />
+                <ArrowLeft size={16} color="#10b981" />
               ) : (
-                <ArrowRight size={16} color="#000000ff" />
+                <ArrowRight size={16} color="#10b981" />
               )}
             </TouchableOpacity>
           </Link>
@@ -105,14 +73,12 @@ export const ProductCarousel = ({
         data={products}
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => String(item.id)}
         snapToInterval={ITEM_WIDTH + ITEM_SPACING}
         decelerationRate="fast"
-        contentContainerStyle={{ paddingHorizontal: 8 }}
-        getItemLayout={getItemLayout}
-        onScrollToIndexFailed={onScrollToIndexFailed}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
         renderItem={({ item }) => (
-          <View style={styles.item}>
+          <View style={{ width: ITEM_WIDTH, marginRight: ITEM_SPACING }}>
             <ProductCard product={item} />
           </View>
         )}
@@ -120,20 +86,3 @@ export const ProductCarousel = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 32,
-  },
-  header: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  item: {
-    width: width * 0.45,
-    marginEnd: 12,
-  },
-});

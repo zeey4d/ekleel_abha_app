@@ -19,13 +19,7 @@ import { HeroSlider } from '@/features/home/components/HeroSlider';
 import { FeaturedCategories } from '@/features/home/components/FeaturedCategories';
 import { NewArrivals } from '@/features/home/components/NewArrivals';
 import { HeroPromoBanners } from '@/features/home/components/HeroPromoBanners';
-
-// Below-the-fold components (lazy-loaded to reduce initial bundle cost)
-const TopSellingProducts = lazy(() =>
-  import('@/features/home/components/TopSellingProducts').then((m) => ({
-    default: m.TopSellingProducts,
-  })),
-);
+import { TopSellingProducts } from '@/features/home/components/TopSellingProducts';
 const FeaturedBrands = lazy(() =>
   import('@/features/brands/components/FeaturedBrands').then((m) => ({
     default: m.FeaturedBrands,
@@ -190,11 +184,9 @@ export default function HomeScreen() {
           {/* ── Hero Promo Banners ─────────── */}
           {hero.length > 0 && <HeroPromoBanners banners={hero} />}
 
-          {/* ── Below-the-fold (lazy) ──────── */}
+          {/* ── Top Selling Products ──────── */}
           <View className="py-5">
-            <Suspense fallback={<SectionLoadingFallback />}>
-              <TopSellingProducts products={data.top_selling_products ?? []} />
-            </Suspense>
+            <TopSellingProducts products={data.top_selling_products ?? []} />
           </View>
 
           <Suspense fallback={<SectionLoadingFallback />}>
