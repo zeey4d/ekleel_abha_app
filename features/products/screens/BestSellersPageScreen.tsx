@@ -8,8 +8,11 @@ import {
   Pressable
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useRouter, Stack } from 'expo-router';
+import { I18nManager } from "react-native";
+
+const TEAL = "#0d9488";
 
 // Hooks & Redux
 import { useGetHomepageContentQuery } from "@/store/features/cms/cmsSlice";
@@ -55,18 +58,20 @@ export default function BestSellersScreen() {
   if (isLoading) return <BestSellersSkeleton />;
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-[#f8fafc]">
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "Best Sellers",
+          title: t("Header.title", { defaultValue: "الأكثر مبيعاً" }),
+          headerTitleStyle: { fontFamily: 'Tajawal-Bold', fontSize: 18 },
+          headerStyle: { backgroundColor: '#f8fafc' },
           headerShadowVisible: false,
-          headerBackVisible: true,
-          headerBackTitle: "",
-          headerTintColor: '#000',
           headerLeft: () => (
-            <Pressable onPress={() => router.back()} >
-              <ChevronLeft color="#000000ff" size={28} />
+            <Pressable 
+                onPress={() => router.back()} 
+                className="w-10 h-10 items-center justify-center bg-white rounded-full shadow-sm border border-slate-50 ml-2"
+            >
+              {I18nManager.isRTL ? <ChevronRight color="#1e293b" size={20} /> : <ChevronLeft color="#1e293b" size={20} />}
             </Pressable>
           ),
         }}
@@ -90,9 +95,9 @@ export default function BestSellersScreen() {
 
         ListFooterComponent={() => (
           isLoadingMore ? (
-            <View className="py-6 items-center">
-              <ActivityIndicator color="#d97706" size="large" />
-              <Text className="text-amber-600 text-xs mt-2 font-medium">جاري تحميل المزيد...</Text>
+            <View className="py-6 items-center h-28 justify-center">
+              <ActivityIndicator color={TEAL} size="small" />
+              <Text style={{ fontFamily: 'Tajawal-Medium' }} className="text-slate-400 text-xs mt-3">جاري تحميل المزيد...</Text>
             </View>
           ) : (
             <View className="h-20" /> 
@@ -100,8 +105,10 @@ export default function BestSellersScreen() {
         )}
 
         ListEmptyComponent={() => (
-           <View className="mt-20 items-center px-10">
-             <Text className="text-lg font-bold text-slate-900">{t("Content.noProducts")}</Text>
+           <View className="mt-32 items-center px-10">
+             <Text style={{ fontFamily: 'Tajawal-Bold' }} className="text-xl text-slate-800 text-center">
+               {t("Content.noProducts", { defaultValue: "لا توجد منتجات حالياً" })}
+             </Text>
            </View>
         )}
       />
@@ -111,15 +118,24 @@ export default function BestSellersScreen() {
 
 // --- Skeleton ---
 function BestSellersSkeleton() {
+  const { t } = useTranslation("best_sellers");
   return (
-    <View className="flex-1 bg-white">
-      <Stack.Screen options={{ headerShown: true, title: "Best Sellers" }} />
-      <View className="h-60 bg-slate-200 rounded-b-[40px] mb-8" />
-      <View className="flex-row flex-wrap justify-between px-4">
-        {[...Array(4)].map((_, i) => (
+    <View className="flex-1 bg-[#f8fafc]">
+      <Stack.Screen 
+        options={{ 
+            headerShown: true, 
+            title: t("Header.title", { defaultValue: "الأكثر مبيعاً" }),
+            headerTitleStyle: { fontFamily: 'Tajawal-Bold', fontSize: 18 },
+            headerStyle: { backgroundColor: '#f8fafc' },
+            headerShadowVisible: false,
+        }} 
+      />
+      <View className="flex-row flex-wrap justify-between px-4 mt-6">
+        {[...Array(6)].map((_, i) => (
           <View key={i} className="w-[48%] mb-6">
-            <Skeleton className="h-48 w-full rounded-2xl" />
-            <Skeleton className="h-4 w-3/4 mt-3 rounded-md" />
+            <Skeleton className="h-56 w-full rounded-[28px] bg-white border border-slate-50" />
+            <Skeleton className="h-4 w-3/4 mt-4 rounded-full bg-slate-100" />
+            <Skeleton className="h-4 w-1/2 mt-2 rounded-full bg-slate-100" />
           </View>
         ))}
       </View>

@@ -1,8 +1,6 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, Pressable, FlatList, I18nManager } from 'react-native';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 interface SubCategoriesProps {
@@ -15,33 +13,65 @@ export const SubCategories = ({ categories }: SubCategoriesProps) => {
 
   if (!categories || categories.length === 0) return null;
 
+  // Group categories into chunks of 2 for the 2-row layout
+  const chunkedCategories = [];
+  for (let i = 0; i < categories.length; i += 2) {
+    chunkedCategories.push(categories.slice(i, i + 2));
+  }
+
   return (
     <View className="mb-6">
-      <Text className="mb-4 text-lg font-bold text-slate-900">{t('SubCategories.title')}</Text>
+      <Text style={{ fontFamily: 'Tajawal-Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="mb-4 text-lg text-slate-800 px-4">
+        {t('SubCategories.title', { defaultValue: 'الأقسام الفرعية' })}
+      </Text>
       <FlatList
-        data={categories}
+        data={chunkedCategories}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 12 }}
-        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+        keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => router.push(`/categories/${item.id}`)}
-            className="flex-row items-center gap-3 rounded-full border border-slate-200 bg-white p-2">
-            <View className="h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-50">
-              {item.image ? (
-                <Image
-                  source={{ uri: getImageUrl(item.image) }}
-                  className="h-full w-full"
-                  resizeMode="cover"
-                />
-              ) : (
-                <Text className="text-xs font-bold text-slate-300">{item.name[0]}</Text>
-              )}
-            </View>
-            <Text className="text-sm font-medium text-slate-700">{item.name}</Text>
-            <ChevronRight size={16} color="#9ca3af" />
-          </TouchableOpacity>
+          <View style={{ marginEnd: 16 }}>
+            {item.map((category, index) => (
+              <Pressable
+                key={category.id}
+                style={{ width: 76, alignItems: 'center', marginBottom: index === 0 ? 16 : 0 }}
+                onPress={() => {
+                  router.push(`/categories/${category.id}` as any);
+                }}
+              >
+                {category.image ? (
+                  <Image
+                    source={{ uri: getImageUrl(category.image) }}
+                    style={{ width: 70, height: 70, borderRadius: 35 }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View
+                    className="items-center justify-center bg-slate-100"
+                    style={{ width: 70, height: 70, borderRadius: 35 }}>
+                    <Text style={{ fontFamily: 'Tajawal-Bold' }} className="text-[10px] text-slate-400 text-center">
+                        {category.name[0]}
+                    </Text>
+                  </View>
+                )}
+                
+                <View style={{ height: 36, marginTop: 8, justifyContent: 'center', width: '100%' }}>
+                  <Text
+                    style={{ 
+                      fontFamily: 'Tajawal-Bold', 
+                      lineHeight: 14, 
+                      fontSize: 10,
+                      textAlign: 'center' 
+                    }}
+                    className="text-slate-800"
+                    numberOfLines={2}>
+                    {category.name}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+          </View>
         )}
       />
     </View>

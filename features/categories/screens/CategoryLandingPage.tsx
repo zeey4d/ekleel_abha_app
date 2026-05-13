@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   I18nManager,
+  Pressable,
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
@@ -13,6 +14,9 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react-native';
+
+
+const TEAL = "#0d9488";
 
 // Store
 import { useGetCategoryByIdQuery } from '@/store/features/categories/categoriesSlice';
@@ -69,8 +73,8 @@ type RowItem = {
 };
 
 const SectionFallback = () => (
-  <View style={{ alignItems: 'center', paddingVertical: 24 }}>
-    <ActivityIndicator size="small" color="#10b981" />
+  <View style={{ alignItems: 'center', paddingVertical: 32 }}>
+    <ActivityIndicator size="small" color={TEAL} />
   </View>
 );
 
@@ -102,12 +106,16 @@ function DynamicRow({ row }: { row: RowItem }) {
       className="mb-6"
     >
       {(title || subtitle) && (
-        <View className="px-4 mb-4">
+        <View className="px-4 mb-6">
           {title && (
-            <Text className="text-lg font-bold text-slate-900">{title}</Text>
+            <Text style={{ fontFamily: 'Tajawal-Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-xl text-slate-800">
+                {title}
+            </Text>
           )}
           {subtitle && (
-            <Text className="text-xs text-slate-500 mt-1">{subtitle}</Text>
+            <Text style={{ fontFamily: 'Tajawal-Medium', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-xs text-slate-400 mt-1">
+                {subtitle}
+            </Text>
           )}
         </View>
       )}
@@ -130,14 +138,14 @@ function DynamicRow({ row }: { row: RowItem }) {
 
 function CategoryPageSkeleton() {
   return (
-    <View className="flex-1 p-4 gap-4">
-      <Skeleton className="h-52 w-full rounded-2xl" />
-      <View className="flex-row gap-3">
+    <View className="flex-1 bg-[#f8fafc] p-4 gap-6">
+      <Skeleton className="h-60 w-full rounded-[32px] bg-white border border-slate-50" />
+      <View className="flex-row gap-4 px-2">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-14 w-14 rounded-full" />
+          <Skeleton key={i} className="h-16 w-16 rounded-full bg-white border border-slate-50" />
         ))}
       </View>
-      <Skeleton className="h-48 w-full rounded-2xl" />
+      <Skeleton className="h-52 w-full rounded-[32px] bg-white border border-slate-50" />
     </View>
   );
 }
@@ -160,8 +168,15 @@ export default function CategoryLandingPage() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: insets.top }}>
-        <Stack.Screen options={{ headerShown: false }} />
+      <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+        <Stack.Screen 
+          options={{ 
+              headerShown: true, 
+              title: '', 
+              headerStyle: { backgroundColor: '#f8fafc' },
+              headerShadowVisible: false,
+          }} 
+        />
         <CategoryPageSkeleton />
       </View>
     );
@@ -169,17 +184,18 @@ export default function CategoryLandingPage() {
 
   if (error || !categoryData) {
     return (
-      <View className="flex-1 bg-white items-center justify-center p-8">
-        <Stack.Screen options={{ headerShown: false }} />
-        <AlertCircle size={48} color="#f87171" />
-        <Text className="text-lg font-bold text-slate-900 mt-4 text-center">
+      <View className="flex-1 bg-[#f8fafc] items-center justify-center p-8">
+        <Stack.Screen options={{ headerShown: true, title: '', headerStyle: { backgroundColor: '#f8fafc' }, headerShadowVisible: false }} />
+        <AlertCircle size={64} color="#f87171" />
+        <Text style={{ fontFamily: 'Tajawal-Bold' }} className="text-xl text-slate-800 mt-6 text-center">
           {t('notFound', 'التصنيف غير موجود')}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="mt-6 bg-primary px-8 py-3 rounded-full"
+          className="mt-8 bg-teal-600 px-10 py-4 rounded-full shadow-lg"
+          style={{ shadowColor: TEAL, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
         >
-          <Text className="text-white font-bold">{t('goBack', 'رجوع')}</Text>
+          <Text style={{ fontFamily: 'Tajawal-Bold' }} className="text-white text-base">{t('goBack', 'رجوع')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -203,13 +219,22 @@ export default function CategoryLandingPage() {
   const hasRows = sortedRows.length > 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
       <Stack.Screen
         options={{
           headerShown: true,
           title: name ?? '',
-          headerStyle: { backgroundColor: '#fff' },
+          headerTitleStyle: { fontFamily: 'Tajawal-Bold', fontSize: 18 },
+          headerStyle: { backgroundColor: '#f8fafc' },
           headerShadowVisible: false,
+          headerLeft: () => (
+             <Pressable 
+                onPress={() => router.back()} 
+                className="w-10 h-10 items-center justify-center bg-white rounded-full shadow-sm border border-slate-50 ml-2"
+             >
+                  {I18nManager.isRTL ? <ChevronRight color="#1e293b" size={20} /> : <ChevronLeft color="#1e293b" size={20} />}
+             </Pressable>
+          ),
         }}
       />
 
@@ -259,8 +284,8 @@ export default function CategoryLandingPage() {
 
         {/* ── Brands ── */}
         {brands.length > 0 && (
-          <View className="mt-8 px-4 border-t border-slate-100 pt-8">
-            <Text className="text-lg font-bold text-slate-900 mb-6">
+          <View className="mt-8 px-4 border-t border-slate-50 pt-10">
+            <Text style={{ fontFamily: 'Tajawal-Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-xl text-slate-800 mb-6">
               {t('Breadcrumbs.brands', 'الماركات')}
             </Text>
             <Suspense fallback={<SectionFallback />}>
