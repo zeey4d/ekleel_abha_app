@@ -9,15 +9,13 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/not-found', fn()=> abort(404));
 
 Route::prefix('v1')->group(function () {
 
     // ========================
     // AUTH MODULE
     // ========================
-
-
-
     Route::post('/auth/register', [V1\AuthController::class, 'register']);
     Route::post('/auth/register/verify', [V1\AuthController::class, 'verifyRegistrationOtp']);
     Route::post('/auth/register/resend-otp', [V1\AuthController::class, 'resendRegistrationOtp']);
@@ -38,11 +36,13 @@ Route::prefix('v1')->group(function () {
     Route::prefix('search')->group(function () {
         Route::get('products', [V1\SearchController::class, 'search']);
         Route::get('autocomplete', [V1\SearchController::class, 'autocomplete']);
+        Route::post('track-click', [V1\SearchController::class, 'trackClick']);
     });
 
     // ========================
     // PRODUCTS MODULE
     // ========================
+    Route::get('/products/ids', [V1\ProductController::class, 'ids']);
     Route::get('/products/deals', [V1\ProductController::class, 'deals']);
     Route::get('/products/new', [V1\ProductController::class, 'newArrivals']);
     Route::get('/products', [V1\ProductController::class, 'index']);
@@ -51,16 +51,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/related/{id}', [V1\ProductController::class, 'related']);
     Route::get('/products/similar/{id}', [V1\ProductController::class, 'similar']);
 
-    // Admin Product Routes
-    Route::middleware(['auth:sanctum', 'token.can:admin'])->prefix('admin')->group(function () {
-        Route::post('/products', [V1\Admin\ProductController::class, 'store']);
-        Route::put('/products/{id}', [V1\Admin\ProductController::class, 'update']);
-        Route::delete('/products/{id}', [V1\Admin\ProductController::class, 'destroy']);
-    });
+
 
     // ========================
     // CATEGORIES MODULE
     // ========================
+    Route::get('/categories/ids', [V1\CategoryController::class, 'ids']);
     Route::get('/categories', [V1\CategoryController::class, 'tree']);
     Route::get('/categories/{id}', [V1\CategoryController::class, 'show']);
 
@@ -76,10 +72,16 @@ Route::prefix('v1')->group(function () {
     // ========================
     Route::middleware(['auth:sanctum', 'token.can:user'])->prefix('users')->group(function () {
         Route::get('/addresses', [V1\AddressController::class, 'index']);
+        Route::get('/addresses/{id}', [V1\AddressController::class, 'show']);
         Route::post('/addresses', [V1\AddressController::class, 'store']);
         Route::put('/addresses/{id}', [V1\AddressController::class, 'update']);
         Route::delete('/addresses/{id}', [V1\AddressController::class, 'destroy']);
     });
+
+    // ========================
+    // BRANCHES / STORE LOCATIONS
+    // ========================
+    Route::get('/branches', [V1\AddressController::class, 'branches']);
 
     // ========================
     // CART MODULE
@@ -122,33 +124,51 @@ Route::prefix('v1')->group(function () {
         Route::post('/orders/{id}/return', [V1\OrderController::class, 'requestReturn']);
     });
 
-    Route::get('/admin/payments', [V1\Admin\PaymentController::class, 'index']);
-    // Admin Order Routes
-    Route::middleware(['auth:sanctum', 'token.can:admin'])->prefix('admin')->group(function () {
-        Route::get('/orders', [V1\Admin\OrderController::class, 'index']);
-        Route::get('/orders/{id}', [V1\Admin\OrderController::class, 'show']);
-        Route::put('/orders/{id}/status', [V1\Admin\OrderController::class, 'updateStatus']);
-        // Admin Payments
-        Route::post('/payments/{order_id}/capture', [V1\Admin\PaymentController::class, 'capturePayment']);
-        Route::post('/payments/{order_id}/refund', [V1\Admin\PaymentController::class, 'refundPayment']);
-        Route::post('/payments/{order_id}/rebill', [V1\Admin\PaymentController::class, 'rebillPayment']);
-        Route::post('/payments/{order_id}/reverse', [V1\Admin\PaymentController::class, 'reversePayment']);
+    // ========================
+    // LOYALTY POINTS MODULE
+    // ========================
+    Route::middleware(['auth:sanctum', 'token.can:user'])->prefix('loyalty-points')->group(function () {
+        Route::get('/balance', [V1\LoyaltyPointController::class, 'balance']);
+        Route::get('/history', [V1\LoyaltyPointController::class, 'history']);
+        Route::get('/calculate', [V1\LoyaltyPointController::class, 'calculate']);
+        Route::post('/redeem', [V1\LoyaltyPointController::class, 'redeem']);
     });
+
+
+    // HyperPay admin routes have been moved to the admin protected block below.
 
     // ========================
     // PAYMENTS MODULE
     // ========================
     // Initiate payment for an order
-    Route::post('/payment/checkout', [V1\PaymentController::class, 'requestPayment']);
-    Route::middleware('auth:sanctum')->group(function () {
-        // Post-payment actions (by order_id)
-        Route::get('/payment/status/order/{order_id}', [V1\PaymentController::class, 'paymentStatusByOrder']);
-        Route::get('/payment/callback', [V1\PaymentController::class, 'callback']);
-    });
+    // Route::post('/payment/hyperpay/checkout', [V1\PaymentHyperpayController::class, 'requestPayment']);
+    // Route::middleware('auth:sanctum')->group(function () {
+    //     // Post-payment actions (by order_id)
+    //     Route::get('/payment/hyperpay/status/order/{order_id}', [V1\PaymentHyperpayController::class, 'paymentStatusByOrder']);
+    //     Route::get('/payment/hyperpay/callback', [V1\PaymentHyperpayController::class, 'callback']);
+    // });
     
-    // HyperPay Payment Flow (Standard)
-    Route::post('/orders/create', [V1\PaymentController::class, 'initiateCheckout']);
-    Route::get('/payment/verify', [V1\PaymentController::class, 'verifyPayment']);
+    // // HyperPay Payment Flow (Standard)
+    // Route::post('/payment/hyperpay/orders/create', [V1\PaymentHyperpayController::class, 'initiateCheckout']);
+    // Route::get('/payment/hyperpay/verify', [V1\PaymentHyperpayController::class, 'verifyPayment']);
+
+    // // ========================
+    // // PAYTABS MODULE
+    // // ========================
+    Route::post('/payment/paytabs/checkout', [V1\PaymentPaytabsController::class, 'initiateCheckout']);
+    Route::post('/payment/paytabs/callback', [V1\PaymentPaytabsController::class, 'callback']);
+    Route::match(['get', 'post'], '/payment/paytabs/verify', [V1\PaymentPaytabsController::class, 'verifyPayment']);
+
+    // ========================
+    // TAP PAYMENTS MODULE
+    // ========================
+    Route::post('/payment/tap/checkout', [V1\PaymentTapController::class, 'initiateCheckout']);
+    Route::match(['get', 'post'], '/payment/tap/callback', [V1\PaymentTapController::class, 'callback']);
+    Route::post('/payment/tap/webhook', [V1\PaymentTapController::class, 'webhook']);
+    Route::get('/payment/tap/charge/{chargeId}', [V1\PaymentTapController::class, 'getChargeStatus']);
+    Route::middleware(['auth:sanctum', 'token.can:admin'])->group(function () {
+        Route::post('/payment/tap/refund', [V1\PaymentTapController::class, 'refund']);
+    });
 
     // Status & callback
 
@@ -191,19 +211,27 @@ Route::prefix('v1')->group(function () {
     // ANALYTICS MODULE (Admin Only)
     // ========================
     Route::middleware(['auth:sanctum', 'token.can:admin'])->prefix('admin')->group(function () {
-        Route::get('/analytics/sales', [V1\Admin\AnalyticsController::class, 'sales']);
-        Route::get('/analytics/products', [V1\Admin\AnalyticsController::class, 'products']);
-        Route::get('/analytics/customers', [V1\Admin\AnalyticsController::class, 'customers']);
-        Route::get('/analytics/traffic', [V1\Admin\AnalyticsController::class, 'traffic']);
-        Route::get('/analytics/revenue', [V1\Admin\AnalyticsController::class, 'revenue']);
+        Route::get('/analytics/sales', [V1\Admin\AdminAnalyticsController::class, 'sales']);
+        Route::get('/analytics/products', [V1\Admin\AdminAnalyticsController::class, 'products']);
+        Route::get('/analytics/customers', [V1\Admin\AdminAnalyticsController::class, 'customers']);
+        Route::get('/analytics/traffic', [V1\Admin\AdminAnalyticsController::class, 'traffic']);
+        Route::get('/analytics/revenue', [V1\Admin\AdminAnalyticsController::class, 'revenue']);
         //export
     });
+
+    // ========================
+    // ORDERS
+    // ========================
+    // Route::get('/orders', [V1\Admin\OrderController::class, 'index']);
+    // Route::get('/orders/{id}', [V1\Admin\OrderController::class, 'show']);
+    // Route::put('/orders/{id}/status', [V1\Admin\OrderController::class, 'updateStatus']);
 
     // ========================
     // NOTIFICATIONS MODULE
     // ========================
     Route::middleware(['auth:sanctum', 'token.can:user'])->group(function () {
         Route::get('/notifications', [V1\NotificationController::class, 'index']);
+        Route::get('/notifications/summary', [V1\NotificationController::class, 'summary']);
         Route::put('/notifications/{id}/read', [V1\NotificationController::class, 'markAsRead']);
         Route::delete('/notifications/{id}', [V1\NotificationController::class, 'destroy']);
         Route::put('/notifications/mark-all-read', [V1\NotificationController::class, 'markAllRead']);
@@ -214,8 +242,8 @@ Route::prefix('v1')->group(function () {
     // ========================
     Route::get('/pages/home', [V1\CmsController::class, 'home']);
     Route::get('/pages/about', [V1\CmsController::class, 'about']);
-    Route::get('/pages/{slug}', [V1\CmsController::class, 'page']);
     Route::get('/pages/banners', [V1\CmsController::class, 'banners']);
+    Route::get('/pages/{slug}', [V1\CmsController::class, 'page']);
 
     // ========================
     // SETTINGS MODULE
@@ -238,6 +266,7 @@ Route::prefix('v1')->group(function () {
     // ========================
     // BRANDS MODULE
     // ========================
+    Route::get('/brands/ids', [V1\BrandController::class, 'ids']);
     Route::get('/brands', [V1\BrandController::class, 'index']);
     Route::get('/brands/featured', [V1\BrandController::class, 'featured']);
     Route::get('/brands/{id}', [V1\BrandController::class, 'show']);
@@ -245,289 +274,519 @@ Route::prefix('v1')->group(function () {
 
 
         // ========================
-    // ADMIN MODULE
+    // ADMIN AUTH (Public — no auth required)
     // ========================
- 
+    Route::prefix('admin/auth')->group(function () {
+        Route::post('/login', [V1\Admin\AdminAuthController::class, 'login']);
+    });
+
     // ========================
-    // ADMIN MODULE
+    // ADMIN MODULE (Protected — requires admin token + permissions)
     // ========================
-    // Route::middleware(['auth:sanctum', 'token.can:admin'])->prefix('admin')->group(function () {
-    Route::prefix('admin')->group(function () {    
-        // Dashboard & Users (keeping existing routes)
-        Route::get('/dashboard', [V1\Admin\DashboardController::class, 'index']);
-        Route::get('/users', [V1\Admin\UserController::class, 'index']);
-        Route::put('/users/{id}/role', [V1\Admin\UserController::class, 'updateRole']);
-        Route::delete('/users/{id}', [V1\Admin\UserController::class, 'destroy']);
-        Route::get('/logs', [V1\Admin\LogController::class, 'index']);
+    Route::middleware(['auth:sanctum-admin'])->prefix('admin')->group(function () {
+
+        // ── Auth (requires valid admin token only) ──
+        Route::post('/auth/logout', [V1\Admin\AdminAuthController::class, 'logout']);
+        Route::get('/auth/me', [V1\Admin\AdminAuthController::class, 'me']);
+        Route::post('/auth/refresh-permissions', [V1\Admin\AdminAuthController::class, 'refreshPermissions']);
+
+        // ── Dashboard ──
+        Route::middleware('admin.can:dashboard.view')->group(function () {
+            Route::get('/dashboard', [V1\Admin\AdminDashboardController::class, 'index']);
+        });
+
+        // ── Logs ──
+        Route::middleware('admin.can:logs.view')->group(function () {
+            Route::get('/logs', [V1\Admin\AdminLogController::class, 'index']);
+        });
+
+        // ── Admin Users & Groups (requires users permission) ──
+        Route::middleware('admin.can:users.view')->group(function () {
+            Route::get('/admin-users', [V1\Admin\AdminAuthController::class, 'listAdminUsers']);
+            Route::get('/admin-users/{id}', [V1\Admin\AdminAuthController::class, 'showAdminUser']);
+            Route::get('/user-groups', [V1\Admin\AdminAuthController::class, 'listGroups']);
+            Route::get('/user-groups/{id}', [V1\Admin\AdminAuthController::class, 'showGroup']);
+            
+            // Legacy customer-users list
+            Route::get('/users', [V1\Admin\UserController::class, 'index']);
+        });
+        Route::middleware('admin.can:users.modify')->group(function () {
+            Route::post('/admin-users', [V1\Admin\AdminAuthController::class, 'storeAdminUser']);
+            Route::put('/admin-users/{id}', [V1\Admin\AdminAuthController::class, 'updateAdminUser']);
+            Route::put('/admin-users/{id}/group', [V1\Admin\AdminAuthController::class, 'updateUserGroup']);
+            Route::post('/admin-users/bulk-update-status', [V1\Admin\AdminAuthController::class, 'bulkUpdateAdminUserStatus']);
+            
+            Route::post('/user-groups', [V1\Admin\AdminAuthController::class, 'storeGroup']);
+            Route::put('/user-groups/{id}', [V1\Admin\AdminAuthController::class, 'updateGroupPermissions']);
+            Route::put('/users/{id}/role', [V1\Admin\UserController::class, 'updateRole']);
+        });
+        Route::middleware('admin.can:users.delete')->group(function () {
+            Route::delete('/admin-users/{id}', [V1\Admin\AdminAuthController::class, 'destroyAdminUser']);
+            Route::delete('/user-groups/{id}', [V1\Admin\AdminAuthController::class, 'destroyGroup']);
+            Route::delete('/users/{id}', [V1\Admin\UserController::class, 'destroy']);
+        });
 
         // ========================
         // ANALYTICS
         // ========================
-        Route::prefix('analytics')->group(function () {
+        Route::middleware('admin.can:analytics.view')->prefix('analytics')->group(function () {
             Route::get('/dashboard', [V1\Admin\AdminAnalyticsController::class, 'dashboard']);
             Route::get('/sales', [V1\Admin\AdminAnalyticsController::class, 'sales']);
             Route::get('/customers', [V1\Admin\AdminAnalyticsController::class, 'customers']);
             Route::get('/products', [V1\Admin\AdminAnalyticsController::class, 'products']);
-            Route::post('/sales/export', [V1\Admin\AdminAnalyticsController::class, 'exportSalesReport']);
+            Route::get('/marketing', [V1\Admin\AdminAnalyticsController::class, 'marketing']);
+            Route::get('/returns', [V1\Admin\AdminAnalyticsController::class, 'returns']);
+            Route::get('/searches', [V1\Admin\AdminAnalyticsController::class, 'searches']);
         });
+        Route::middleware('admin.can:analytics.export')->prefix('analytics')->group(function () {
+            Route::post('/sales/export', [V1\Admin\AdminAnalyticsController::class, 'exportSalesReport']);
+            Route::post('/search/setup-rules', [V1\SearchController::class, 'setupAnalyticsRules']);
+        });
+
         // ========================
         // PRODUCTS
         // ========================
         Route::prefix('products')->group(function () {
-            Route::get('/', [V1\Admin\AdminProductController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminProductController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminProductController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminProductController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminProductController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminProductController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminProductController::class, 'bulkUpdateStatus']);
-            Route::post('/bulk-update-price', [V1\Admin\AdminProductController::class, 'bulkUpdatePrice']);
-            Route::post('/bulk-update-stock', [V1\Admin\AdminProductController::class, 'bulkUpdateStock']);
+            Route::middleware('admin.can:products.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminProductController::class, 'index']);
+                Route::get('/export', [V1\Admin\AdminProductController::class, 'exportCsv']);
+                Route::get('/import-template', [V1\Admin\AdminProductController::class, 'downloadCsvTemplate']);
+                Route::get('/{id}', [V1\Admin\AdminProductController::class, 'show']);
+            });
+            Route::middleware('admin.can:products.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminProductController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminProductController::class, 'update']);
+                Route::post('/import', [V1\Admin\AdminProductController::class, 'importCsv']);
+                Route::post('/bulk-update-status-by-category', [V1\Admin\AdminProductController::class, 'bulkUpdateStatusByCategory']);
+                Route::post('/bulk-update-status-by-brand', [V1\Admin\AdminProductController::class, 'bulkUpdateStatusByBrand']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminProductController::class, 'bulkUpdateStatus']);
+                Route::post('/bulk-update-price', [V1\Admin\AdminProductController::class, 'bulkUpdatePrice']);
+                Route::post('/bulk-update-stock', [V1\Admin\AdminProductController::class, 'bulkUpdateStock']);
+            });
+            Route::middleware('admin.can:products.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminProductController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminProductController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // CATEGORIES
         // ========================
         Route::prefix('categories')->group(function () {
-            Route::get('/', [V1\Admin\AdminCategoryController::class, 'index']);
-            Route::get('/list', [V1\Admin\AdminCategoryController::class, 'indexPaginated']);
-            Route::post('/', [V1\Admin\AdminCategoryController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminCategoryController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminCategoryController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminCategoryController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminCategoryController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminCategoryController::class, 'bulkUpdateStatus']);
-            Route::post('/bulk-update-parent', [V1\Admin\AdminCategoryController::class, 'bulkUpdateParent']);
+            Route::middleware('admin.can:categories.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminCategoryController::class, 'index']);
+                Route::get('/list', [V1\Admin\AdminCategoryController::class, 'indexPaginated']);
+                Route::get('/{id}', [V1\Admin\AdminCategoryController::class, 'show']);
+            });
+            Route::middleware('admin.can:categories.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminCategoryController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminCategoryController::class, 'update']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminCategoryController::class, 'bulkUpdateStatus']);
+                Route::post('/bulk-update-parent', [V1\Admin\AdminCategoryController::class, 'bulkUpdateParent']);
+            });
+            Route::middleware('admin.can:categories.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminCategoryController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminCategoryController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // CUSTOMERS
         // ========================
         Route::prefix('customers')->group(function () {
-            Route::get('/', [V1\Admin\AdminCustomerController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminCustomerController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminCustomerController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminCustomerController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminCustomerController::class, 'destroy']);
-            Route::delete('/{id}/force', [V1\Admin\AdminCustomerController::class, 'forceDestroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminCustomerController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminCustomerController::class, 'bulkUpdateStatus']);
-            Route::post('/bulk-update-group', [V1\Admin\AdminCustomerController::class, 'bulkUpdateGroup']);
+            Route::middleware('admin.can:customers.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminCustomerController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminCustomerController::class, 'show']);
+            });
+            Route::middleware('admin.can:customers.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminCustomerController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminCustomerController::class, 'update']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminCustomerController::class, 'bulkUpdateStatus']);
+                Route::post('/bulk-update-group', [V1\Admin\AdminCustomerController::class, 'bulkUpdateGroup']);
+            });
+            Route::middleware('admin.can:customers.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminCustomerController::class, 'destroy']);
+                Route::delete('/{id}/force', [V1\Admin\AdminCustomerController::class, 'forceDestroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminCustomerController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // ORDERS
         // ========================
         Route::prefix('orders')->group(function () {
-            Route::get('/', [V1\Admin\AdminOrderController::class, 'index']);
-            Route::get('/statistics', [V1\Admin\AdminOrderController::class, 'statistics']);
-            Route::get('/{id}', [V1\Admin\AdminOrderController::class, 'show']);
-            Route::put('/{id}/status', [V1\Admin\AdminOrderController::class, 'updateStatus']);
-            Route::delete('/{id}', [V1\Admin\AdminOrderController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminOrderController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminOrderController::class, 'bulkUpdateStatus']);
+            Route::middleware('admin.can:orders.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminOrderController::class, 'index']);
+                Route::get('/statistics', [V1\Admin\AdminOrderController::class, 'statistics']);
+                Route::get('/{id}', [V1\Admin\AdminOrderController::class, 'show']);
+            });
+            Route::middleware('admin.can:orders.modify')->group(function () {
+                Route::put('/{id}/status', [V1\Admin\AdminOrderController::class, 'updateStatus']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminOrderController::class, 'bulkUpdateStatus']);
+            });
+            Route::middleware('admin.can:orders.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminOrderController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminOrderController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // COUPONS
         // ========================
         Route::prefix('coupons')->group(function () {
-            Route::get('/', [V1\Admin\AdminCouponController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminCouponController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminCouponController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminCouponController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminCouponController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminCouponController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminCouponController::class, 'bulkUpdateStatus']);
+            Route::middleware('admin.can:coupons.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminCouponController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminCouponController::class, 'show']);
+            });
+            Route::middleware('admin.can:coupons.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminCouponController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminCouponController::class, 'update']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminCouponController::class, 'bulkUpdateStatus']);
+            });
+            Route::middleware('admin.can:coupons.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminCouponController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminCouponController::class, 'bulkDestroy']);
+            });
+        });
+
+        // ========================
+        // SPECIALS
+        // ========================
+        Route::prefix('specials')->group(function () {
+            Route::middleware('admin.can:specials.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminSpecialController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminSpecialController::class, 'show']);
+            });
+            Route::middleware('admin.can:specials.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminSpecialController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminSpecialController::class, 'update']);
+                Route::post('/apply-by-brand', [V1\Admin\AdminSpecialController::class, 'applyByBrand']);
+                Route::post('/apply-by-category', [V1\Admin\AdminSpecialController::class, 'applyByCategory']);
+            });
+            Route::middleware('admin.can:specials.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminSpecialController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminSpecialController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // REVIEWS
         // ========================
         Route::prefix('reviews')->group(function () {
-            Route::get('/', [V1\Admin\AdminReviewController::class, 'index']);
-            Route::get('/{id}', [V1\Admin\AdminReviewController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminReviewController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminReviewController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminReviewController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminReviewController::class, 'bulkUpdateStatus']);
+            Route::middleware('admin.can:reviews.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminReviewController::class, 'index']);
+                Route::get('/statistics', [V1\Admin\AdminReviewController::class, 'statistics']);
+                Route::get('/{id}', [V1\Admin\AdminReviewController::class, 'show']);
+            });
+            Route::middleware('admin.can:reviews.modify')->group(function () {
+                Route::put('/{id}', [V1\Admin\AdminReviewController::class, 'update']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminReviewController::class, 'bulkUpdateStatus']);
+            });
+            Route::middleware('admin.can:reviews.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminReviewController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminReviewController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // RETURNS
         // ========================
         Route::prefix('returns')->group(function () {
-            Route::get('/', [V1\Admin\AdminReturnController::class, 'index']);
-            Route::get('/{id}', [V1\Admin\AdminReturnController::class, 'show']);
-            Route::put('/{id}/status', [V1\Admin\AdminReturnController::class, 'updateStatus']);
-            Route::delete('/{id}', [V1\Admin\AdminReturnController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminReturnController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminReturnController::class, 'bulkUpdateStatus']);
+            Route::middleware('admin.can:returns.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminReturnController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminReturnController::class, 'show']);
+            });
+            Route::middleware('admin.can:returns.modify')->group(function () {
+                Route::put('/{id}/status', [V1\Admin\AdminReturnController::class, 'updateStatus']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminReturnController::class, 'bulkUpdateStatus']);
+            });
+            Route::middleware('admin.can:returns.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminReturnController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminReturnController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // BANNERS
         // ========================
         Route::prefix('banners')->group(function () {
-            Route::get('/', [V1\Admin\AdminBannerController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminBannerController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminBannerController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminBannerController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminBannerController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminBannerController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminBannerController::class, 'bulkUpdateStatus']);
+            Route::middleware('admin.can:banners.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminBannerController::class, 'index']);
+                Route::get('/create', [V1\Admin\AdminBannerController::class, 'create']);
+                Route::get('/{id}', [V1\Admin\AdminBannerController::class, 'show']);
+            });
+            Route::middleware('admin.can:banners.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminBannerController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminBannerController::class, 'update']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminBannerController::class, 'bulkUpdateStatus']);
+            });
+            Route::middleware('admin.can:banners.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminBannerController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminBannerController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // ATTRIBUTES
         // ========================
         Route::prefix('attributes')->group(function () {
-            // Attribute Groups
-            Route::get('/groups', [V1\Admin\AdminAttributeController::class, 'indexGroups']);
-            Route::post('/groups', [V1\Admin\AdminAttributeController::class, 'storeGroup']);
-            Route::put('/groups/{id}', [V1\Admin\AdminAttributeController::class, 'updateGroup']);
-            Route::delete('/groups/{id}', [V1\Admin\AdminAttributeController::class, 'destroyGroup']);
-            
-            // Attributes
-            Route::get('/', [V1\Admin\AdminAttributeController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminAttributeController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminAttributeController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminAttributeController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminAttributeController::class, 'destroy']);
+            Route::middleware('admin.can:attributes.view')->group(function () {
+                Route::get('/groups', [V1\Admin\AdminAttributeController::class, 'indexGroups']);
+                Route::get('/', [V1\Admin\AdminAttributeController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminAttributeController::class, 'show']);
+            });
+            Route::middleware('admin.can:attributes.modify')->group(function () {
+                Route::post('/groups', [V1\Admin\AdminAttributeController::class, 'storeGroup']);
+                Route::put('/groups/{id}', [V1\Admin\AdminAttributeController::class, 'updateGroup']);
+                Route::post('/', [V1\Admin\AdminAttributeController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminAttributeController::class, 'update']);
+            });
+            Route::middleware('admin.can:attributes.delete')->group(function () {
+                Route::delete('/groups/{id}', [V1\Admin\AdminAttributeController::class, 'destroyGroup']);
+                Route::delete('/{id}', [V1\Admin\AdminAttributeController::class, 'destroy']);
+            });
         });
 
         // ========================
         // MANUFACTURERS
         // ========================
         Route::prefix('manufacturers')->group(function () {
-            Route::get('/', [V1\Admin\AdminManufacturerController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminManufacturerController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminManufacturerController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminManufacturerController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminManufacturerController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminManufacturerController::class, 'bulkDestroy']);
+            Route::middleware('admin.can:manufacturers.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminManufacturerController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminManufacturerController::class, 'show']);
+            });
+            Route::middleware('admin.can:manufacturers.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminManufacturerController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminManufacturerController::class, 'update']);
+            });
+            Route::middleware('admin.can:manufacturers.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminManufacturerController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminManufacturerController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // LANGUAGES
         // ========================
         Route::prefix('languages')->group(function () {
-            Route::get('/', [V1\Admin\AdminLanguageController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminLanguageController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminLanguageController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminLanguageController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminLanguageController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminLanguageController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminLanguageController::class, 'bulkUpdateStatus']);
+            Route::middleware('admin.can:languages.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminLanguageController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminLanguageController::class, 'show']);
+            });
+            Route::middleware('admin.can:languages.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminLanguageController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminLanguageController::class, 'update']);
+                Route::post('/bulk-update-status', [V1\Admin\AdminLanguageController::class, 'bulkUpdateStatus']);
+            });
+            Route::middleware('admin.can:languages.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminLanguageController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminLanguageController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // NOTIFICATIONS
         // ========================
         Route::prefix('notifications')->group(function () {
-            Route::get('/', [V1\Admin\AdminNotificationController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminNotificationController::class, 'store']);
-            Route::get('/statistics', [V1\Admin\AdminNotificationController::class, 'statistics']);
-            Route::post('/send-test', [V1\Admin\AdminNotificationController::class, 'sendTest']);
-            Route::get('/{id}', [V1\Admin\AdminNotificationController::class, 'show']);
-            Route::delete('/{id}', [V1\Admin\AdminNotificationController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminNotificationController::class, 'bulkDestroy']);
+            Route::middleware('admin.can:notifications.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminNotificationController::class, 'index']);
+                Route::get('/statistics', [V1\Admin\AdminNotificationController::class, 'statistics']);
+                Route::get('/{id}', [V1\Admin\AdminNotificationController::class, 'show']);
+            });
+            Route::middleware('admin.can:notifications.send')->group(function () {
+                Route::post('/', [V1\Admin\AdminNotificationController::class, 'store']);
+                Route::post('/send-test', [V1\Admin\AdminNotificationController::class, 'sendTest']);
+            });
+            Route::middleware('admin.can:notifications.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminNotificationController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminNotificationController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // SETTINGS
         // ========================
         Route::prefix('settings')->group(function () {
-            Route::get('/', [V1\Admin\AdminSettingsController::class, 'index']);
-            Route::get('/store-info', [V1\Admin\AdminSettingsController::class, 'getStoreInfo']);
-            Route::put('/store-info', [V1\Admin\AdminSettingsController::class, 'updateStoreInfo']);
-            Route::post('/bulk-update', [V1\Admin\AdminSettingsController::class, 'bulkUpdate']);
-            Route::post('/clear-cache', [V1\Admin\AdminSettingsController::class, 'clearCache']);
-            Route::get('/{key}', [V1\Admin\AdminSettingsController::class, 'show']);
-            Route::put('/{key}', [V1\Admin\AdminSettingsController::class, 'update']);
-            Route::delete('/{key}', [V1\Admin\AdminSettingsController::class, 'destroy']);
+            Route::middleware('admin.can:settings.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminSettingsController::class, 'index']);
+                Route::get('/store-info', [V1\Admin\AdminSettingsController::class, 'getStoreInfo']);
+                Route::get('/services', [V1\Admin\AdminSettingsController::class, 'getServiceSettings']);
+                Route::get('/services/loyalty', [V1\Admin\AdminSettingsController::class, 'getLoyaltyConfig']);
+                Route::get('/services/otp', [V1\Admin\AdminSettingsController::class, 'getOtpConfig']);
+                Route::get('/services/paytabs', [V1\Admin\AdminSettingsController::class, 'getPaytabsConfig']);
+                Route::get('/services/tap', [V1\Admin\AdminSettingsController::class, 'getTapConfig']);
+                Route::get('/services/smsa', [V1\Admin\AdminSettingsController::class, 'getSmsaConfig']);
+                Route::get('/{key}', [V1\Admin\AdminSettingsController::class, 'show']);
+            });
+            Route::middleware('admin.can:settings.modify')->group(function () {
+                Route::put('/store-info', [V1\Admin\AdminSettingsController::class, 'updateStoreInfo']);
+                Route::post('/bulk-update', [V1\Admin\AdminSettingsController::class, 'bulkUpdate']);
+                Route::post('/clear-cache', [V1\Admin\AdminSettingsController::class, 'clearCache']);
+                Route::put('/services', [V1\Admin\AdminSettingsController::class, 'updateServiceSettings']);
+                Route::put('/services/loyalty', [V1\Admin\AdminSettingsController::class, 'updateLoyaltyConfig']);
+                Route::put('/services/otp', [V1\Admin\AdminSettingsController::class, 'updateOtpConfig']);
+                Route::put('/services/paytabs', [V1\Admin\AdminSettingsController::class, 'updatePaytabsConfig']);
+                Route::put('/services/tap', [V1\Admin\AdminSettingsController::class, 'updateTapConfig']);
+                Route::put('/services/smsa', [V1\Admin\AdminSettingsController::class, 'updateSmsaConfig']);
+                Route::put('/{key}', [V1\Admin\AdminSettingsController::class, 'update']);
+                Route::delete('/{key}', [V1\Admin\AdminSettingsController::class, 'destroy']);
+            });
         });
 
         // ========================
         // LOCATIONS
         // ========================
-        // Countries
-        Route::prefix('countries')->group(function () {
-            Route::get('/', [V1\Admin\AdminCountryController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminCountryController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminCountryController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminCountryController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminCountryController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminCountryController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminCountryController::class, 'bulkUpdateStatus']);
+        Route::middleware('admin.can:locations.view')->group(function () {
+            Route::get('/countries', [V1\Admin\AdminCountryController::class, 'index']);
+            Route::get('/countries/{id}', [V1\Admin\AdminCountryController::class, 'show']);
+            Route::get('/zones', [V1\Admin\AdminZoneController::class, 'index']);
+            Route::get('/zones/{id}', [V1\Admin\AdminZoneController::class, 'show']);
+            Route::get('/cities', [V1\Admin\AdminCityController::class, 'index']);
+            Route::get('/cities/{id}', [V1\Admin\AdminCityController::class, 'show']);
+        });
+        Route::middleware('admin.can:locations.modify')->group(function () {
+            Route::post('/countries', [V1\Admin\AdminCountryController::class, 'store']);
+            Route::put('/countries/{id}', [V1\Admin\AdminCountryController::class, 'update']);
+            Route::post('/countries/bulk-update-status', [V1\Admin\AdminCountryController::class, 'bulkUpdateStatus']);
+            Route::post('/zones', [V1\Admin\AdminZoneController::class, 'store']);
+            Route::put('/zones/{id}', [V1\Admin\AdminZoneController::class, 'update']);
+            Route::post('/zones/bulk-update-status', [V1\Admin\AdminZoneController::class, 'bulkUpdateStatus']);
+            Route::post('/cities', [V1\Admin\AdminCityController::class, 'store']);
+            Route::put('/cities/{id}', [V1\Admin\AdminCityController::class, 'update']);
+            Route::post('/cities/bulk-update-status', [V1\Admin\AdminCityController::class, 'bulkUpdateStatus']);
+        });
+        Route::middleware('admin.can:locations.delete')->group(function () {
+            Route::delete('/countries/{id}', [V1\Admin\AdminCountryController::class, 'destroy']);
+            Route::post('/countries/bulk-delete', [V1\Admin\AdminCountryController::class, 'bulkDestroy']);
+            Route::delete('/zones/{id}', [V1\Admin\AdminZoneController::class, 'destroy']);
+            Route::post('/zones/bulk-delete', [V1\Admin\AdminZoneController::class, 'bulkDestroy']);
+            Route::delete('/cities/{id}', [V1\Admin\AdminCityController::class, 'destroy']);
+            Route::post('/cities/bulk-delete', [V1\Admin\AdminCityController::class, 'bulkDestroy']);
         });
 
-        // Zones
-        Route::prefix('zones')->group(function () {
-            Route::get('/', [V1\Admin\AdminZoneController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminZoneController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminZoneController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminZoneController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminZoneController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminZoneController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminZoneController::class, 'bulkUpdateStatus']);
-        });
-
-        // Cities
-        Route::prefix('cities')->group(function () {
-            Route::get('/', [V1\Admin\AdminCityController::class, 'index']);
-            Route::post('/', [V1\Admin\AdminCityController::class, 'store']);
-            Route::get('/{id}', [V1\Admin\AdminCityController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminCityController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminCityController::class, 'destroy']);
-            Route::post('/bulk-delete', [V1\Admin\AdminCityController::class, 'bulkDestroy']);
-            Route::post('/bulk-update-status', [V1\Admin\AdminCityController::class, 'bulkUpdateStatus']);
+        // ========================
+        // BRANCHES
+        // ========================
+        Route::prefix('branches')->group(function () {
+            Route::middleware('admin.can:branches.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminBranchController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminBranchController::class, 'show']);
+            });
+            Route::middleware('admin.can:branches.modify')->group(function () {
+                Route::post('/', [V1\Admin\AdminBranchController::class, 'store']);
+                Route::put('/{id}', [V1\Admin\AdminBranchController::class, 'update']);
+            });
+            Route::middleware('admin.can:branches.delete')->group(function () {
+                Route::delete('/{id}', [V1\Admin\AdminBranchController::class, 'destroy']);
+                Route::post('/bulk-delete', [V1\Admin\AdminBranchController::class, 'bulkDestroy']);
+            });
         });
 
         // ========================
         // MEDIA
         // ========================
         Route::prefix('media')->group(function () {
-            // Stats
-            Route::get('/stats', [V1\Admin\AdminMediaController::class, 'stats']);
-            
-            // Folders
-            Route::get('/folders', [V1\Admin\AdminMediaController::class, 'getFolders']);
-            Route::post('/folders', [V1\Admin\AdminMediaController::class, 'createFolder']);
-            Route::get('/folders/{id}', [V1\Admin\AdminMediaController::class, 'showFolder']);
-            Route::put('/folders/{id}', [V1\Admin\AdminMediaController::class, 'updateFolder']);
-            Route::delete('/folders/{id}', [V1\Admin\AdminMediaController::class, 'deleteFolder']);
-
-            // Files
-            Route::get('/', [V1\Admin\AdminMediaController::class, 'index']);
-            Route::post('/upload', [V1\Admin\AdminMediaController::class, 'store']);
-            Route::post('/bulk-upload', [V1\Admin\AdminMediaController::class, 'bulkUpload']);
-            Route::post('/bulk-delete', [V1\Admin\AdminMediaController::class, 'bulkDestroy']);
-            Route::post('/bulk-move', [V1\Admin\AdminMediaController::class, 'bulkMove']);
-            Route::get('/{id}', [V1\Admin\AdminMediaController::class, 'show']);
-            Route::put('/{id}', [V1\Admin\AdminMediaController::class, 'update']);
-            Route::delete('/{id}', [V1\Admin\AdminMediaController::class, 'destroy']);
+            Route::middleware('admin.can:media.view')->group(function () {
+                Route::get('/stats', [V1\Admin\AdminMediaController::class, 'stats']);
+                Route::get('/folders', [V1\Admin\AdminMediaController::class, 'getFolders']);
+                Route::get('/folders/{id}', [V1\Admin\AdminMediaController::class, 'showFolder']);
+                Route::get('/', [V1\Admin\AdminMediaController::class, 'index']);
+                Route::get('/{id}', [V1\Admin\AdminMediaController::class, 'show']);
+            });
+            Route::middleware('admin.can:media.upload')->group(function () {
+                Route::post('/folders', [V1\Admin\AdminMediaController::class, 'createFolder']);
+                Route::put('/folders/{id}', [V1\Admin\AdminMediaController::class, 'updateFolder']);
+                Route::post('/upload', [V1\Admin\AdminMediaController::class, 'store']);
+                Route::post('/bulk-upload', [V1\Admin\AdminMediaController::class, 'bulkUpload']);
+                Route::post('/bulk-move', [V1\Admin\AdminMediaController::class, 'bulkMove']);
+                Route::put('/{id}', [V1\Admin\AdminMediaController::class, 'update']);
+            });
+            Route::middleware('admin.can:media.delete')->group(function () {
+                Route::delete('/folders/{id}', [V1\Admin\AdminMediaController::class, 'deleteFolder']);
+                Route::post('/bulk-delete', [V1\Admin\AdminMediaController::class, 'bulkDestroy']);
+                Route::delete('/{id}', [V1\Admin\AdminMediaController::class, 'destroy']);
+            });
         });
 
         // ========================
         // SHIPPING (SMSA)
         // ========================
         Route::prefix('shipping')->group(function () {
-            Route::get('/', [V1\Admin\AdminShippingController::class, 'index']);
-            Route::get('/statistics', [V1\Admin\AdminShippingController::class, 'statistics']);
-            Route::post('/smsa/create', [V1\Admin\AdminShippingController::class, 'createShipment']);
-            Route::post('/smsa/bulk-create', [V1\Admin\AdminShippingController::class, 'bulkCreate']);
-            Route::get('/smsa/label/{awb}', [V1\Admin\AdminShippingController::class, 'getLabel']);
-            Route::get('/smsa/track/{awb}', [V1\Admin\AdminShippingController::class, 'track']);
-            Route::get('/smsa/status/{awb}', [V1\Admin\AdminShippingController::class, 'status']);
-            Route::get('/smsa/cities', [V1\Admin\AdminShippingController::class, 'getCities']);
-            Route::get('/smsa/retails', [V1\Admin\AdminShippingController::class, 'getRetails']);
-            Route::post('/smsa/charges', [V1\Admin\AdminShippingController::class, 'getShipCharges']);
-            Route::post('/smsa/cancel/{awb}', [V1\Admin\AdminShippingController::class, 'cancel']);
-            Route::get('/order/{orderId}', [V1\Admin\AdminShippingController::class, 'getByOrder']);
-            Route::get('/{id}', [V1\Admin\AdminShippingController::class, 'show']);
+            Route::middleware('admin.can:shipping.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminShippingController::class, 'index']);
+                Route::get('/statistics', [V1\Admin\AdminShippingController::class, 'statistics']);
+                Route::get('/smsa/label/{awb}', [V1\Admin\AdminShippingController::class, 'getLabel']);
+                Route::get('/smsa/track/{awb}', [V1\Admin\AdminShippingController::class, 'track']);
+                Route::get('/smsa/status/{awb}', [V1\Admin\AdminShippingController::class, 'status']);
+                Route::get('/smsa/cities', [V1\Admin\AdminShippingController::class, 'getCities']);
+                Route::get('/smsa/retails', [V1\Admin\AdminShippingController::class, 'getRetails']);
+                Route::get('/order/{orderId}', [V1\Admin\AdminShippingController::class, 'getByOrder']);
+                Route::get('/{id}', [V1\Admin\AdminShippingController::class, 'show']);
+            });
+            Route::middleware('admin.can:shipping.modify')->group(function () {
+                Route::post('/smsa/create', [V1\Admin\AdminShippingController::class, 'createShipment']);
+                Route::post('/smsa/bulk-create', [V1\Admin\AdminShippingController::class, 'bulkCreate']);
+                Route::post('/smsa/charges', [V1\Admin\AdminShippingController::class, 'getShipCharges']);
+                Route::post('/smsa/cancel/{awb}', [V1\Admin\AdminShippingController::class, 'cancel']);
+            });
+        });
+
+        // ========================
+        // HYPERPAY PAYMENTS
+        // ========================
+        Route::middleware('admin.can:payments.view')->group(function () {
+            Route::get('/hyperpay/payments', [V1\Admin\AdminPaymentHyperpayController::class, 'index']);
+        });
+        Route::middleware('admin.can:payments.refund')->group(function () {
+            Route::post('/hyperpay/payments/{order_id}/capture', [V1\Admin\AdminPaymentHyperpayController::class, 'capturePayment']);
+            Route::post('/hyperpay/payments/{order_id}/refund', [V1\Admin\AdminPaymentHyperpayController::class, 'refundPayment']);
+            Route::post('/hyperpay/payments/{order_id}/rebill', [V1\Admin\AdminPaymentHyperpayController::class, 'rebillPayment']);
+            Route::post('/hyperpay/payments/{order_id}/reverse', [V1\Admin\AdminPaymentHyperpayController::class, 'reversePayment']);
+        });
+
+        // ========================
+        // TAP PAYMENTS
+        // ========================
+        Route::middleware('admin.can:payments.view')->group(function () {
+            Route::get('/tap/payments', [V1\Admin\AdminPaymentTapController::class, 'index']);
+            Route::get('/tap/payments/{id}', [V1\Admin\AdminPaymentTapController::class, 'show']);
+            Route::post('/tap/payments/{id}/sync', [V1\Admin\AdminPaymentTapController::class, 'syncStatus']);
+        });
+        Route::middleware('admin.can:payments.refund')->group(function () {
+            Route::post('/tap/payments/{order_id}/refund', [V1\Admin\AdminPaymentTapController::class, 'refundPayment']);
+        });
+
+        // ========================
+        // PAYTABS PAYMENTS
+        // ========================
+        Route::middleware('admin.can:payments.view')->group(function () {
+            Route::get('/paytabs/payments', [V1\Admin\AdminPaymentPaytabsController::class, 'index']);
+            Route::get('/paytabs/payments/{id}', [V1\Admin\AdminPaymentPaytabsController::class, 'show']);
+            Route::post('/paytabs/payments/{id}/verify', [V1\Admin\AdminPaymentPaytabsController::class, 'verifyStatus']);
+        });
+        Route::middleware('admin.can:payments.refund')->group(function () {
+            Route::post('/paytabs/payments/{order_id}/refund', [V1\Admin\AdminPaymentPaytabsController::class, 'refundPayment']);
+            Route::post('/paytabs/payments/{order_id}/void', [V1\Admin\AdminPaymentPaytabsController::class, 'voidPayment']);
+            Route::post('/paytabs/payments/{order_id}/capture', [V1\Admin\AdminPaymentPaytabsController::class, 'capturePayment']);
+        });
+
+        // ========================
+        // LOYALTY POINTS
+        // ========================
+        Route::prefix('loyalty-points')->group(function () {
+            Route::middleware('admin.can:loyalty.view')->group(function () {
+                Route::get('/', [V1\Admin\AdminLoyaltyPointController::class, 'index']);
+                Route::get('/statistics', [V1\Admin\AdminLoyaltyPointController::class, 'statistics']);
+                Route::get('/customer/{customerId}', [V1\Admin\AdminLoyaltyPointController::class, 'customerSummary']);
+                Route::get('/{id}', [V1\Admin\AdminLoyaltyPointController::class, 'show']);
+            });
+            Route::middleware('admin.can:loyalty.adjust')->group(function () {
+                Route::post('/adjust', [V1\Admin\AdminLoyaltyPointController::class, 'adjust']);
+                Route::delete('/{id}', [V1\Admin\AdminLoyaltyPointController::class, 'destroy']);
+            });
         });
 
     });
 
 });
+

@@ -300,7 +300,7 @@ export const authSlice = apiSlice.injectEndpoints({
         url: '/auth/me',
       }),
       providesTags: ['User'],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
       transformResponse: (response: UserProfile) => response,
       async onQueryStarted(_, { queryFulfilled }) {
         try {
@@ -1604,21 +1604,21 @@ export const cmsSlice = apiSlice.injectEndpoints({
     getHomepageContent: builder.query<HomepageContent, void>({
       query: () => '/cms/home',
       providesTags: ['Homepage'],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
     
     // --- Get About Page Content ---
     getAboutPage: builder.query<StaticPage, void>({
       query: () => '/cms/about',
       providesTags: (result, error, slug) => [{ type: 'Page', id: 'about' }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
     
     // --- Get Static Page by Slug ---
     getStaticPage: builder.query<StaticPage, string>({
       query: (slug) => `/cms/page/${slug}`,
       providesTags: (result, error, slug) => [{ type: 'Page', id: slug }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
     
     // --- Get Banners ---
@@ -1631,7 +1631,7 @@ export const cmsSlice = apiSlice.injectEndpoints({
       },
       providesTags: (result, error, { type }) => 
         [{ type: 'Banner', id: type }, { type: 'Banner', id: 'LIST' }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
   }),
 });
@@ -1798,7 +1798,7 @@ export const couponsSlice = apiSlice.injectEndpoints({
         result 
           ? [...result.data.map(promo => ({ type: "Promotion" as const, id: promo.id })), { type: "Promotion" as const, id: 'LIST' }] 
           : [{ type: "Promotion" as const, id: 'LIST' }],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
   }),
 });
@@ -2738,7 +2738,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         return Array.isArray(responseData.data) ? responseData.data : [];
       },
       providesTags: [{ type: "Product" as const, id: "TOP" }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get New Arrival Products ---
@@ -2748,7 +2748,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         return Array.isArray(responseData.data) ? responseData.data : [];
       },
       providesTags: [{ type: "Product" as const, id: "NEW" }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
 
     // --- Get Products on Deal ---
@@ -2762,7 +2762,7 @@ export const productsSlice = apiSlice.injectEndpoints({
         return responseData.data || [];
       },
       providesTags: [{ type: "Product" as const, id: "DEALS" }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
   }),
 });
@@ -3897,14 +3897,14 @@ export const sellersSlice = apiSlice.injectEndpoints({
         result 
           ? [...result.ids.map((id) => ({ type: 'Seller' as const, id })), { type: 'Seller' as const, id: 'LIST' }] 
           : [{ type: 'Seller' as const, id: 'LIST' }],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
     
     // --- Get Seller by ID ---
     getSellerById: builder.query<Seller, string | number>({
       query: (id) => `/sellers/${id}`,
       providesTags: (result, error, id) => [{ type: 'Seller' as const, id }],
-      keepUnusedDataFor: 3600,
+      keepUnusedDataFor: 60,
     }),
     
     // --- Get Seller Products ---
@@ -4101,7 +4101,7 @@ export const settingsSlice = apiSlice.injectEndpoints({
     getShippingMethods: builder.query<ShippingSettings, void>({
       query: () => '/settings/shipping',
       providesTags: ['Shipping'],
-      keepUnusedDataFor: 3600, // Keep for 1 hour
+      keepUnusedDataFor: 60, // Keep for 1 hour
     }),
     
     // --- Get Return Policy ---

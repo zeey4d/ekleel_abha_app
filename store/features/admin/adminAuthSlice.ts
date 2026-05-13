@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { apiSlice } from '../api/apiSlice';
-import { authStorage } from '@/lib/authStorage';
+import { cookieManager } from '@/lib/cookieManager';
 
 // ==============================
 // Types
@@ -102,7 +102,7 @@ export const adminAuthSlice = apiSlice.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    await authStorage.setAdminToken(data.access_token);
+                    cookieManager.setAdminToken(data.access_token);
                     dispatch(adminAuthSlice.util.prefetch('getAdminMe', undefined, { force: true }));
                 } catch (err) {
                     handleAuthError(err, 'Login');
@@ -124,7 +124,7 @@ export const adminAuthSlice = apiSlice.injectEndpoints({
                 } catch (err) {
                     handleAuthError(err, 'Logout');
                 } finally {
-                    await authStorage.removeAdminToken();
+                    cookieManager.removeAdminToken();
                     dispatch(apiSlice.util.resetApiState());
                 }
             },
@@ -141,7 +141,7 @@ export const adminAuthSlice = apiSlice.injectEndpoints({
                 } catch (err: any) {
                     console.error('[AUTH_DEBUG] getAdminMe failed, but skipping token deletion:', err);
                     // if (err?.error?.status === 401) {
-                    //     await authStorage.removeAdminToken();
+                    //     cookieManager.removeAdminToken();
                     // }
                 }
             },
@@ -318,8 +318,8 @@ export const selectCurrentAdminUser = createSelector(
 );
 
 export const selectIsAdminAuthenticated = createSelector(
-    [adminAuthSlice.endpoints.getAdminMe.select()],
-    (result) => !!result.data && !result.isError
+    [adminAuthSlice.endpoints.getAdminMe.select(), () => cookieManager.getAdminToken()],
+    (result, token) => !!token && !cookieManager.isAdminTokenExpired() && !!result.data && !result.isError
 );
 
 export const selectAdminAuthLoading = createSelector(
