@@ -8,6 +8,8 @@ import {
     ChevronLeft
 } from 'lucide-react-native';
 import { Text } from '@/components/ui/text';
+import { I18nManager } from 'react-native';
+import { cn } from '@/lib/utils';
 
 interface ShippingOptionProps {
     icon: React.ReactNode;
@@ -20,27 +22,27 @@ interface ShippingOptionProps {
 
 function ShippingOption({ icon, title, time, price, description, highlight = false }: ShippingOptionProps) {
     return (
-        <View className={`rounded-2xl p-6 border mb-4 ${
+        <View className={cn(`rounded-[32px] p-6 border mb-4 shadow-sm`,
             highlight
-                ? 'bg-yellow-500/5 border-yellow-500/30'
-                : 'bg-white border-slate-200'
-        }`}>
-            <View className="flex-row items-start gap-4">
-                <View className={`w-14 h-14 rounded-full items-center justify-center ${
-                    highlight ? 'bg-yellow-500/20' : 'bg-yellow-500/10'
-                }`}>
+                ? 'bg-teal-50 border-teal-200'
+                : 'bg-white border-slate-200/80'
+        )}>
+            <View className={cn("flex-row items-start gap-4", I18nManager.isRTL && "flex-row-reverse")}>
+                <View className={cn(`w-14 h-14 rounded-2xl items-center justify-center`,
+                    highlight ? 'bg-white shadow-sm' : 'bg-teal-50'
+                )}>
                     {icon}
                 </View>
-                <View className="flex-1">
-                    <View className="flex-row items-center justify-between mb-2">
-                        <Text className="font-bold text-lg text-slate-900 text-start">{title}</Text>
-                        <Text className="text-yellow-600 font-bold">{price}</Text>
+                <View className="flex-1 mt-1">
+                    <View className={cn("flex-row items-center justify-between mb-2", I18nManager.isRTL && "flex-row-reverse")}>
+                        <Text className={cn("font-bold text-lg text-slate-800 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{title}</Text>
+                        <Text className="text-teal-600 font-bold font-tajawal">{price}</Text>
                     </View>
-                    <View className="flex-row items-center gap-2 mb-2">
-                        <Clock size={16} color="#64748b" />
-                        <Text className="text-sm text-slate-500">{time}</Text>
+                    <View className={cn("flex-row items-center gap-2 mb-2", I18nManager.isRTL && "flex-row-reverse")}>
+                        <Clock size={16} className="text-slate-500" />
+                        <Text className="text-sm text-slate-500 font-tajawal">{time}</Text>
                     </View>
-                    <Text className="text-slate-600 text-sm text-start">{description}</Text>
+                    <Text className={cn("text-slate-500 text-sm font-tajawal leading-relaxed", I18nManager.isRTL ? "text-right" : "text-left")}>{description}</Text>
                 </View>
             </View>
         </View>
@@ -55,12 +57,12 @@ interface InfoCardProps {
 
 function InfoCard({ icon, title, description }: InfoCardProps) {
     return (
-        <View className="bg-white rounded-2xl p-6 items-center border border-slate-200 mb-4">
-            <View className="w-14 h-14 rounded-full bg-yellow-500/10 items-center justify-center mb-4">
+        <View className="bg-white rounded-[32px] p-6 items-center border border-slate-200/80 mb-4 shadow-sm">
+            <View className="w-14 h-14 rounded-2xl bg-teal-50 items-center justify-center mb-4">
                 {icon}
             </View>
-            <Text className="font-bold text-lg text-slate-900 mb-2 text-center">{title}</Text>
-            <Text className="text-sm text-slate-600 text-center">{description}</Text>
+            <Text className="font-bold text-lg text-slate-800 mb-2 text-center font-tajawal">{title}</Text>
+            <Text className="text-sm text-slate-500 text-center font-tajawal leading-relaxed">{description}</Text>
         </View>
     );
 }
@@ -80,40 +82,34 @@ export default function ShippingPage() {
     ];
 
     return (
-        <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 40 }}>
-            <Stack.Screen options={{ title: t('shipping.hero.title'),
-                            headerLeft: () => (
-                                              <Pressable onPress={() => router.back()} >
-                                                  <ChevronLeft color="#000000ff" size={28} />
-                                              </Pressable>
-                                          ),
-             }} />
+        <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 60 }}>
+            <Stack.Screen options={{ title: t('shipping.hero.title') }} />
 
             {/* Hero Section */}
-            <View className="bg-foreground py-16 px-4 items-center relative overflow-hidden">
+            <View className="bg-teal-700 py-16 px-4 items-center relative overflow-hidden mb-4">
                 <Image 
                   source={require("@/assets/images/aka_g.png")} 
-                  className="w-32 h-32 mb-6" 
+                  className="w-24 h-24 mb-4" 
                   resizeMode="contain" 
                 />
-                <View className="w-16 h-16 rounded-full bg-yellow-500/20 items-center justify-center mb-6">
-                    <Truck size={32} color="#d4af37" />
+                <View className="w-16 h-16 rounded-2xl bg-teal-600/50 items-center justify-center mb-6">
+                    <Truck size={32} color="#ccfbf1" />
                 </View>
-                <Text className="text-3xl font-bold mb-4 text-white text-center font-cairo">
+                <Text className="text-3xl font-bold mb-4 text-white text-center font-tajawal">
                     {t('shipping.hero.title')}
                 </Text>
-                <Text className="text-lg text-white/80 text-center px-4">
+                <Text className="text-[15px] text-teal-100 text-center px-4 font-tajawal">
                     {t('shipping.hero.subtitle')}
                 </Text>
             </View>
 
             {/* Shipping Options */}
             <View className="py-8 px-4">
-                <Text className="text-2xl font-bold text-center mb-6 text-slate-900">
+                <Text className="text-xl font-bold text-center mb-6 text-slate-800 font-tajawal">
                     {t('shipping.options.title')}
                 </Text>
                 <ShippingOption
-                    icon={<Truck size={28} color="#d4af37" />}
+                    icon={<Truck size={28} className="text-teal-600" />}
                     title={t('shipping.options.homeDelivery.title')}
                     time={t('shipping.options.homeDelivery.time')}
                     price={t('shipping.options.homeDelivery.price')}
@@ -121,7 +117,7 @@ export default function ShippingPage() {
                     highlight={true}
                 />
                 <ShippingOption
-                    icon={<MapPin size={28} color="#d4af37" />}
+                    icon={<MapPin size={28} className="text-teal-600" />}
                     title={t('shipping.options.branchPickup.title')}
                     time={t('shipping.options.branchPickup.time')}
                     price={t('shipping.options.branchPickup.price')}
@@ -131,60 +127,60 @@ export default function ShippingPage() {
 
             {/* Free Shipping Banner */}
             <View className="px-4 pb-4">
-                <View className="bg-yellow-500/10 rounded-2xl p-6 border border-yellow-500/20 items-center">
-                    <View className="flex-row items-center gap-3 mb-3">
-                        <CheckCircle size={28} color="#d4af37" />
-                        <Text className="text-xl font-bold text-slate-900">
+                <View className="bg-teal-700 rounded-[32px] p-8 border border-teal-800 items-center shadow-sm">
+                    <View className={cn("flex-row items-center gap-3 mb-4", I18nManager.isRTL && "flex-row-reverse")}>
+                        <CheckCircle size={28} color="#ccfbf1" />
+                        <Text className="text-xl font-bold text-white font-tajawal">
                             {t('shipping.freeShipping.title')}
                         </Text>
                     </View>
-                    <Text className="text-slate-600 text-lg text-center">
+                    <Text className="text-teal-100 text-sm text-center font-tajawal leading-relaxed">
                         {t('shipping.freeShipping.description')}
                     </Text>
                 </View>
             </View>
 
             {/* Coverage Area */}
-            <View className="py-8 px-4 bg-white">
-                <Text className="text-2xl font-bold text-center mb-4 text-slate-900">
+            <View className="py-8 px-4 bg-white mx-4 rounded-[32px] border border-slate-200/80 shadow-sm mt-4">
+                <Text className="text-xl font-bold text-center mb-4 text-slate-800 font-tajawal">
                     {t('shipping.coverage.title')}
                 </Text>
-                <Text className="text-slate-600 text-center mb-6">
+                <Text className="text-slate-500 text-center mb-6 font-tajawal px-2">
                     {t('shipping.coverage.description')}
                 </Text>
-                <View className="flex-row flex-wrap gap-3">
+                <View className={cn("flex-row flex-wrap gap-3", I18nManager.isRTL && "flex-row-reverse")}>
                     {cities.map((city, index) => (
                         <View
                             key={index}
-                            className="bg-slate-50 rounded-xl p-4 items-center border border-slate-200 w-[47%]"
+                            className="bg-slate-50 rounded-2xl p-4 items-center border border-slate-100 w-[47%]"
                         >
-                            <MapPin size={20} color="#d4af37" />
-                            <Text className="text-slate-700 font-medium mt-2">{city}</Text>
+                            <MapPin size={20} className="text-teal-600" />
+                            <Text className="text-slate-700 font-bold mt-2 font-tajawal text-sm">{city}</Text>
                         </View>
                     ))}
                 </View>
-                <Text className="text-center text-slate-500 text-sm mt-6">
+                <Text className="text-center text-slate-400 text-xs mt-6 font-tajawal">
                     {t('shipping.coverage.note')}
                 </Text>
             </View>
 
             {/* Features */}
-            <View className="py-8 px-4">
-                <Text className="text-2xl font-bold text-center mb-6 text-slate-900">
+            <View className="py-8 px-4 mt-4">
+                <Text className="text-xl font-bold text-center mb-6 text-slate-800 font-tajawal">
                     {t('shipping.features.title')}
                 </Text>
                 <InfoCard
-                    icon={<Shield size={28} color="#d4af37" />}
+                    icon={<Shield size={28} className="text-teal-600" />}
                     title={t('shipping.features.secure.title')}
                     description={t('shipping.features.secure.description')}
                 />
                 <InfoCard
-                    icon={<Package size={28} color="#d4af37" />}
+                    icon={<Package size={28} className="text-teal-600" />}
                     title={t('shipping.features.tracking.title')}
                     description={t('shipping.features.tracking.description')}
                 />
                 <InfoCard
-                    icon={<CreditCard size={28} color="#d4af37" />}
+                    icon={<CreditCard size={28} className="text-teal-600" />}
                     title={t('shipping.features.cod.title')}
                     description={t('shipping.features.cod.description')}
                 />
@@ -192,18 +188,18 @@ export default function ShippingPage() {
 
             {/* Important Information */}
             <View className="py-4 px-4">
-                <View className="bg-white rounded-2xl p-6 border border-slate-200">
-                    <View className="flex-row items-center gap-3 mb-4">
-                        <AlertCircle size={24} color="#d4af37" />
-                        <Text className="text-xl font-bold text-slate-900 flex-1 text-start">
+                <View className="bg-white rounded-[32px] p-6 border border-slate-200/80 shadow-sm">
+                    <View className={cn("flex-row items-center gap-3 mb-5", I18nManager.isRTL && "flex-row-reverse")}>
+                        <AlertCircle size={24} className="text-teal-600" />
+                        <Text className={cn("text-xl font-bold text-slate-800 flex-1 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>
                             {t('shipping.info.title')}
                         </Text>
                     </View>
-                    <View className="gap-3">
+                    <View className="gap-4">
                         {[1, 2, 3, 4].map((i) => (
-                            <View key={i} className="flex-row items-start gap-2">
-                                <View className="w-1.5 h-1.5 rounded-full bg-yellow-600 mt-2" />
-                                <Text className="text-slate-600 flex-1 text-start">
+                            <View key={i} className={cn("flex-row items-start gap-3", I18nManager.isRTL && "flex-row-reverse")}>
+                                <View className="w-2 h-2 rounded-full bg-teal-500 mt-2" />
+                                <Text className={cn("text-slate-500 flex-1 font-tajawal leading-relaxed", I18nManager.isRTL ? "text-right" : "text-left")}>
                                     {t(`shipping.info.point${i}`)}
                                 </Text>
                             </View>
@@ -213,30 +209,30 @@ export default function ShippingPage() {
             </View>
 
             {/* Contact Section */}
-            <View className="py-12 px-4 bg-white items-center">
-                <View className="w-16 h-16 rounded-full bg-yellow-500/10 items-center justify-center mb-6">
-                    <Truck size={32} color="#d4af37" />
+            <View className="py-8 px-4 bg-white items-center mx-4 rounded-[32px] border border-slate-200/80 shadow-sm mt-4 mb-8">
+                <View className="w-16 h-16 rounded-2xl bg-teal-50 items-center justify-center mb-5">
+                    <Truck size={32} className="text-teal-600" />
                 </View>
-                <Text className="text-2xl font-bold text-slate-900 mb-4 text-center">
+                <Text className="text-xl font-bold text-slate-800 mb-2 text-center font-tajawal">
                     {t('shipping.contact.title')}
                 </Text>
-                <Text className="text-slate-600 mb-6 text-center px-4">
+                <Text className="text-sm text-slate-500 mb-6 text-center px-4 font-tajawal">
                     {t('shipping.contact.description')}
                 </Text>
                 <View className="gap-3 w-full">
                     <Pressable
                         onPress={() => Linking.openURL('mailto:support@ekleelabha.com')}
-                        className="bg-yellow-600 rounded-full py-3 px-6 items-center flex-row justify-center gap-2"
+                        className={cn("bg-teal-600 rounded-full py-4 px-6 items-center flex-row justify-center gap-2 shadow-sm active:bg-teal-700 active:scale-[0.98] transition-all", I18nManager.isRTL && "flex-row-reverse")}
                     >
                         <Mail size={18} color="white" />
-                        <Text className="text-white font-bold">{t('shipping.contact.emailButton')}</Text>
+                        <Text className="text-white font-bold font-tajawal text-[15px]">{t('shipping.contact.emailButton')}</Text>
                     </Pressable>
                     <Pressable
                         onPress={() => Linking.openURL('tel:0575637926')}
-                        className="bg-white border border-border rounded-full py-3 px-6 items-center flex-row justify-center gap-2"
+                        className={cn("bg-white border border-slate-200 rounded-full py-4 px-6 items-center flex-row justify-center gap-2 active:bg-slate-50", I18nManager.isRTL && "flex-row-reverse")}
                     >
-                        <Phone size={18} color="black" />
-                        <Text className="text-foreground font-bold">{t('shipping.contact.callButton')}</Text>
+                        <Phone size={18} className="text-slate-700" />
+                        <Text className="text-slate-700 font-bold font-tajawal text-[15px]">{t('shipping.contact.callButton')}</Text>
                     </Pressable>
                 </View>
             </View>

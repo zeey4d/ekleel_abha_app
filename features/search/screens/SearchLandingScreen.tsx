@@ -14,7 +14,7 @@ import { Text } from '@/components/ui/text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, Stack } from 'expo-router';
-import { Search, X, Clock, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react-native';
+import { Search, X, Clock, ChevronLeft, ChevronRight, TrendingUp, SaudiRiyal } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useGetFeaturedBrandsQuery } from '@/store/features/brands/brandsSlice';
 import {
@@ -36,6 +36,7 @@ interface Brand {
 const DEBOUNCE_MS = 300;
 const MAX_HISTORY = 10;
 const RECENT_KEY = 'recent_searches';
+const TEAL = "#0d9488";
 
 // ─────────────────────────────────────────────
 // useRecentSearches hook
@@ -110,57 +111,55 @@ const ProductRow = React.memo(
       <TouchableOpacity
         onPress={() => onPress(product.id)}
         activeOpacity={0.7}
+        className="flex-row items-center py-3 px-4 border-b border-slate-50 bg-white"
         style={{
           flexDirection: isRTL ? 'row-reverse' : 'row',
-          alignItems: 'center',
-          paddingVertical: 10,
-          paddingHorizontal: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
-          backgroundColor: '#fff',
         }}
       >
         {/* Thumbnail */}
-        <View
-          style={{
-            width: 60,
-            height: 60,
-            borderRadius: 10,
-            overflow: 'hidden',
-            backgroundColor: '#f8fafc',
-            borderWidth: 1,
-            borderColor: '#e2e8f0',
-          }}
-        >
+        <View className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm">
           {imageUrl ? (
             <Image
               source={{ uri: getImageUrl(imageUrl) }}
-              style={{ width: '100%', height: '100%' }}
-              resizeMode="cover"
+              className="w-full h-full"
+              contentFit="contain"
             />
           ) : (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 10, color: '#94a3b8' }}>لا صورة</Text>
+            <View className="flex-1 items-center justify-center">
+              <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-400">لا صورة</Text>
             </View>
           )}
         </View>
 
         {/* Info */}
-        <View style={{ flex: 1, marginHorizontal: 12 }}>
-          <Text numberOfLines={2} style={{ fontSize: 13, fontWeight: '500', color: '#1e293b' }}>
+        <View 
+          className="flex-1 mx-4"
+          style={{ alignItems: isRTL ? 'flex-end' : 'flex-start' }}
+        >
+          <Text 
+            numberOfLines={1} 
+            style={{ fontFamily: 'Tajawal_700Bold', textAlign: isRTL ? 'right' : 'left' }} 
+            className="text-sm text-slate-800 w-full"
+          >
             {name}
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#10b981' }}>
-              {price.toFixed(0)} ر.س
-            </Text>
+          <View 
+            className="flex-row items-center gap-2 mt-1.5"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
+          >
+            <View className="flex-row items-center" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+              <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className="text-base">
+                {price.toFixed(0)}
+              </Text>
+              <SaudiRiyal size={14} color={TEAL} style={{ marginHorizontal: 2 }} />
+            </View>
             {hasDiscount && (
               <>
-                <Text style={{ fontSize: 11, color: '#94a3b8', textDecorationLine: 'line-through' }}>
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-300 line-through">
                   {originalPrice.toFixed(0)}
                 </Text>
-                <View style={{ backgroundColor: '#fef2f2', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 }}>
-                  <Text style={{ fontSize: 10, color: '#ef4444', fontWeight: '600' }}>
+                <View className="bg-red-50 px-2 py-0.5 rounded-lg">
+                  <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-[9px] text-red-500">
                     -{discount}%
                   </Text>
                 </View>
@@ -266,41 +265,29 @@ export default function SearchLandingScreen() {
 
       {/* ── Search Header ──────────────────── */}
       <View
+        className="px-4 py-3 bg-white border-b border-slate-50 flex-row items-center gap-3"
         style={{
           flexDirection: isRTL ? 'row-reverse' : 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f1f5f9',
-          gap: 10,
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <ChevronBack size={26} color="#1e293b" />
+        <Pressable onPress={() => router.back()} hitSlop={12}>
+          <ChevronBack size={24} color="#334155" />
         </Pressable>
 
         <View
+          className="flex-1 bg-slate-50 rounded-[32px] px-4 h-11 border border-slate-100 flex-row items-center gap-3 shadow-sm"
           style={{
-            flex: 1,
             flexDirection: isRTL ? 'row-reverse' : 'row',
-            alignItems: 'center',
-            backgroundColor: '#f8fafc',
-            borderRadius: 12,
-            paddingHorizontal: 14,
-            height: 44,
-            borderWidth: 1,
-            borderColor: '#e2e8f0',
-            gap: 8,
           }}
         >
-          <Search size={18} color="#94a3b8" />
+          <Search size={18} color={TEAL} />
           <TextInput
             ref={inputRef}
             style={{
               flex: 1,
-              fontSize: 15,
-              color: '#0f172a',
+              fontFamily: 'Tajawal_500Medium',
+              fontSize: 14,
+              color: '#1e293b',
               textAlign: isRTL ? 'right' : 'left',
             }}
             placeholder={t('SearchHeader.searchPlaceholder', 'ابحث عن المنتجات...')}
@@ -312,8 +299,8 @@ export default function SearchLandingScreen() {
             autoFocus
           />
           {query.length > 0 && (
-            <Pressable onPress={() => setQuery('')} hitSlop={6}>
-              <X size={17} color="#94a3b8" />
+            <Pressable onPress={() => setQuery('')} hitSlop={8}>
+              <X size={16} color="#94a3b8" />
             </Pressable>
           )}
         </View>
@@ -325,15 +312,15 @@ export default function SearchLandingScreen() {
         {showLiveResults && (
           <View>
             {isSearching && (
-              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
-                <ActivityIndicator size="small" color="#10b981" />
+              <View className="py-6 items-center">
+                <ActivityIndicator size="small" color={TEAL} />
               </View>
             )}
 
             {/* Text suggestions */}
             {textSuggestions.length > 0 && (
-              <View style={{ borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }}>
-                <Text style={{ paddingHorizontal: 16, paddingVertical: 8, fontSize: 12, color: '#94a3b8', fontWeight: '600' }}>
+              <View className="border-b border-slate-50">
+                <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: isRTL ? 'right' : 'left' }} className="px-5 py-3 text-[11px] text-slate-400 uppercase tracking-widest">
                   {t('Suggestions.title', 'اقتراحات')}
                 </Text>
                 {textSuggestions.map((s, i) => (
@@ -341,18 +328,13 @@ export default function SearchLandingScreen() {
                     key={i}
                     onPress={() => handleSuggestionPress(s)}
                     activeOpacity={0.6}
+                    className="flex-row items-center px-5 py-4 border-b border-slate-50 gap-3"
                     style={{
                       flexDirection: isRTL ? 'row-reverse' : 'row',
-                      alignItems: 'center',
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                      borderBottomWidth: 1,
-                      borderBottomColor: '#f8fafc',
-                      gap: 12,
                     }}
                   >
-                    <TrendingUp size={15} color="#10b981" />
-                    <Text style={{ fontSize: 15, color: '#334155', flex: 1 }}>{s}</Text>
+                    <TrendingUp size={14} color={TEAL} />
+                    <Text style={{ fontFamily: 'Tajawal_500Medium', textAlign: isRTL ? 'right' : 'left' }} className="text-sm text-slate-600 flex-1">{s}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -361,7 +343,7 @@ export default function SearchLandingScreen() {
             {/* Product preview */}
             {liveProducts.length > 0 && (
               <View>
-                <Text style={{ paddingHorizontal: 16, paddingVertical: 8, fontSize: 12, color: '#94a3b8', fontWeight: '600' }}>
+                <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: isRTL ? 'right' : 'left' }} className="px-5 py-3 text-[11px] text-slate-400 uppercase tracking-widest">
                   {t('Products.title', 'منتجات')}
                 </Text>
                 {liveProducts.map((product) => (
@@ -377,8 +359,9 @@ export default function SearchLandingScreen() {
 
             {/* No results */}
             {!isSearching && textSuggestions.length === 0 && liveProducts.length === 0 && debouncedQuery.length >= 2 && (
-              <View style={{ paddingVertical: 32, alignItems: 'center' }}>
-                <Text style={{ color: '#94a3b8', fontSize: 14 }}>
+              <View className="py-12 items-center px-6">
+                <Search size={40} color="#e2e8f0" />
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-400 mt-4 text-center">
                   {t('NoResults.title', 'لا توجد نتائج لـ')} "{debouncedQuery}"
                 </Text>
               </View>
@@ -391,32 +374,30 @@ export default function SearchLandingScreen() {
           <>
             {/* Recent Searches */}
             {recentSearches.length > 0 && (
-              <View style={{ padding: 16 }}>
+              <View className="px-4 py-6">
                 <View
+                  className="flex-row items-center justify-between mb-4"
                   style={{
                     flexDirection: isRTL ? 'row-reverse' : 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 12,
                   }}
                 >
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#0f172a' }}>
+                  <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-lg text-slate-800">
                     {t('History.title', 'آخر عمليات البحث')}
                   </Text>
                   <TouchableOpacity onPress={clear}>
-                    <Text style={{ fontSize: 13, color: '#10b981', fontWeight: '600' }}>
+                    <Text style={{ fontFamily: 'Tajawal_700Bold', color: TEAL }} className="text-sm">
                       {t('History.clearAll', 'مسح الكل')}
                     </Text>
                   </TouchableOpacity>
                 </View>
 
-                <View style={{ backgroundColor: '#f8fafc', borderRadius: 14, borderWidth: 1, borderColor: '#f1f5f9', overflow: 'hidden' }}>
+                <View className="bg-slate-50 rounded-[32px] border border-slate-100 overflow-hidden shadow-sm">
                   {recentSearches.map((term, idx) => (
                     <View
                       key={term}
+                      className="flex-row items-center px-5 py-4 border-b border-slate-100"
                       style={{
                         flexDirection: isRTL ? 'row-reverse' : 'row',
-                        alignItems: 'center',
                         paddingHorizontal: 14,
                         paddingVertical: 12,
                         borderBottomWidth: idx < recentSearches.length - 1 ? 1 : 0,
@@ -440,58 +421,85 @@ export default function SearchLandingScreen() {
               </View>
             )}
 
-            {/* Brands Grid */}
+            {/* Featured Brands Section */}
             {brands.length > 0 && (
-              <View style={{ padding: 16 }}>
-                <Text style={{ fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 14 }}>
-                  {t('Brands.title', 'تصفح حسب الماركة')}
-                </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              <View className="py-6">
+                <View 
+                  className="px-4 mb-5 flex-row items-center justify-between"
+                  style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
+                >
+                  <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-xl text-slate-800">
+                    {t('Brands.title', 'أشهر الماركات')}
+                  </Text>
+                  <TouchableOpacity activeOpacity={0.6}>
+                    <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm text-teal-600">
+                      {t('Brands.viewAll', 'عرض الكل')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ 
+                    paddingHorizontal: 16,
+                    flexDirection: isRTL ? 'row-reverse' : 'row'
+                  }}
+                >
                   {brands.map((brand) => (
                     <TouchableOpacity
                       key={brand.id}
                       onPress={() => handleBrandPress(brand)}
-                      activeOpacity={0.75}
-                      style={{
-                        width: '31%',
-                        aspectRatio: 1,
-                        backgroundColor: '#fff',
-                        borderWidth: 1,
-                        borderColor: '#e2e8f0',
-                        borderRadius: 14,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 8,
-                      }}
+                      activeOpacity={0.8}
+                      className="items-center mr-6"
+                      style={{ marginEnd: 20 }}
                     >
-                      {brand.image ? (
-                        <Image
-                          source={{ uri: getImageUrl(brand.image) }}
-                          style={{ width: '100%', height: '75%' }}
-                          resizeMode="contain"
-                        />
-                      ) : (
-                        <>
-                          <Text style={{ fontSize: 26, fontWeight: '700', color: '#cbd5e1' }}>
+                      <View 
+                        className="w-20 h-20 bg-white rounded-full items-center justify-center border border-slate-50 shadow-sm"
+                        style={{
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 4 },
+                          shadowOpacity: 0.05,
+                          shadowRadius: 10,
+                          elevation: 2
+                        }}
+                      >
+                        {brand.image ? (
+                          <Image
+                            source={{ uri: getImageUrl(brand.image) }}
+                            className="w-12 h-12"
+                            resizeMode="contain"
+                          />
+                        ) : (
+                          <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-xl text-slate-200">
                             {brand.name.charAt(0)}
                           </Text>
-                          <Text numberOfLines={1} style={{ fontSize: 10, color: '#64748b', marginTop: 4 }}>
-                            {brand.name}
-                          </Text>
-                        </>
-                      )}
+                        )}
+                      </View>
+                      <Text 
+                        numberOfLines={1} 
+                        style={{ fontFamily: 'Tajawal_700Bold' }} 
+                        className="text-[12px] text-slate-600 mt-3 text-center w-20"
+                      >
+                        {brand.name}
+                      </Text>
                     </TouchableOpacity>
                   ))}
-                </View>
+                </ScrollView>
               </View>
             )}
 
             {/* Empty state */}
             {brands.length === 0 && recentSearches.length === 0 && (
-              <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 80 }}>
-                <Search size={48} color="#e2e8f0" />
-                <Text style={{ color: '#94a3b8', marginTop: 16, fontSize: 14 }}>
+              <View className="items-center justify-center py-24 px-8">
+                <View className="bg-slate-50 p-8 rounded-full mb-6">
+                  <Search size={48} color="#cbd5e1" />
+                </View>
+                <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-lg text-slate-400 text-center">
                   {t('Empty.title', 'ابدأ البحث عن أي منتج')}
+                </Text>
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-300 mt-2 text-center">
+                  اكتشف ملايين المنتجات بأفضل الأسعار
                 </Text>
               </View>
             )}

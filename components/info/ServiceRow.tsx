@@ -1,8 +1,9 @@
 
 import React from "react";
-import { Text, TouchableHighlight, View } from "react-native";
-import { ChevronRight } from "lucide-react-native";
+import { Text, TouchableHighlight, View, I18nManager } from "react-native";
+import { ChevronRight, ChevronLeft } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { cn } from "@/lib/utils";
 
 type Props = {
   Icon: React.ElementType;
@@ -34,32 +35,36 @@ export default function ServiceRow({
   return (
     <TouchableHighlight
       onPress={handlePress}
-      underlayColor="#f1f5f9"
-      style={{ backgroundColor: "#ffffff" }}
-      className={[
-        !isLast && "border-b border-gray-300",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      underlayColor="#f8fafc"
+      style={{ backgroundColor: "transparent" }}
+      className={cn(
+        !isLast && "border-b border-slate-100 dark:border-slate-800/50"
+      )}
     >
-      <View className="flex-row items-center p-5 gap-3">
+      <View className={cn("flex-row items-center p-5 gap-3", I18nManager.isRTL && "flex-row-reverse")}>
         {/* Icon */}
-        <Icon size={22} color="#0baa92ff" />
+        <View className="bg-teal-50 dark:bg-teal-900/10 p-2.5 rounded-xl">
+          <Icon size={20} className="text-teal-600" />
+        </View>
 
         {/* Title */}
-        <Text className="flex-1 text-base text-slate-700 font-cairo">
+        <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="flex-1 text-[15px] text-slate-700 dark:text-slate-200">
           {title}
         </Text>
 
         {/* Optional Value */}
         {value && (
-          <Text className="text-[#1D64A1] font-medium font-cairo">
+          <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-slate-500 dark:text-slate-400 text-sm">
             {value}
           </Text>
         )}
 
         {/* Arrow */}
-        <ChevronRight size={18} color="#D1D5DB" className="rtl:rotate-180" />
+        {I18nManager.isRTL ? (
+           <ChevronLeft size={20} className="text-slate-300 dark:text-slate-600" />
+        ) : (
+           <ChevronRight size={20} className="text-slate-300 dark:text-slate-600" />
+        )}
       </View>
     </TouchableHighlight>
   );

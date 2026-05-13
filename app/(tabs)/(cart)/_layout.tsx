@@ -7,8 +7,12 @@
  * Note: Cart index has headerShown: true for consistency with cart header
  */
 import { Stack } from 'expo-router';
+import { useTranslation } from "react-i18next";
+
 
 export default function CartLayout() {
+    const { t } = useTranslation("cart");
+  
   return (
     <Stack
       screenOptions={{
@@ -20,7 +24,7 @@ export default function CartLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: 'Cart',
+          title: t('Header.title'),
           headerShown: true,
           headerBackVisible: false,   // ✅ يخفي زر الرجوع
 

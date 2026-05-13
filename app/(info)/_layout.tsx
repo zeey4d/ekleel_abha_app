@@ -1,6 +1,8 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Pressable, I18nManager } from 'react-native';
+import { X } from 'lucide-react-native';
 
 export default function InfoLayout() {
   const { t } = useTranslation('info');
@@ -9,11 +11,19 @@ export default function InfoLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        headerBackTitle: t('common.back'), // Adjust based on your common translations
-        headerTintColor: '#000',
+        headerBackVisible: false,
+        headerTitleStyle: { fontFamily: 'Tajawal_700Bold', fontSize: 18 },
+        headerTitleAlign: 'center',
+        headerLeft: () => (
+            <Pressable onPress={() => router.back()} className="px-2" >
+                <X color="#0f172a" size={26} />
+            </Pressable>
+        ),
+        headerTintColor: '#0f172a',
         headerStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: '#f8fafc',
         },
+        headerShadowVisible: false,
       }}
     >
       <Stack.Screen name="about" options={{ title: t('about.meta.title') }} />

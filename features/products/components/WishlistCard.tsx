@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart, Trash2, Star } from 'lucide-react-native';
+import { ShoppingCart, Trash2, Star, SaudiRiyal } from 'lucide-react-native';
 import { getImageUrl } from '@/lib/image-utils';
 import { useAddToCartMutation } from '@/store/features/cart/cartSlice';
 import { useRemoveFromWishlistMutation } from '@/store/features/wishlist/wishlistSlice';
 import Toast from 'react-native-toast-message';
 import { cn } from '@/lib/utils';
+import { I18nManager } from 'react-native';
+
+const TEAL = "#0d9488";
 
 interface WishlistCardProps {
     product: any;
@@ -66,18 +69,19 @@ export const WishlistCard = ({ product }: WishlistCardProps) => {
     return (
         <Pressable 
             onPress={() => router.push(`/(tabs)/(home)/(context)/products/${product.product_id || product.id}`)}
-            className="flex-row bg-white rounded-2xl p-3 mb-4 border border-border/90 "
+            className="flex-row bg-white rounded-[28px] p-3 mb-4 border border-slate-50 shadow-sm"
+            style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}
         >
             {/* Image Section */}
-            <View className="w-28 h-28 bg-gray-50 rounded-xl overflow-hidden relative">
+            <View className="w-28 h-28 bg-slate-50 rounded-2xl overflow-hidden relative border border-slate-50">
                 <Image
                     source={{ uri: getImageUrl(product.image) }}
                     className="w-full h-full"
-                    resizeMode="cover"
+                    resizeMode="contain"
                 />
                 {hasDiscount && (
-                    <View className="absolute top-0 left-0 bg-red-500 px-2 py-1 rounded-br-lg z-10">
-                        <Text className="text-white text-xs font-bold font-cairo">
+                    <View className="absolute top-0 left-0 bg-red-500 px-2 py-0.5 rounded-br-xl z-10">
+                        <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-[10px]">
                             {discountPercent}% OFF
                         </Text>
                     </View>
@@ -85,42 +89,48 @@ export const WishlistCard = ({ product }: WishlistCardProps) => {
             </View>
 
             {/* Content Section */}
-            <View className="flex-1 ml-4 justify-between py-1">
+            <View className="flex-1 mx-4 justify-between py-1">
                 <View>
-                    <View className="flex-row justify-between items-start">
-                        <Text className="text-base font-bold text-foreground flex-1 font-cairo" numberOfLines={2}>
+                    <View className="flex-row justify-between items-start" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+                        <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-sm text-slate-800 flex-1 leading-5" numberOfLines={2}>
                             {product.name}
                         </Text>
                     </View>
                     
                     {/* Rating Placeholder if needed */}
                     {product.rating > 0 && (
-                        <View className="flex-row items-center mt-1 justify-end">
-                             <Text className="text-xs text-gray-500 mr-1 font-cairo">({product.reviews || 0})</Text>
-                            <Star size={12} fill="#FACC15" color="#FACC15" />
+                        <View className="flex-row items-center mt-1" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+                             <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-400 mx-1">({product.reviews || 0})</Text>
+                            <Star size={10} fill="#FACC15" color="#FACC15" />
                         </View>
                     )}
 
-                    <View className="flex-row items-baseline gap-2 mt-2 justify-end">
-                        <Text className="text-lg font-bold text-primary font-cairo">
-                            {finalPrice.toFixed(2)} SAR
-                        </Text>
-                        {hasDiscount && (
-                            <Text className="text-sm text-gray-400 line-through font-cairo">
-                                {price.toFixed(2)} SAR
+                    <View className="flex-row items-baseline gap-1 mt-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+                        <View className="flex-row items-center" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+                            <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className="text-lg">
+                                {finalPrice.toFixed(0)}
                             </Text>
+                            <SaudiRiyal size={14} color={TEAL} style={{ marginHorizontal: 2 }} />
+                        </View>
+                        {hasDiscount && (
+                            <View className="flex-row items-center" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+                                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-xs text-slate-300 line-through">
+                                    {price.toFixed(0)}
+                                </Text>
+                                <SaudiRiyal size={10} color="#cbd5e1" style={{ marginHorizontal: 1 }} />
+                            </View>
                         )}
                     </View>
                 </View>
 
                 {/* Actions */}
-                <View className="flex-row items-center justify-end gap-3 mt-2">
+                <View className="flex-row items-center justify-end gap-3 mt-3" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
                     <Pressable 
                         onPress={(e) => {
                             e.stopPropagation();
                             handleRemove();
                         }}
-                        className="w-9 h-9 items-center justify-center rounded-full bg-red-50 border border-red-100"
+                        className="w-9 h-9 items-center justify-center rounded-full bg-red-50 border border-red-50 shadow-sm"
                         disabled={isRemoving}
                     >
                         {isRemoving ? <ActivityIndicator size="small" color="#ef4444" /> : <Trash2 size={16} color="#ef4444" />}
@@ -131,15 +141,15 @@ export const WishlistCard = ({ product }: WishlistCardProps) => {
                             e.stopPropagation();
                             handleAddToCart();
                         }}
-                        className="flex-1 bg-primary h-9 flex-row items-center justify-center rounded-full active:opacity-90"
+                        className="flex-1 bg-teal-600 h-9 flex-row items-center justify-center rounded-full active:opacity-90 shadow-sm"
                         disabled={isAddingToCart}
                     >
                         {isAddingToCart ? (
                             <ActivityIndicator size="small" color="white" />
                         ) : (
                             <>
-                                <ShoppingCart size={16} color="white" className="mr-2" />
-                                <Text className="text-white font-bold text-sm font-cairo">{t('addToCart')}</Text>
+                                <ShoppingCart size={16} color="white" style={{ marginHorizontal: 6 }} />
+                                <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-xs">{t('addToCart')}</Text>
                             </>
                         )}
                     </Pressable>

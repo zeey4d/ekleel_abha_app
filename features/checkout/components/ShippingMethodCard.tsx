@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Pressable, StyleSheet, ScrollView, I18nManager } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Truck, Store, Check } from 'lucide-react-native';
 import type { Branch } from '@/store/types';
+import { useTranslation } from 'react-i18next';
 
-const GREEN = '#10b981';
+import { cn } from '@/lib/utils';
+
+const TEAL = '#0d9488';
 const AMBER = '#f59e0b';
 
 interface Method {
@@ -35,20 +38,27 @@ export function ShippingMethodCard({
   selectedBranchId,
   onBranchSelect,
 }: Props) {
+  const { t, i18n } = useTranslation('checkout');
+  const isRtl = i18n.language === 'ar' || I18nManager.isRTL;
   const isFree = subtotal >= freeShippingThreshold;
 
   const methods: Method[] = [
     {
       id: 'home_delivery',
-      label: 'توصيل للمنزل',
-      description: `توصيل مجاني عند الطلب فوق ${freeShippingThreshold} ريال`,
-      costLabel: isFree ? 'مجاناً 🎉' : `${homeDeliveryCost} ريال`,
+      label: t('ShippingMethods.homeDelivery', 'توصيل للمنزل'),
+      description: t('ShippingMethods.homeDeliveryDesc', { 
+        defaultValue: `توصيل مجاني عند الطلب فوق ${freeShippingThreshold} ريال`,
+        threshold: freeShippingThreshold 
+      }),
+      costLabel: isFree 
+        ? t('ShippingMethods.free', 'مجاناً 🎉') 
+        : `${homeDeliveryCost} ${t('common.currency', 'ريال')}`,
     },
     {
       id: 'pickup',
-      label: 'استلام من الفرع',
-      description: 'استلم طلبك من أقرب فرع',
-      costLabel: 'مجاناً',
+      label: t('ShippingMethods.pickup', 'استلام من الفرع'),
+      description: t('ShippingMethods.pickupDesc', 'استلم طلبك من أقرب فرع'),
+      costLabel: t('ShippingMethods.free', 'مجاناً'),
     },
   ];
 
@@ -68,7 +78,6 @@ export function ShippingMethodCard({
                 pressed && { opacity: 0.85 },
               ]}
             >
-              {/* Top accent line */}
               <View
                 style={[
                   styles.accentLine,
@@ -76,7 +85,7 @@ export function ShippingMethodCard({
                 ]}
               />
 
-              <View style={styles.row}>
+              <View style={[styles.row, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                 {/* Icon */}
                 <View
                   style={[
@@ -85,29 +94,29 @@ export function ShippingMethodCard({
                   ]}
                 >
                   {isDelivery ? (
-                    <Truck size={20} color={isSelected ? (isDelivery ? GREEN : AMBER) : '#94a3b8'} />
+                    <Truck size={20} color={isSelected ? (isDelivery ? TEAL : AMBER) : '#94a3b8'} />
                   ) : (
                     <Store size={20} color={isSelected ? AMBER : '#94a3b8'} />
                   )}
                 </View>
 
                 {/* Label + description */}
-                <View style={styles.textBody}>
-                  <Text style={[styles.label, isSelected && styles.labelSelected]}>
+                <View style={[styles.textBody, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                  <Text style={[styles.label, isSelected && styles.labelSelected, { textAlign: isRtl ? 'right' : 'left' }]}>
                     {method.label}
                   </Text>
-                  <Text style={styles.desc} numberOfLines={2}>
+                  <Text style={[styles.desc, { textAlign: isRtl ? 'right' : 'left' }]} numberOfLines={2}>
                     {method.description}
                   </Text>
                 </View>
 
                 {/* Cost + radio */}
-                <View style={styles.right}>
+                <View style={[styles.right, { alignItems: isRtl ? 'flex-start' : 'flex-end' }]}>
                   <Text style={[styles.cost, isSelected && isDelivery && styles.costGreen]}>
                     {method.costLabel}
                   </Text>
                   <View style={[styles.radio, isSelected && (isDelivery ? styles.radioGreen : styles.radioAmber)]}>
-                    {isSelected && <View style={styles.radioDot} />}
+                    {isSelected && <View style={[styles.radioDot, { backgroundColor: isDelivery ? TEAL : AMBER }]} />}
                   </View>
                 </View>
               </View>
@@ -115,19 +124,28 @@ export function ShippingMethodCard({
 
             {/* Branch picker for pickup */}
             {method.id === 'pickup' && isSelected && branches.length > 0 && (
-              <View style={styles.branchSection}>
-                <Text style={styles.branchTitle}>اختر الفرع</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.branchScroll}>
+              <View style={[styles.branchSection, { alignItems: isRtl ? 'flex-end' : 'flex-start' }]}>
+                <Text style={styles.branchTitle}>{t('ShippingMethods.selectBranch', 'اختر الفرع')}</Text>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false} 
+                  style={styles.branchScroll}
+                  contentContainerStyle={{ flexDirection: isRtl ? 'row-reverse' : 'row' }}
+                >
                   {branches.map((branch) => {
                     const isBranchSelected = selectedBranchId === branch.id;
                     return (
                       <Pressable
                         key={branch.id}
                         onPress={() => onBranchSelect(branch.id)}
-                        style={[styles.branchChip, isBranchSelected && styles.branchChipSelected]}
+                        style={[
+                          styles.branchChip, 
+                          isBranchSelected && styles.branchChipSelected,
+                          { marginEnd: isRtl ? 0 : 8, marginStart: isRtl ? 8 : 0 }
+                        ]}
                       >
                         {isBranchSelected && (
-                          <Check size={12} color={GREEN} strokeWidth={3} />
+                          <Check size={12} color={TEAL} strokeWidth={3} />
                         )}
                         <Text style={[styles.branchChipText, isBranchSelected && styles.branchChipTextSelected]}>
                           {branch.name}
@@ -151,15 +169,15 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 32,
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
     overflow: 'hidden',
   },
   cardSelectedGreen: {
-    borderColor: GREEN,
-    backgroundColor: '#f0fdf4',
-    shadowColor: GREEN,
+    borderColor: TEAL,
+    backgroundColor: '#f0fdfa',
+    shadowColor: TEAL,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -179,13 +197,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#e2e8f0',
   },
   accentGreen: {
-    backgroundColor: GREEN,
+    backgroundColor: TEAL,
   },
   accentAmber: {
     backgroundColor: AMBER,
   },
   row: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     padding: 14,
@@ -199,7 +216,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexShrink: 0,
   },
-  iconWrapGreen: { backgroundColor: '#d1fae5' },
+  iconWrapGreen: { backgroundColor: '#ccfbf1' },
   iconWrapAmber: { backgroundColor: '#fef3c7' },
   textBody: {
     flex: 1,
@@ -207,30 +224,30 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 15,
+    fontFamily: 'Tajawal_700Bold',
     color: '#374151',
   },
   labelSelected: {
-    color: '#065f46',
+    color: '#0f766e',
   },
   desc: {
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: 'Tajawal_500Medium',
     color: '#64748b',
-    lineHeight: 17,
+    lineHeight: 18,
   },
   right: {
-    alignItems: 'flex-end',
     gap: 6,
     flexShrink: 0,
   },
   cost: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: 'Tajawal_700Bold',
     color: '#374151',
   },
   costGreen: {
-    color: GREEN,
+    color: TEAL,
   },
   radio: {
     width: 20,
@@ -241,13 +258,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  radioGreen: { borderColor: GREEN },
+  radioGreen: { borderColor: TEAL },
   radioAmber: { borderColor: AMBER },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: GREEN,
   },
   branchSection: {
     paddingHorizontal: 14,
@@ -255,36 +271,35 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   branchTitle: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontFamily: 'Tajawal_700Bold',
     color: '#64748b',
   },
   branchScroll: {
-    flexDirection: 'row',
+    width: '100%',
   },
   branchChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
     backgroundColor: '#f8fafc',
-    marginEnd: 8,
   },
   branchChipSelected: {
-    borderColor: GREEN,
-    backgroundColor: '#d1fae5',
+    borderColor: TEAL,
+    backgroundColor: '#ccfbf1',
   },
   branchChipText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 13,
+    fontFamily: 'Tajawal_500Medium',
     color: '#64748b',
   },
   branchChipTextSelected: {
-    color: '#065f46',
-    fontWeight: '700',
+    color: '#0f766e',
+    fontFamily: 'Tajawal_700Bold',
   },
 });

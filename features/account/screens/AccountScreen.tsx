@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, SafeAreaView, Pressable, Image, Dimensions, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, Pressable, Image, Dimensions, TouchableOpacity, Alert, Platform } from "react-native";
 import {
   Bell,
   ChevronLeft,
@@ -26,8 +26,11 @@ import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useGetMeQuery, useLogoutMutation } from "@/store/features/auth/authSlice";
 import Toast from 'react-native-toast-message';
+import { I18nManager } from "react-native";
+import { cn } from "@/lib/utils";
 
 export default function AccountScreen() {
+  const TEAL = "#0d9488";
   const { t } = useTranslation(['account', 'info']);
   const { language } = useLanguage();
   const { width } = Dimensions.get("window");
@@ -90,37 +93,52 @@ export default function AccountScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-black/2">
+    <SafeAreaView style={{ flex: 1 }} className="flex-1 bg-[#f8fafc]">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        className="px-4 pt-0"
+        style={{ flex: 1 }}
+        className="flex-1 px-4 bg-[#f8fafc]"
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 120, paddingTop: 10, minHeight: Platform.OS === 'web' ? '100vh' : '100%' }}
       >
-        <View className="flex-1 items-center justify-center mt-4">
+        <View className="items-center justify-center mt-2 mb-4">
           {!isAuthenticated && (
-            <Image
-              source={require("@/assets/images/aka_g.png")}
-              style={{ width: imageSize, height: imageSize }}
-              resizeMode="contain"
-              className="mb-2"
-            />
+            <View className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-50 mb-2 mt-4 items-center w-full">
+                <Image
+                source={require("@/assets/images/aka_g.png")}
+                style={{ width: imageSize, height: imageSize }}
+                resizeMode="contain"
+                />
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-400 text-center mt-6">
+                    {t('account:welcomeMessage', { defaultValue: 'أهلاً بك في إكليل أبها' })}
+                </Text>
+            </View>
           )}
 
           {isAuthenticated && user && (
-            <View className="items-center mb-8 w-full mt-6">
-              <View className="w-28 h-28 bg-white rounded-full items-center justify-center mb-4 shadow-sm border-2 border-slate-50 overflow-hidden">
+            <View 
+                className="items-center mb-6 w-full mt-6 p-8 "
+                style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 12,
+                    elevation: 2
+                }}
+            >
+              <View className="w-24 h-24 bg-teal-50 rounded-full items-center justify-center mb-5 shadow-sm border-4 border-white overflow-hidden">
                  {(user as any).avatar ? (
                      <Image source={{ uri: (user as any).avatar }} style={{ width: '100%', height: '100%' }} />
                  ) : (
-                     <Text className="text-4xl font-bold text-yellow-600">
+                     <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className="text-4xl">
                         {user.full_name?.[0]?.toUpperCase() || user.firstname?.[0]?.toUpperCase() || (user as any).name?.[0]?.toUpperCase() || 'U'}
                      </Text>
                  )}
               </View>
-              <Text className="text-2xl font-bold text-slate-800 mb-1 font-cairo">
+              <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-xl text-slate-800 mb-1">
                 {user.full_name || `${user.firstname} ${user.lastname}` || (user as any).name}
               </Text>
-              <View className="bg-slate-100 px-4 py-1.5 rounded-full mt-1">
-                <Text className="text-sm text-slate-600 font-medium">
+              <View className="bg-slate-50 px-5 py-1.5 rounded-full mt-3 border border-slate-100">
+                <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xs text-slate-400">
                   {user.email}
                 </Text>
               </View>
@@ -132,10 +150,10 @@ export default function AccountScreen() {
         {/* Auth Section */}
         {isAuthenticated ? (
              <>
-             <Text className="text-lg font-bold text-slate-800 mb-3 px-1 text-right font-cairo">
+             <Text style={{ fontFamily: 'Tajawal_800ExtraBold', textAlign: isRtl ? 'right' : 'left' }} className="text-lg text-slate-800 mb-4 px-2">
                {t('account:title')}
              </Text>
-             <View className="bg-white rounded-2xl overflow-hidden mb-8 border border-gray-50">
+             <View className="bg-white rounded-[32px] overflow-hidden mb-8 border border-slate-50 shadow-sm">
                {accountServices.map((item, index) => (
                  <ServiceRow
                    key={item.title}
@@ -146,13 +164,14 @@ export default function AccountScreen() {
              </View>
            </>
         ) : (
-             <View className="items-center mb-10 mt-2">
+             <View className="items-center mb-10 mt-2 w-full">
             <TouchableOpacity
                 onPress={() => router.push("/(auth)/login")}
-                className="bg-primary w-full py-3 rounded-full items-center flex-row justify-center active:opacity-80 shadow-sm"
+                className={cn("bg-teal-600 w-full py-4.5 rounded-[32px] items-center flex-row justify-center active:bg-teal-700 active:scale-[0.98] transition-all shadow-lg", I18nManager.isRTL && "flex-row-reverse")}
+                style={{ shadowColor: TEAL, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
             >
-                <User color="white" size={24} style={{ marginRight: 8, marginLeft: isRtl ? 8 : 0 }} />
-                <Text className="text-white text-lg font-bold font-cairo">
+                <User color="white" size={20} className={I18nManager.isRTL ? "ml-3" : "mr-3"} />
+                <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-[16px]">
                   {t('account:login') || "تسجيل الدخول / إنشاء حساب"}
                 </Text>
             </TouchableOpacity>
@@ -160,10 +179,10 @@ export default function AccountScreen() {
         )}
 
         {/* Company Section */}
-        <Text className="text-lg font-bold text-slate-800 mb-3 px-1 text-right font-cairo">
+        <Text style={{ fontFamily: 'Tajawal_800ExtraBold', textAlign: isRtl ? 'right' : 'left' }} className="text-lg text-slate-800 mb-4 px-2">
           {t('account:companySection')}
         </Text>
-        <View className="bg-white rounded-2xl overflow-hidden mb-8 border border-gray-300">
+        <View className="bg-white rounded-[32px] overflow-hidden mb-8 border border-slate-50 shadow-sm">
           {companyServices.map((item, index) => (
             <ServiceRow
               key={item.title}
@@ -174,10 +193,10 @@ export default function AccountScreen() {
         </View>
 
         {/* Help Section */}
-        <Text className="text-lg font-bold text-slate-800 mb-3 px-1 text-right font-cairo">
+        <Text style={{ fontFamily: 'Tajawal_800ExtraBold', textAlign: isRtl ? 'right' : 'left' }} className="text-lg text-slate-800 mb-4 px-2">
           {t('account:helpSection')}
         </Text>
-        <View className="bg-white rounded-2xl overflow-hidden mb-8 border border-gray-300">
+        <View className="bg-white rounded-[32px] overflow-hidden mb-8 border border-slate-50 shadow-sm">
           {helpServices.map((item, index) => (
             <ServiceRow
               key={item.title}
@@ -188,11 +207,10 @@ export default function AccountScreen() {
         </View>
 
         {/* Preferences */}
-        <Text className="text-lg font-bold text-slate-800 mb-3 px-1 text-right font-cairo">
+        <Text style={{ fontFamily: 'Tajawal_800ExtraBold', textAlign: isRtl ? 'right' : 'left' }} className="text-lg text-slate-800 mb-4 px-2">
           {t('account:preferences')}
         </Text>
-
-        <View className="bg-white rounded-2xl  overflow-hidden border border-gray-300">
+        <View className="bg-white rounded-[32px] overflow-hidden mb-8 border border-slate-50 shadow-sm">
           <ServiceRow
             Icon={Globe}
             title="اللغة / Language"
@@ -201,8 +219,6 @@ export default function AccountScreen() {
             isLast
           />
         </View>
-
-        <View className="h-32" />
       </ScrollView>
     </SafeAreaView>
   );

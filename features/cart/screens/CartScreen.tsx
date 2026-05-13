@@ -15,8 +15,11 @@ import { EmptyCart } from "../components/EmptyCart";
 import { CartRecommendations } from "../components/CartRecommendations";
 import { authStorage } from "@/lib/authStorage";
 import { useTranslation } from "react-i18next";
-import { ShoppingBag, ShieldCheck, ChevronLeft } from "lucide-react-native";
+import { ShoppingBag, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react-native";
 import { router } from "expo-router";
+import { I18nManager } from "react-native";
+
+const TEAL = "#0d9488";
 
 export default function CartScreen() {
   const { t } = useTranslation("cart");
@@ -72,21 +75,21 @@ export default function CartScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#10b981" />
-        <Text className="mt-4 text-slate-500 font-medium">{t("Common.loading")}</Text>
+      <View className="flex-1 bg-[#f8fafc] items-center justify-center">
+        <ActivityIndicator size="large" color={TEAL} />
+        <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="mt-4 text-slate-500">{t("Common.loading")}</Text>
       </View>
     );
   }
 
   if (cartItems.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View className="px-4 py-4 flex-row items-center gap-3">
-          <TouchableOpacity onPress={() => router.back()}>
-            <ChevronLeft size={24} color="#1e293b" />
+      <SafeAreaView className="flex-1 bg-[#f8fafc]">
+        <View className="px-4 py-4 flex-row items-center gap-3" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+          <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 items-center justify-center bg-white rounded-full shadow-sm border border-slate-50">
+            {I18nManager.isRTL ? <ChevronRight size={20} color="#1e293b" /> : <ChevronLeft size={20} color="#1e293b" />}
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-slate-900">{t("Header.title")}</Text>
+          <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xl text-slate-900">{t("Header.title")}</Text>
         </View>
         <EmptyCart />
       </SafeAreaView>
@@ -94,16 +97,20 @@ export default function CartScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} className="bg-slate-50">
-      {/* Header */}
-      {/* <View className="bg-white px-4 py-4 flex-row items-center justify-between border-b border-slate-100 shadow-sm z-10">
-
+    <SafeAreaView style={{ flex: 1 }} className="bg-[#f8fafc]">
+      {/* <View className="px-4 py-4 flex-row items-center justify-between" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+        <View className="flex-row items-center gap-3" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+          <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 items-center justify-center bg-white rounded-full shadow-sm border border-slate-50">
+            {I18nManager.isRTL ? <ChevronRight size={20} color="#1e293b" /> : <ChevronLeft size={20} color="#1e293b" />}
+          </TouchableOpacity>
+          <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xl text-slate-900">{t("Header.title")}</Text>
+        </View>
         
-        <View className="w-10 h-10 bg-slate-50 rounded-full items-center justify-center">
-          <ShoppingBag size={20} color="#10b981" />
+        <View className="w-10 h-10 bg-white rounded-full items-center justify-center shadow-sm border border-slate-50">
+          <ShoppingBag size={20} color={TEAL} />
           {itemCount > 0 && (
             <View className="absolute -top-1 -right-1 bg-red-500 min-w-[18px] h-[18px] rounded-full items-center justify-center px-1 border-2 border-white">
-              <Text className="text-white text-[10px] font-bold">{itemCount}</Text>
+              <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-[10px]">{itemCount}</Text>
             </View>
           )}
         </View>
@@ -111,14 +118,15 @@ export default function CartScreen() {
 
       <ScrollView
         style={{ flex: 1 }}
+        className="bg-[#f8fafc]"
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={onRefresh} tintColor="#10b981" />
+          <RefreshControl refreshing={false} onRefresh={onRefresh} tintColor={TEAL} />
         }
       >
         <View className="p-4 gap-4">
-                    <Text className="text-xs text-slate-400 px-2">
+            <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-sm text-slate-500 px-2">
               {itemCount} {t("Header.items")}
             </Text> 
           {/* Cart Items List */}
@@ -129,13 +137,13 @@ export default function CartScreen() {
           </View>
 
           {/* Secure Shopping Info */}
-          <View className="flex-row items-start gap-3 bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-            <ShieldCheck size={20} color="#3b82f6" />
+          <View className="flex-row items-start gap-3 bg-teal-50/50 p-4 rounded-[24px] border border-teal-100" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+            <ShieldCheck size={20} color={TEAL} />
             <View className="flex-1">
-              <Text className="text-sm font-bold text-blue-900 mb-0.5">
+              <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm text-teal-900 mb-0.5" >
                 {t("SecureProps.title")}
               </Text>
-              <Text className="text-xs text-blue-700 leading-4">
+              <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-xs text-teal-700 leading-4" >
                 {t("SecureProps.description")}
               </Text>
             </View>

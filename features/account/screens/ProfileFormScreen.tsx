@@ -89,7 +89,7 @@ export default function ProfileFormScreen() {
     if (!user) return null;
 
     return (
-        <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ paddingBottom: 40 }}>
+        <ScrollView className="flex-1 bg-slate-50 p-4" contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}>
              <Stack.Screen 
                 options={{ 
                     headerShown: true,
@@ -105,51 +105,51 @@ export default function ProfileFormScreen() {
             />
             
             {/* Profile Update Section */}
-            <View className="mb-8 p-4 bg-card rounded-xl border border-border">
-                <Text className="text-xl font-bold mb-2 font-cairo">{t('profile')}</Text>
-                <Text className="text-sm text-muted-foreground mb-4 font-cairo">{t('updateProfileInfo')}</Text>
+            <View className="mb-6 p-6 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800/80 shadow-sm">
+                <Text className="text-xl font-bold mb-2 font-tajawal text-slate-800 dark:text-white">{t('profile')}</Text>
+                <Text className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-tajawal">{t('updateProfileInfo')}</Text>
 
                 <View className="space-y-4">
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('firstname')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('firstname')}</Text>
                         <Controller
                             control={profileControl}
                             name="firstname"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                 />
                             )}
                         />
-                        {profileErrors.firstname && <Text className="text-red-500 text-xs font-cairo">{profileErrors.firstname.message}</Text>}
+                        {profileErrors.firstname && <Text className="text-red-500 text-xs font-tajawal mt-1">{profileErrors.firstname.message}</Text>}
                     </View>
 
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('lastname')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('lastname')}</Text>
                         <Controller
                             control={profileControl}
                             name="lastname"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                 />
                             )}
                         />
-                        {profileErrors.lastname && <Text className="text-red-500 text-xs font-cairo">{profileErrors.lastname.message}</Text>}
+                        {profileErrors.lastname && <Text className="text-red-500 text-xs font-tajawal mt-1">{profileErrors.lastname.message}</Text>}
                     </View>
 
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('email')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('email')}</Text>
                         <Controller
                             control={profileControl}
                             name="email"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                     keyboardType="email-address"
@@ -157,94 +157,102 @@ export default function ProfileFormScreen() {
                                 />
                             )}
                         />
-                         {profileErrors.email && <Text className="text-red-500 text-xs font-cairo">{profileErrors.email.message}</Text>}
+                         {profileErrors.email && <Text className="text-red-500 text-xs font-tajawal mt-1">{profileErrors.email.message}</Text>}
                     </View>
 
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('phone')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('phone')}</Text>
                         <Controller
                             control={profileControl}
                             name="telephone"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                     keyboardType="phone-pad"
                                 />
                             )}
                         />
-                         {profileErrors.telephone && <Text className="text-red-500 text-xs font-cairo">{profileErrors.telephone.message}</Text>}
+                         {profileErrors.telephone && <Text className="text-red-500 text-xs font-tajawal mt-1">{profileErrors.telephone.message}</Text>}
                     </View>
 
-                    <Button onPress={handleProfileSubmit(onProfileSubmit)} disabled={isUpdating} className="mt-2 bg-primary">
-                        {isUpdating && <Loader2 color="white" className="animate-spin mr-2" />}
-                        <Text className="text-white font-bold font-cairo">{t('saveChanges')}</Text>
-                    </Button>
+                    <Pressable 
+                        onPress={handleProfileSubmit(onProfileSubmit)} 
+                        disabled={isUpdating} 
+                        className="mt-6 bg-teal-600 py-4 rounded-full flex-row justify-center items-center active:bg-teal-700 active:scale-[0.98] transition-all"
+                    >
+                        {isUpdating && <Loader2 color="white" size={20} className="animate-spin mr-2" />}
+                        <Text className="text-white font-bold font-tajawal text-[15px]">{t('saveChanges')}</Text>
+                    </Pressable>
                 </View>
             </View>
 
             {/* Password Change Section */}
-            <View className="mb-8 p-4 bg-card rounded-xl border border-border">
-                <Text className="text-xl font-bold mb-2 font-cairo">{t('changePassword')}</Text>
-                 <Text className="text-sm text-muted-foreground mb-4 font-cairo">{t('passwordSecurity')}</Text>
+            <View className="mb-8 p-6 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800/80 shadow-sm">
+                <Text className="text-xl font-bold mb-2 font-tajawal text-slate-800 dark:text-white">{t('changePassword')}</Text>
+                 <Text className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-tajawal">{t('passwordSecurity')}</Text>
 
                 <View className="space-y-4">
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('currentPassword')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('currentPassword')}</Text>
                         <Controller
                             control={passwordControl}
                             name="current_password"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                     secureTextEntry
                                 />
                             )}
                         />
-                        {passwordErrors.current_password && <Text className="text-red-500 text-xs font-cairo">{passwordErrors.current_password.message}</Text>}
+                        {passwordErrors.current_password && <Text className="text-red-500 text-xs font-tajawal mt-1">{passwordErrors.current_password.message}</Text>}
                     </View>
 
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('newPassword')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('newPassword')}</Text>
                         <Controller
                             control={passwordControl}
                             name="password"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                     secureTextEntry
                                 />
                             )}
                         />
-                        {passwordErrors.password && <Text className="text-red-500 text-xs font-cairo">{passwordErrors.password.message}</Text>}
+                        {passwordErrors.password && <Text className="text-red-500 text-xs font-tajawal mt-1">{passwordErrors.password.message}</Text>}
                     </View>
 
                     <View>
-                        <Text className="text-sm font-medium mb-1 font-cairo">{t('confirmPassword')}</Text>
+                        <Text className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 font-tajawal">{t('confirmPassword')}</Text>
                         <Controller
                             control={passwordControl}
                             name="password_confirmation"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput
-                                    className="border border-border rounded-md p-3 bg-background font-cairo"
+                                    className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 font-tajawal text-slate-800 dark:text-white"
                                     value={value}
                                     onChangeText={onChange}
                                     secureTextEntry
                                 />
                             )}
                         />
-                        {passwordErrors.password_confirmation && <Text className="text-red-500 text-xs font-cairo">{passwordErrors.password_confirmation.message}</Text>}
+                        {passwordErrors.password_confirmation && <Text className="text-red-500 text-xs font-tajawal mt-1">{passwordErrors.password_confirmation.message}</Text>}
                     </View>
 
-                    <Button onPress={handlePasswordSubmit(onPasswordSubmit)} disabled={isChangingPassword} className="mt-2 bg-primary">
-                        {isChangingPassword && <Loader2 color="white" className="animate-spin mr-2" />}
-                         <Text className="text-white font-bold font-cairo">{t('changePassword')}</Text>
-                    </Button>
+                    <Pressable 
+                        onPress={handlePasswordSubmit(onPasswordSubmit)} 
+                        disabled={isChangingPassword} 
+                        className="mt-6 bg-slate-800 dark:bg-slate-700 py-4 rounded-full flex-row justify-center items-center active:bg-slate-900 active:scale-[0.98] transition-all"
+                    >
+                        {isChangingPassword && <Loader2 color="white" size={20} className="animate-spin mr-2" />}
+                         <Text className="text-white font-bold font-tajawal text-[15px]">{t('changePassword')}</Text>
+                    </Pressable>
                 </View>
             </View>
 

@@ -56,7 +56,7 @@ export default function NewArrivalsScreen() {
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center p-6 bg-white">
+      <View className="flex-1 justify-center items-center p-6 bg-background">
         <Stack.Screen options={{ headerShown: true, title: "New Arrivals" }} />
         <View className="bg-red-50 p-6 rounded-2xl items-center w-full">
           <Text className="text-red-600 font-bold text-lg mb-2">{t("Content.errorTitle")}</Text>
@@ -73,7 +73,7 @@ export default function NewArrivalsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-background">
       <Stack.Screen
         options={{
           headerShown: true,

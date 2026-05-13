@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Pressable } from "react-native";
 import { Minus, Plus, Heart, ShoppingCart } from "lucide-react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -9,6 +9,9 @@ import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import Toast from 'react-native-toast-message';
+import { I18nManager } from "react-native";
+
+const TEAL = "#0d9488";
 
 interface ProductActionsProps {
   product: any;
@@ -86,62 +89,51 @@ export const ProductActions = ({ product, selectedOptions }: ProductActionsProps
   };
 
   return (
-    <View className="gap-4">
+    <View className="gap-6">
       {/* Quantity & Add to Cart Row */}
-      <View className="flex-row items-center gap-4">
+      <View className="flex-row items-center gap-4" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
         {/* Quantity Selector */}
-        <View className="flex-row items-center bg-secondary rounded-lg h-12 border border-input">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-10 h-full"
+        <View className="flex-row items-center bg-white rounded-full h-14 border border-slate-100 shadow-sm px-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+          <Pressable
             onPress={() => updateQty(quantity - 1)}
+            className="w-10 h-10 items-center justify-center rounded-full bg-slate-50 active:bg-slate-100"
           >
-            <Minus size={18} className="text-foreground" />
-          </Button>
+            <Minus size={18} color="#475569" />
+          </Pressable>
           
           <View className="w-10 items-center justify-center">
-             <Text className="text-sm font-bold">{quantity}</Text>
+             <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-lg text-slate-800">{quantity}</Text>
           </View>
           
-          <Button
-            variant="ghost" 
-            size="icon"
-            className="w-10 h-full"
+          <Pressable
             onPress={() => updateQty(quantity + 1)}
+            className="w-10 h-10 items-center justify-center rounded-full bg-slate-50 active:bg-slate-100"
           >
-            <Plus size={18} className="text-foreground" />
-          </Button>
+            <Plus size={18} color="#475569" />
+          </Pressable>
         </View>
 
         {/* Add to Cart Button */}
-        <Button
-          size="lg"
-          className="flex-1 h-12 flex-row gap-2"
+        <Pressable
           onPress={() => handleAddToCart(false)}
           disabled={!product.in_stock || isAdding}
+          className={cn(
+            "flex-1 h-14 rounded-[32px] flex-row items-center justify-center shadow-lg active:opacity-90",
+            product.in_stock ? "bg-teal-600" : "bg-slate-300"
+          )}
+          style={product.in_stock ? { shadowColor: TEAL, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 } : {}}
         >
           {isAdding ? (
             <ActivityIndicator color="white" />
           ) : (
             <>
-              <ShoppingCart size={20} color="white" />
-              <Text className="text-white font-bold text-base">
-                {t('ProductDetail.addToCart')}
+              <ShoppingCart size={20} color="white" style={{ marginHorizontal: 8 }} />
+              <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-base">
+                {t('ProductDetail.addToCart', { defaultValue: 'إضافة للسلة' })}
               </Text>
             </>
           )}
-        </Button>
-
-         {/* Wishlist Button - Optional placement */}
-         <Button
-            variant="outline"
-            size="icon"
-            className="h-12 w-12 border-input"
-            onPress={handleAddToWishlist}
-          >
-            <Heart size={20} className="text-foreground" />
-          </Button>
+        </Pressable>
       </View>
     </View>
   );

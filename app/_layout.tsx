@@ -37,14 +37,18 @@ export {
 import { useFonts } from 'expo-font';
 import { Lato_400Regular, Lato_700Bold } from '@expo-google-fonts/lato';
 import { Cairo_400Regular, Cairo_700Bold } from '@expo-google-fonts/cairo';
+import { Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold } from '@expo-google-fonts/tajawal';
 
 export default function RootLayout() {
     const { setColorScheme } = useColorScheme();
     const [loaded] = useFonts({
-      Lato_400Regular,
-      Lato_700Bold,
-      Cairo_400Regular,
-      Cairo_700Bold,
+      // Lato_400Regular,
+      // Lato_700Bold,
+      // Cairo_400Regular,
+      // Cairo_700Bold,
+      Tajawal_400Regular,
+      Tajawal_500Medium,
+      Tajawal_700Bold,
     });
 
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(info)" options={{ headerShown: false }} />
+        <Stack.Screen name="(info)" options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(unauthorized)" options={{ headerShown: false }} />
       </Stack>

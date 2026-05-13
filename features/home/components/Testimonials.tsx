@@ -71,26 +71,26 @@ const TestimonialItem = ({
         { width: ITEM_WIDTH },
         animatedStyle,
       ]}
-      className="relative rounded-3xl border border-border bg-card p-6 min-h-[220px]"
+      className="relative rounded-[32px] border border-slate-50 bg-white p-6 min-h-[220px] shadow-sm"
     >
-      <Quote size={28} className="absolute right-4 top-4 text-border" />
-      <Text className="mb-6 leading-relaxed text-muted-foreground">“{item.content}”</Text>
+      <Quote size={28} className="absolute right-6 top-6 text-slate-50" />
+      <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="mb-6 leading-relaxed text-slate-500">“{item.content}”</Text>
 
       <View className="flex-row items-center gap-3 mt-auto">
         {item.image ? (
           <Image
             source={{ uri: getImageUrl(item.image) }}
-            className="h-12 w-12 rounded-full border-2 border-primary/20"
+            className="h-12 w-12 rounded-full border-2 border-teal-50"
           />
         ) : (
-          <View className="h-12 w-12 items-center justify-center rounded-full bg-border">
-            <Text className="font-bold text-lg">{item.name.charAt(0)}</Text>
+          <View className="h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-slate-400 text-lg">{item.name.charAt(0)}</Text>
           </View>
         )}
 
         <View>
-          <Text className="text-sm font-bold text-foreground">{item.name}</Text>
-          <Text className="text-xs text-muted-foreground">{item.position}</Text>
+          <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm text-slate-800">{item.name}</Text>
+          <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-xs text-slate-400">{item.position}</Text>
         </View>
       </View>
     </Animated.View>
@@ -117,13 +117,13 @@ export const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) 
   if (!testimonials?.length) return null;
 
   return (
-    <View className="rounded-3xl bg-muted py-8 mb-6 mt-2 overflow-hidden">
+    <View className="rounded-[40px] bg-teal-50/30 py-8 mb-10 mt-2 overflow-hidden">
       {/* Header */}
       <View className="mb-8 items-center px-4">
-        <Text className="text-center text-2xl font-bold text-foreground">
-          {t('Testimonials.title')}
+        <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-center text-2xl text-slate-800">
+          {t('Testimonials.title', { defaultValue: 'قالوا عنا' })}
         </Text>
-        <Text className="mt-2 text-center text-muted-foreground">{t('Testimonials.subtitle')}</Text>
+        <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="mt-2 text-center text-slate-400">{t('Testimonials.subtitle', { defaultValue: 'عملاؤنا يشاركون تجاربهم' })}</Text>
       </View>
 
       {/* Slider using Animated.ScrollView for smooth snapping & animations */}
@@ -158,7 +158,7 @@ export const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) 
                   height: 6,
                   borderRadius: 3,
                   width: idx === activeIndex ? 20 : 6,
-                  backgroundColor: idx === activeIndex ? '#1e293b' : '#cbd5e1', // Slate-800 for active, Slate-300 for inactive
+                  backgroundColor: idx === activeIndex ? '#0d9488' : '#cbd5e1',
                 }}
               />
             ))}

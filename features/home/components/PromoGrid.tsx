@@ -50,7 +50,7 @@ export function PromoGrid({ banners }: PromoGridProps) {
         const route = getAppRoute(item.url);
         if (route) router.push(route as any);
       }}
-      className="rounded-xl overflow-hidden bg-gray-100 ml-3 first:ml-3 last:mr-3"
+      className="rounded-[32px] overflow-hidden bg-slate-100 ml-4 shadow-sm"
       style={{ 
         width: ITEM_WIDTH, 
         aspectRatio: 16 / 9,
@@ -65,7 +65,7 @@ export function PromoGrid({ banners }: PromoGridProps) {
         />
       ) : (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-slate-400">{t('PromoGrid.noImage')}</Text>
+          <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-400">{t('PromoGrid.noImage')}</Text>
         </View>
       )}
     </Pressable>
@@ -95,13 +95,13 @@ export function PromoGrid({ banners }: PromoGridProps) {
         }}
       />
 
-            {/* Pagination Dots */}
-      <View className="flex-row justify-center items-center absolute bottom-6 w-full gap-2">
+      {/* Pagination Dots */}
+      <View className="flex-row justify-center items-center absolute bottom-8 w-full gap-2">
         {banners.map((_, index) => (
           <View
             key={index}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              current === index ? 'w-6 bg-white/90' : 'w-2 bg-white/50'
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              current === index ? 'w-6 bg-white/95' : 'w-1.5 bg-white/60'
             }`}
           />
         ))}

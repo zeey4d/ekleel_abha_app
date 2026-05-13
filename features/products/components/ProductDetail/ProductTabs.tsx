@@ -11,30 +11,31 @@ export const ProductTabs = ({ product }: { product: any }) => {
   const { width } = useWindowDimensions();
 
   return (
-    <View className="mt-8 px-4">
+    <View className="mt-4 px-4 bg-[#f8fafc]">
+      <View className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-50">
       <Tabs initialTab="description" className="w-full">
-        <TabsList className="flex-row w-full justify-between border-b border-border bg-transparent p-0">
+        <TabsList className="flex-row w-full justify-between border-b border-slate-100 bg-transparent p-0">
           <TabsTrigger
             value="description"
-            className="flex-1 py-3 border-b-2 border-transparent data-[state=active]:border-primary"
+            className="flex-1 py-3 border-b-2 border-transparent data-[state=active]:border-teal-600"
           >
-            <Text className="text-sm font-medium data-[state=active]:text-primary text-muted-foreground">
+            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm data-[state=active]:text-teal-600 text-slate-400">
                 {t("ProductTabs.description")}
             </Text>
           </TabsTrigger>
           <TabsTrigger
             value="specs"
-            className="flex-1 py-3 border-b-2 border-transparent data-[state=active]:border-primary"
+            className="flex-1 py-3 border-b-2 border-transparent data-[state=active]:border-teal-600"
           >
-            <Text className="text-sm font-medium data-[state=active]:text-primary text-muted-foreground">
+            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm data-[state=active]:text-teal-600 text-slate-400">
                 {t("ProductTabs.specifications")}
             </Text>
           </TabsTrigger>
           <TabsTrigger
             value="reviews"
-            className="flex-1 py-3 border-b-2 border-transparent data-[state=active]:border-primary"
+            className="flex-1 py-3 border-b-2 border-transparent data-[state=active]:border-teal-600"
           >
-            <Text className="text-sm font-medium data-[state=active]:text-primary text-muted-foreground">
+            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm data-[state=active]:text-teal-600 text-slate-400">
                 {t("ProductTabs.reviews")} ({product.review_count})
             </Text>
           </TabsTrigger>
@@ -62,16 +63,17 @@ export const ProductTabs = ({ product }: { product: any }) => {
                 product.attributes.map((attr: any, idx: number) => (
                     <View
                     key={idx}
-                    className="flex-row justify-between border-b border-border pb-3"
+                    className="flex-row justify-between border-b border-slate-50 pb-3"
+                    style={{ flexDirection: i18n.language === 'ar' ? 'row-reverse' : 'row' }}
                     >
-                    <Text className="font-bold text-foreground text-sm text-start flex-1">
+                    <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: i18n.language === 'ar' ? 'right' : 'left' }} className="text-slate-700 text-sm flex-1">
                         {attr.name}
                     </Text>
-                    <Text className="text-muted-foreground text-sm text-start flex-1">{attr.text}</Text>
+                    <Text style={{ fontFamily: 'Tajawal_500Medium', textAlign: i18n.language === 'ar' ? 'right' : 'left' }} className="text-slate-400 text-sm flex-1">{attr.text}</Text>
                     </View>
                 ))
                ) : (
-                <Text className="text-muted-foreground italic text-center">
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-400 italic text-center">
                   {t("ProductTabs.noAttributes")}
                 </Text>
               )}
@@ -83,6 +85,7 @@ export const ProductTabs = ({ product }: { product: any }) => {
           </TabsContent>
         </View>
       </Tabs>
+      </View>
     </View>
   );
 };

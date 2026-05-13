@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { View, TouchableOpacity, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
-import { ShoppingCart, Heart, Star } from 'lucide-react-native';
+import { ShoppingCart, Heart, Star, SaudiRiyal } from 'lucide-react-native';
 import { getImageUrl } from '@/lib/image-utils';
 import { Link, useRouter } from 'expo-router';
 import { Product } from '@/store/types';
@@ -15,6 +15,9 @@ import { useAddToWishlistMutation, useRemoveFromWishlistMutation, selectIsProduc
 import { authStorage } from "@/lib/authStorage";
 import { useAppSelector } from "@/store/hooks";
 import { cn } from "@/lib/utils";
+import { I18nManager } from "react-native";
+
+const TEAL = "#0d9488";
 
 interface ProductCardProps {
   product: Product;
@@ -131,10 +134,11 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
     return (
       <Pressable 
         onPress={navigateToProduct}
-        className="flex-row items-center border-b border-gray-100 py-3 bg-white px-4"
+        className="flex-row items-center border-b border-slate-50 py-4 bg-white px-4"
+        style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}
       >
         {/* Image (Leading) */}
-        <View className="w-10 h-14 bg-gray-50 rounded ml-3 overflow-hidden border border-gray-100">
+        <View className="w-12 h-16 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
            <Image
             source={{ uri: displayImage }}
             className="w-full h-full"
@@ -143,31 +147,32 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
         </View>
 
         {/* Content */}
-        <View className="flex-1 justify-center items-start gap-1">
+        <View className="flex-1 justify-center items-start gap-1 mx-4">
           {brandName ? (
-             <Text className="text-[10px] text-gray-400 text-left w-full">
+             <Text style={{ fontFamily: 'Tajawal_500Medium', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-[10px] text-teal-600 uppercase tracking-widest w-full">
               {brandName}
             </Text>
           ) : null}
          
-          <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-sm text-gray-800 text-left font-medium w-full" numberOfLines={1}>
+          <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-sm text-slate-800 w-full" numberOfLines={1}>
             {displayName}
           </Text>
 
           {/* Price */}
-          <View className="flex-row items-center gap-2 mt-1">
-             <Text className="text-sm font-bold text-gray-900">
-               {finalPrice.toFixed(0)} <Text className="text-[10px] font-normal">SAR</Text>
-             </Text>
+          <View className="flex-row items-center gap-2 mt-1" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+             <View className="flex-row items-center" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+               <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className="text-base">
+                 {finalPrice.toFixed(0)}
+               </Text>
+               <SaudiRiyal size={14} color={TEAL} style={{ marginHorizontal: 2 }} />
+             </View>
              {isOnSale && originalPrice > 0 && (
-                <Text className="text-[10px] text-gray-400 line-through">
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-300 line-through">
                   {originalPrice.toFixed(0)}
                 </Text>
              )}
           </View>
         </View>
-
-         {/* Arrow or Action (Optional, leaving empty for now to match 'simple' request) */}
       </Pressable>
     );
   }
@@ -176,69 +181,73 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
     return (
       <Pressable 
         onPress={navigateToProduct}
-        className="flex-row bg-card border border-border rounded-xl overflow-hidden mb-3 shadow-sm"
+        className="flex-row bg-white border border-slate-100 rounded-xl overflow-hidden mb-4 shadow-sm"
+        style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}
       >
-        <View className="relative w-32 h-32 bg-muted">
+        <View className="relative w-36 h-36 bg-slate-50 p-2">
           <Image
             source={{ uri: displayImage }}
             className="w-full h-full"
             resizeMode="contain"
           />
           {isOnSale && discountPercentage > 0 && (
-            <View className="absolute top-1 left-1 bg-primary px-1.5 py-0.5 rounded">
-              <Text className="text-[10px] font-bold text-primary-foreground">
+            <View className="absolute top-3 left-3 bg-amber-400 px-2 py-1 rounded-xl shadow-sm">
+              <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-[10px] text-white">
                 -{discountPercentage}%
               </Text>
             </View>
           )}
         </View>
 
-        <View className="flex-1 p-3 justify-between">
+        <View className="flex-1 p-4 justify-between">
           <View>
-            <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-lg font-bold text-foreground mb-1" numberOfLines={1}>
+            <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-base text-slate-800 mb-1" numberOfLines={1}>
               {displayName}
             </Text>
             {displayDescription ? (
-              <Text style={{ minWidth: 0, flexShrink: 1 }} className="text-xs text-muted-foreground line-clamp-2" numberOfLines={2}>
+              <Text style={{ fontFamily: 'Tajawal_500Medium', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="text-xs text-slate-400" numberOfLines={2}>
                 {displayDescription}
               </Text>
             ) : null}
             
-            <View className="flex-row items-center mt-1">
-              <Text className="text-xs font-semibold text-foreground mr-1">
+            <View className="flex-row items-center mt-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+              <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xs text-slate-700 mr-1">
                 {rating > 0 ? rating.toFixed(1) : '5.0'}
               </Text>
-              <Icon as={Star} size={12} className="text-yellow-500 fill-yellow-500" />
-              <Text className="text-xs text-muted-foreground ml-1">
+              <Icon as={Star} size={12} className="text-amber-400 fill-amber-400" />
+              <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-400 ml-1">
                 ({reviewCount})
               </Text>
             </View>
           </View>
 
-          <View className="flex-row items-center justify-between mt-2">
-            <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center justify-between mt-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+            <View className="flex-row items-center gap-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
                {isOnSale && originalPrice > 0 && (
-                <Text className="text-xs text-muted-foreground line-through">
+                <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-xs text-slate-300 line-through">
                   {originalPrice.toFixed(0)}
                 </Text>
               )}
-              <Text className="text-base font-bold text-primary">
-                {finalPrice.toFixed(0)} <Text className="text-xs font-normal">SAR</Text>
-              </Text>
+              <View className="flex-row items-center" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+                <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className="text-xl">
+                  {finalPrice.toFixed(0)}
+                </Text>
+                <SaudiRiyal size={16} color={TEAL} style={{ marginHorizontal: 2 }} />
+              </View>
             </View>
 
-            <View className="flex-row gap-2">
+            <View className="flex-row gap-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
               <TouchableOpacity 
                 onPress={handleWishlist}
                 className={cn(
-                  "p-2 rounded-full border",
-                  isInWishlist ? "bg-red-50 border-red-200" : "border-border"
+                  "w-9 h-9 items-center justify-center rounded-full border",
+                  isInWishlist ? "bg-red-50 border-red-100" : "bg-slate-50 border-slate-100"
                 )}
               >
                 <Icon 
                   as={Heart} 
-                  size={16} 
-                  className={isInWishlist ? "text-red-500 fill-red-500" : "text-muted-foreground"} 
+                  size={18} 
+                  className={isInWishlist ? "text-red-500 fill-red-500" : "text-slate-300"} 
                 />
               </TouchableOpacity>
               
@@ -246,12 +255,11 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
                 onPress={handleAddToCart}
                 disabled={isAdding || isOutOfStock}
                 className={cn(
-                  "flex-row items-center bg-primary px-3 py-1.5 rounded-full gap-1",
+                  "w-9 h-9 items-center justify-center bg-teal-600 rounded-full shadow-sm",
                   (isAdding || isOutOfStock) && "opacity-50"
                 )}
               >
-                <Icon as={ShoppingCart} size={14} className="text-primary-foreground" />
-                <Text className="text-xs font-bold text-primary-foreground">Add</Text>
+                <Icon as={ShoppingCart} size={18} className="text-white" />
               </TouchableOpacity>
             </View>
           </View>
@@ -265,17 +273,24 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
     <Pressable 
       onPress={navigateToProduct}
       className={cn(
-        "bg-card border border-border rounded-xl overflow-hidden shadow-sm",
+        "bg-white border border-slate-50 rounded-2xl overflow-hidden shadow-sm",
         isOutOfStock && "opacity-80"
       )}
+      style={{
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2
+      }}
     >
       {/* Image Area */}
       <View 
         className={cn(
-          "relative w-full bg-white border-b border-border/50 items-center justify-center",
-          variant === "compact" ? "p-1" : "p-2"
+          "relative w-full bg-white items-center justify-center",
+          variant === "compact" ? "p-2" : "p-4"
         )}
-        style={{ aspectRatio: 0.8 }}
+        style={{ aspectRatio: 0.9 }}
       >
         <Image
           source={{ uri: displayImage }}
@@ -283,33 +298,33 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
           resizeMode="contain"
         />
 
-        {/* Wishlist Button - Hidden in compact for simplicity */}
-        {variant !== "compact" && (
-          <TouchableOpacity
-            onPress={handleWishlist}
-            className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-background/80"
-          >
-             <Icon 
-               as={Heart} 
-               size={18} 
-               className={isInWishlist ? "text-red-500 fill-red-500" : "text-muted-foreground"} 
-             />
-          </TouchableOpacity>
-        )}
+        {/* Wishlist Button */}
+        <TouchableOpacity
+          onPress={handleWishlist}
+          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 shadow-sm border border-slate-50"
+        >
+           <Icon 
+             as={Heart} 
+             size={16} 
+             className={isInWishlist ? "text-red-500 fill-red-500" : "text-slate-300"} 
+           />
+        </TouchableOpacity>
 
         {/* Out of Stock Badge */}
         {isOutOfStock && (
-          <View className="absolute top-2 left-2 bg-muted border border-border px-1.5 py-0.5 rounded">
-             <Text className="text-[8px] font-bold text-muted-foreground uppercase">
-               {t('ProductCard.outOfStock', 'Out of Stock')}
-             </Text>
+          <View className="absolute inset-0 bg-white/40 items-center justify-center">
+            <View className="bg-slate-900/80 px-3 py-1 rounded-full">
+               <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-[10px] text-white uppercase tracking-wider">
+                 {t('ProductCard.outOfStock', 'نفذت الكمية')}
+               </Text>
+            </View>
           </View>
         )}
 
         {/* Discount Badge */}
         {!isOutOfStock && isOnSale && discountPercentage > 0 && (
-          <View className={cn("absolute bg-primary px-1.5 py-0.5 rounded", variant === "compact" ? "top-1 left-1" : "top-2 left-2")}>
-            <Text className="text-[9px] font-bold text-primary-foreground">
+          <View className="absolute top-3 left-3 bg-amber-400 px-2 py-1 rounded-xl shadow-sm">
+            <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-[10px] text-white">
               -{discountPercentage}%
             </Text>
           </View>
@@ -317,55 +332,56 @@ export const ProductCard = ({ product, layout = "grid", variant = "default" }: P
       </View>
 
       {/* Content */}
-      <View className={variant === "compact" ? "p-2 gap-0.5" : "p-3 gap-1"}>
-        {/* Rating - Hidden in compact */}
-        {variant !== "compact" && (
-          <View className="flex-row items-center gap-1">
-             <Text className="text-xs font-semibold text-foreground">
-               {rating > 0 ? rating.toFixed(1) : '5.0'}
-             </Text>
-             <Icon as={Star} size={12} className="text-yellow-500 fill-yellow-500" />
-             <Text className="text-[10px] text-muted-foreground">({reviewCount})</Text>
-          </View>
-        )}
+      <View className={variant === "compact" ? "p-3 gap-0.5" : "p-4 gap-1"}>
+        {/* Rating */}
+        <View className="flex-row items-center gap-1" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+           <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xs text-slate-700">
+             {rating > 0 ? rating.toFixed(1) : '5.0'}
+           </Text>
+           <Icon as={Star} size={10} className="text-amber-400 fill-amber-400" />
+           <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-400">({reviewCount})</Text>
+        </View>
 
         {/* Brand */}
-        <Text className={cn("font-medium text-primary uppercase tracking-wider", variant === "compact" ? "text-[8px]" : "text-[10px]")}>
+        <Text style={{ fontFamily: 'Tajawal_700Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className={cn("text-teal-600 uppercase tracking-widest", variant === "compact" ? "text-[8px]" : "text-[10px]")}>
           {brandName}
         </Text>
 
         {/* Name */}
         <Text 
-          style={{ minWidth: 0, flexShrink: 1 }} 
-          className={cn("font-bold text-foreground", variant === "compact" ? "text-[10px] leading-4 h-[32px]" : "text-xs line-clamp-2 min-h-[32px]")} 
+          style={{ fontFamily: 'Tajawal_700Bold', textAlign: I18nManager.isRTL ? 'right' : 'left' }} 
+          className={cn("text-slate-800", variant === "compact" ? "text-[11px] leading-4 h-[32px]" : "text-sm leading-5 min-h-[40px]")} 
           numberOfLines={2}
         >
           {displayName}
         </Text>
 
         {/* Price & Action */}
-        <View className="flex-row justify-between items-end mt-1">
-          <View>
+        <View className="flex-row justify-between items-end mt-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+          <View style={{ alignItems: I18nManager.isRTL ? 'flex-end' : 'flex-start' }}>
             {isOnSale && originalPrice > 0 && (
-              <Text className="text-[8px] text-muted-foreground line-through">
+              <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-[10px] text-slate-300 line-through">
                 {originalPrice.toFixed(0)}
               </Text>
             )}
-            <Text className={cn("font-bold text-primary", variant === "compact" ? "text-xs" : "text-sm")}>
-              {finalPrice.toFixed(0)} <Text className="text-[9px] font-normal">SAR</Text>
-            </Text>
+            <View className="flex-row items-center" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+              <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className={cn(variant === "compact" ? "text-base" : "text-xl")}>
+                {finalPrice.toFixed(0)}
+              </Text>
+              <SaudiRiyal size={variant === "compact" ? 12 : 14} color={TEAL} style={{ marginHorizontal: 2 }} />
+            </View>
           </View>
 
           <TouchableOpacity
             onPress={handleAddToCart}
             disabled={isAdding || isOutOfStock}
             className={cn(
-              "rounded-full bg-primary/10 items-center justify-center",
-              variant === "compact" ? "w-6 h-6" : "w-8 h-8",
+              "rounded-full bg-teal-600 items-center justify-center shadow-md shadow-teal-600/20",
+              variant === "compact" ? "w-8 h-8" : "w-10 h-10",
               (isAdding || isOutOfStock) && "opacity-50"
             )}
           >
-            <Icon as={ShoppingCart} size={variant === "compact" ? 12 : 16} className="text-primary" />
+            <Icon as={ShoppingCart} size={variant === "compact" ? 14 : 18} className="text-white" />
           </TouchableOpacity>
         </View>
       </View>

@@ -88,8 +88,8 @@ export default function ProductFilterBar({
 const styles = StyleSheet.create({
   container: {},
   bar: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
+    backgroundColor: '#f8fafc',
+    borderBottomWidth: 0,
     borderBottomColor: '#f0f0f0',
     // shadowColor: '#000',
     // shadowOffset: { width: 0, height: 2 },
@@ -111,11 +111,15 @@ const styles = StyleSheet.create({
   },
   resultsContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 6,
+    height: 32,
+    justifyContent: 'center',
+    borderLeftWidth: 1,
+    borderLeftColor: '#f1f5f9',
   },
   resultsText: {
-    fontSize: 11,
-    color: '#9ca3af',
+    fontFamily: 'Tajawal_700Bold',
+    fontSize: 12,
+    color: '#94a3b8',
     textAlign: 'left',
   },
 });

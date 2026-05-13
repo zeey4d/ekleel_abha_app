@@ -24,23 +24,26 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
   }
 
   return (
-    <View className="p-0 ">
+    <View className="py-2">
       {/* <View
-        className="mb-4 flex-row items-center justify-between"
-        style={
-          isArabic && !I18nManager.isRTL ? { flexDirection: 'row-reverse' } : undefined
-        }>
-        <Text className="text-lg font-bold text-foreground">{t('FeaturedCategories.title')}</Text>
+        className="px-4 mb-4 flex-row items-center justify-between"
+        style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}
+      >
+        <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xl text-slate-800">
+          {t('FeaturedCategories.title', { defaultValue: 'التصنيفات' })}
+        </Text>
         <Pressable
           onPress={() => router.push('/(tabs)/(home)/(context)/categories' as any)}
-          className="flex-row items-center gap-2"
-          style={isArabic && !I18nManager.isRTL ? { flexDirection: 'row-reverse' } : undefined}
+          className="flex-row items-center gap-1"
+          style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}
         >
-          <Text className="font-medium text-primary">{t('FeaturedCategories.viewAll')}</Text>
-          {isArabic ? (
-            <ArrowLeft size={18} color="#000000ff" />
+          <Text style={{ fontFamily: 'Tajawal_700Bold', color: '#0d9488' }} className="text-sm">
+            {t('FeaturedCategories.viewAll', { defaultValue: 'عرض الكل' })}
+          </Text>
+          {I18nManager.isRTL ? (
+            <ArrowLeft size={16} color="#0d9488" />
           ) : (
-            <ArrowRight size={18} color="#000000ff" />
+            <ArrowRight size={16} color="#0d9488" />
           )}
         </Pressable>
       </View> */}
@@ -49,7 +52,7 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
         data={chunkedCategories}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 4 }}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={{ marginEnd: 16 }}>
@@ -74,12 +77,19 @@ export const FeaturedCategories = ({ categories }: { categories: Category[] }) =
                     <Text className="text-[10px] text-slate-400 text-center">{t('FeaturedCategories.noImage')}</Text>
                   </View>
                 )}
-                <Text
-                  className="mt-2 text-center text-xs font-medium text-foreground"
-                  style={{ lineHeight: 16 }}
-                  numberOfLines={2}>
-                  {category.name}
-                </Text>
+                <View style={{ height: 36, marginTop: 8, justifyContent: 'center', width: '100%' }}>
+                  <Text
+                    style={{ 
+                      fontFamily: 'Tajawal_700Bold', 
+                      lineHeight: 14, 
+                      fontSize: 10,
+                      textAlign: 'center' 
+                    }}
+                    className="text-slate-800"
+                    numberOfLines={2}>
+                    {category.name}
+                  </Text>
+                </View>
               </Pressable>
             ))}
           </View>

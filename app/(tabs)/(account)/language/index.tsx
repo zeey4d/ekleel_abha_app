@@ -4,6 +4,8 @@ import { Check, Globe, ArrowLeft, ChevronLeft } from 'lucide-react-native';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router, Stack } from 'expo-router';
 import type { SupportedLanguage } from '@/providers/LanguageProvider';
+import { I18nManager } from 'react-native';
+import { cn } from '@/lib/utils';
 
 // ─── Supported Languages ───────────────────────────────────
 const LANGUAGES: {
@@ -27,7 +29,7 @@ export default function LanguageScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50">
       {/* Header */}
       {/* <View className="flex-row items-center px-4 py-4 border-b border-slate-100 bg-white">
         <TouchableOpacity
@@ -46,31 +48,34 @@ export default function LanguageScreen() {
                           title: 'اللغة / Language',
                           headerShown: true,
                           headerBackTitle: "", 
-                          headerTintColor: '#000',
+                          headerTintColor: '#0f172a',
+                          headerTitleStyle: { fontFamily: 'Tajawal_700Bold', fontSize: 18 },
                           headerLeft: () => (
-                              <Pressable onPress={() => router.back()} >
-                                  <ChevronLeft color="#000000ff" size={28} />
+                              <Pressable onPress={() => router.back()} className="px-2" >
+                                  <ChevronLeft color="#0f172a" size={28} style={I18nManager.isRTL ? { transform: [{ rotate: '180deg' }] } : {}} />
                               </Pressable>
                           ),
                       }} 
                   />
 
-      <ScrollView className="flex-1 px-4 pt-6" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Description */}
-        <View className="flex-row items-center gap-3 mb-6 px-1">
-          <Globe size={22} color="#6366f1" />
+        <View className={cn("flex-row items-center gap-3 mb-8 px-2 bg-white dark:bg-slate-900 p-5 rounded-[32px] border border-slate-200 dark:border-slate-800/80 shadow-sm", I18nManager.isRTL && "flex-row-reverse")}>
+          <View className="bg-teal-50 dark:bg-teal-900/10 p-3 rounded-2xl">
+            <Globe size={24} className="text-teal-600" />
+          </View>
           <View className="flex-1">
-            <Text className="text-sm text-slate-600 leading-5">
-              اختر لغة التطبيق. سيتم إعادة تشغيل التطبيق عند تغيير اتجاه النص.
+            <Text className={cn("text-sm font-bold text-slate-700 dark:text-slate-300 font-tajawal mb-1", I18nManager.isRTL ? "text-right" : "text-left")}>
+              اختر لغة التطبيق. سيتم إعادة تشغيل التطبيق عند تغيير اللغة.
             </Text>
-            <Text className="text-sm text-slate-400 leading-5 mt-1">
-              Choose the app language. The app will restart when the text direction changes.
+            <Text className={cn("text-[11px] text-slate-400 dark:text-slate-500 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>
+              Choose the app language. The app will restart when the language changes.
             </Text>
           </View>
         </View>
 
         {/* Language Options */}
-        <View className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <View className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800/80 overflow-hidden shadow-sm">
           {LANGUAGES.map((lang, index) => {
             const isSelected = language === lang.code;
             const isLast = index === LANGUAGES.length - 1;
@@ -81,30 +86,35 @@ export default function LanguageScreen() {
                 onPress={() => handleSelect(lang.code)}
                 disabled={isLoading}
                 activeOpacity={0.6}
-                className={`flex-row items-center px-5 py-4 ${
-                  !isLast ? 'border-b border-slate-50' : ''
-                } ${isSelected ? 'bg-primary/5' : ''}`}
+                className={cn(
+                  "flex-row items-center px-6 py-5",
+                  !isLast && "border-b border-slate-100 dark:border-slate-800/50",
+                  isSelected && "bg-teal-50/50 dark:bg-teal-900/10",
+                  I18nManager.isRTL && "flex-row-reverse"
+                )}
               >
                 {/* Flag */}
-                <Text className="text-2xl mr-4">{lang.flag}</Text>
+                <Text className={cn("text-3xl", I18nManager.isRTL ? "ml-4" : "mr-4")}>{lang.flag}</Text>
 
                 {/* Language Names */}
                 <View className="flex-1">
                   <Text
-                    className={`text-base font-semibold ${
-                      isSelected ? 'text-primary' : 'text-slate-900'
-                    }`}
+                    className={cn(
+                      "text-lg font-bold font-tajawal mb-1",
+                      isSelected ? "text-teal-600 dark:text-teal-400" : "text-slate-800 dark:text-slate-200",
+                      I18nManager.isRTL ? "text-right" : "text-left"
+                    )}
                   >
                     {lang.nativeName}
                   </Text>
-                  <Text className="text-sm text-slate-400 mt-0.5">
+                  <Text className={cn("text-xs font-tajawal text-slate-400 dark:text-slate-500", I18nManager.isRTL ? "text-right" : "text-left")}>
                     {lang.englishName}
                   </Text>
                 </View>
 
                 {/* Checkmark */}
                 {isSelected && (
-                  <View className="w-8 h-8 bg-primary rounded-full items-center justify-center">
+                  <View className="w-8 h-8 bg-teal-600 rounded-full items-center justify-center shadow-sm">
                     <Check size={18} color="#ffffff" strokeWidth={3} />
                   </View>
                 )}
@@ -114,17 +124,15 @@ export default function LanguageScreen() {
         </View>
 
         {/* Current Language Info */}
-        <View className="mt-6 p-4 bg-slate-100/60 rounded-xl">
-          <Text className="text-xs text-slate-400 text-center">
+        <View className="mt-8 p-6 bg-white/50 dark:bg-slate-900/50 rounded-[32px] border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+          <Text className="text-[13px] font-bold font-tajawal text-slate-400 dark:text-slate-500 text-center mb-1">
             اللغة الحالية: {LANGUAGES.find(l => l.code === language)?.nativeName}
           </Text>
-          <Text className="text-xs text-slate-400 text-center mt-1">
+          <Text className="text-[11px] font-tajawal text-slate-400 dark:text-slate-500 text-center">
             Current: {LANGUAGES.find(l => l.code === language)?.englishName}
           </Text>
         </View>
-
-        <View className="h-20" />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -1,26 +1,32 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, I18nManager } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Check } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   currentStep: 1 | 2 | 3;
 }
 
-const STEPS = [
-  { label: 'الشحن', key: 1 },
-  { label: 'الدفع', key: 2 },
-  { label: 'المراجعة', key: 3 },
-];
-
-const GREEN = '#10b981';
-const SLATE = '#94a3b8';
+const TEAL = '#0d9488'; // teal-600
+const SLATE = '#64748b'; // slate-500
 const WHITE = '#ffffff';
 
 export function CheckoutSteps({ currentStep }: Props) {
+  const { t, i18n } = useTranslation('checkout');
+  const isRtl = i18n.language === 'ar' || I18nManager.isRTL;
+
+  const steps = [
+    { label: t('Steps.shipping', 'الشحن'), key: 1 },
+    { label: t('Steps.payment', 'الدفع'), key: 2 },
+    { label: t('Steps.review', 'المراجعة'), key: 3 },
+  ];
+
+  const displaySteps = isRtl ? [...steps].reverse() : steps;
+
   return (
-    <View style={styles.container}>
-      {STEPS.map((step, idx) => {
+    <View style={[styles.container, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+      {displaySteps.map((step, idx) => {
         const isDone = step.key < currentStep;
         const isActive = step.key === currentStep;
 
@@ -61,11 +67,12 @@ export function CheckoutSteps({ currentStep }: Props) {
             </View>
 
             {/* Connector line between steps */}
-            {idx < STEPS.length - 1 && (
+            {idx < displaySteps.length - 1 && (
               <View
                 style={[
                   styles.connector,
-                  isDone && styles.connectorDone,
+                  // Logic for connector coloring needs to check the actual step sequence
+                  (isRtl ? displaySteps[idx+1].key < currentStep : isDone) && styles.connectorDone,
                 ]}
               />
             )}
@@ -78,7 +85,6 @@ export function CheckoutSteps({ currentStep }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -98,39 +104,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   circleDone: {
-    backgroundColor: GREEN,
-    borderColor: GREEN,
+    backgroundColor: TEAL,
+    borderColor: TEAL,
   },
   circleActive: {
     backgroundColor: WHITE,
-    borderColor: GREEN,
-    shadowColor: GREEN,
+    borderColor: TEAL,
+    shadowColor: TEAL,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   stepNum: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: 'Tajawal_700Bold',
     color: SLATE,
   },
   stepNumActive: {
-    color: GREEN,
+    color: TEAL,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontSize: 12,
+    fontFamily: 'Tajawal_500Medium',
     color: SLATE,
     maxWidth: 60,
     textAlign: 'center',
   },
   labelActive: {
-    color: GREEN,
-    fontWeight: '700',
+    color: TEAL,
+    fontFamily: 'Tajawal_700Bold',
   },
   labelDone: {
-    color: '#64748b',
+    color: SLATE,
   },
   connector: {
     flex: 1,
@@ -140,6 +146,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   connectorDone: {
-    backgroundColor: GREEN,
+    backgroundColor: TEAL,
   },
 });

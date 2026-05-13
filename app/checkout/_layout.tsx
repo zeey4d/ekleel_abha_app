@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack, useRouter } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
+import { Pressable, StyleSheet, I18nManager } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 export default function CheckoutLayout() {
@@ -16,9 +16,8 @@ export default function CheckoutLayout() {
         },
         headerShadowVisible: false,
         headerTitleStyle: {
-          fontFamily: 'cairo',
+          fontFamily: 'Tajawal_700Bold',
           fontSize: 18,
-          fontWeight: '700',
           color: '#1e293b',
         },
         headerTitleAlign: 'center',
@@ -33,7 +32,11 @@ export default function CheckoutLayout() {
             }}
             style={styles.backBtn}
           >
-            <ChevronRight size={24} color="#64748b" />
+            <ChevronLeft 
+                size={28} 
+                color="#0f172a" 
+                style={I18nManager.isRTL ? { transform: [{ rotate: '180deg' }] } : {}} 
+            />
           </Pressable>
         ),
       }}

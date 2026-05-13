@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { Tag } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { I18nManager } from "react-native";
+
+const TEAL = "#0d9488";
 
 export const CartCoupon = () => {
   const { t } = useTranslation("cart");
@@ -24,42 +27,44 @@ export const CartCoupon = () => {
   return (
     <View className="gap-2">
       {/* Label */}
-      <View className="flex-row items-center gap-2">
-        <Tag size={16} color="#334155" />
-        <Text className="text-sm font-medium text-slate-700">
+      <View className="flex-row items-center gap-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
+        <Tag size={16} color={TEAL} />
+        <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-sm text-slate-700">
           {t("CartCoupon.label")}
         </Text>
       </View>
 
       {/* Input & Button Row */}
-      <View className="flex-row gap-2">
+      <View className="flex-row gap-2" style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}>
         <TextInput
           placeholder={t("CartCoupon.placeholder")}
           value={code}
           onChangeText={setCode}
           editable={!applied}
-          className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900"
+          style={{ fontFamily: 'Tajawal_500Medium', textAlign: I18nManager.isRTL ? 'right' : 'left' }}
+          className="flex-1 bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 shadow-sm"
           placeholderTextColor="#94a3b8"
           autoCapitalize="characters"
         />
         <TouchableOpacity
           onPress={handleApply}
           disabled={!code || applied || isValidating}
-          className={`px-4 py-2.5 rounded-lg border ${
+          className={`px-6 py-3 rounded-2xl border shadow-sm ${
             applied
-              ? "bg-green-50 border-green-200"
+              ? "bg-teal-50 border-teal-200"
               : !code || isValidating
-              ? "bg-slate-50 border-slate-200"
-              : "bg-white border-slate-300"
+              ? "bg-slate-50 border-slate-100"
+              : "bg-white border-slate-200"
           }`}
           activeOpacity={0.7}
         >
           {isValidating ? (
-            <ActivityIndicator size="small" color="#64748b" />
+            <ActivityIndicator size="small" color={TEAL} />
           ) : (
             <Text
-              className={`text-sm font-medium ${
-                applied ? "text-green-600" : !code ? "text-slate-400" : "text-slate-700"
+              style={{ fontFamily: 'Tajawal_700Bold' }}
+              className={`text-sm ${
+                applied ? "text-teal-600" : !code ? "text-slate-400" : "text-slate-700"
               }`}
             >
               {applied ? t("CartCoupon.applied") : t("CartCoupon.apply")}
@@ -70,7 +75,7 @@ export const CartCoupon = () => {
 
       {/* Discount Note */}
       {applied && (
-        <Text className="text-xs text-green-600 font-medium">
+        <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xs text-teal-600 px-1">
           {t("CartCoupon.discountNote")}
         </Text>
       )}

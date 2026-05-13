@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = (width - 44) / 2;
 const PER_PAGE = 12;
+const TEAL = "#0d9488";
 
 // ─────────────────────────────────────────────
 // Skeleton placeholder
@@ -34,20 +35,19 @@ function SearchGridSkeleton() {
       {Array.from({ length: 6 }, (_, i) => (
         <View
           key={i}
+          className="bg-white rounded-[32px] p-4 border border-slate-50 shadow-sm"
           style={{
             width: ITEM_WIDTH,
-            borderRadius: 12,
-            padding: 12,
-            backgroundColor: '#fff',
-            borderWidth: 1,
-            borderColor: '#f1f5f9',
           }}
         >
-          <Skeleton className="w-full h-40 rounded-lg" />
-          <View style={{ marginTop: 10, gap: 6 }}>
-            <Skeleton className="w-3/4 h-4 rounded" />
-            <Skeleton className="w-1/2 h-3 rounded" />
-            <Skeleton className="w-full h-8 mt-1 rounded" />
+          <Skeleton className="w-full h-40 rounded-2xl" />
+          <View className="mt-3 gap-2">
+            <Skeleton className="w-3/4 h-4 rounded-lg" />
+            <Skeleton className="w-1/2 h-3 rounded-lg" />
+            <View className="flex-row justify-between items-center mt-2">
+              <Skeleton className="h-6 w-16 rounded-lg" />
+              <Skeleton className="h-10 w-10 rounded-full" />
+            </View>
           </View>
         </View>
       ))}
@@ -159,38 +159,22 @@ export default function SearchScreen() {
   const renderEmpty = useCallback(
     () =>
       !isFetching ? (
-        <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 80, paddingHorizontal: 24 }}>
-          <View
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 40,
-              backgroundColor: '#f8fafc',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 16,
-            }}
-          >
+        <View className="items-center justify-center pt-24 px-8">
+          <View className="w-20 h-20 rounded-full bg-slate-50 items-center justify-center mb-6">
             <Tags size={38} color="#cbd5e1" />
           </View>
-          <Text style={{ fontSize: 17, fontWeight: '700', color: '#1e293b', textAlign: 'center' }}>
+          <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-lg text-slate-800 text-center">
             {t('noResults')}
           </Text>
-          <Text style={{ fontSize: 13, color: '#94a3b8', marginTop: 8, textAlign: 'center', lineHeight: 20 }}>
+          <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-sm text-slate-400 mt-2 text-center leading-5">
             {t('tryDifferentSearch')}
           </Text>
           <TouchableOpacity
             onPress={() => router.setParams({ categories: [], brand: [], q: undefined })}
-            style={{
-              marginTop: 20,
-              backgroundColor: '#10b981',
-              borderRadius: 50,
-              paddingHorizontal: 24,
-              paddingVertical: 10,
-            }}
+            className="mt-8 bg-teal-600 rounded-full px-8 py-3 shadow-sm shadow-teal-600/20"
             activeOpacity={0.8}
           >
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>
+            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-sm">
               {t('resetSearch')}
             </Text>
           </TouchableOpacity>
@@ -201,11 +185,11 @@ export default function SearchScreen() {
 
   const renderFooter = useCallback(
     () => (
-      <View style={{ height: 60, alignItems: 'center', justifyContent: 'center' }}>
+      <View className="h-16 items-center justify-center">
         {isFetching && page > 1 ? (
-          <ActivityIndicator size="small" color="#10b981" />
+          <ActivityIndicator size="small" color={TEAL} />
         ) : pagination && page >= pagination.total_pages && allProducts.length > 0 ? (
-          <Text style={{ fontSize: 12, color: '#94a3b8' }}>
+          <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-xs text-slate-300">
             {t('noMoreResults', 'لا توجد نتائج أخرى')}
           </Text>
         ) : null}
@@ -217,13 +201,19 @@ export default function SearchScreen() {
   // ── Loading state ─────────────────────────────
   if (isLoading && page === 1 && allProducts.length === 0) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View className="flex-1 bg-[#f8fafc]">
         <Stack.Screen
           options={{
             headerShown: true,
             title: t('title'),
+            headerTitleStyle: { fontFamily: 'Tajawal_700Bold', fontSize: 18 },
             headerStyle: { backgroundColor: '#fff' },
             headerShadowVisible: false,
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()} className="ml-2 p-2">
+                <ChevronLeft size={24} color="#1e293b" />
+              </TouchableOpacity>
+            )
           }}
         />
         {renderHeader()}
@@ -234,13 +224,19 @@ export default function SearchScreen() {
 
   // ── Main render ──────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View className="flex-1 bg-[#f8fafc]">
       <Stack.Screen
         options={{
           headerShown: true,
           title: query !== '*' ? query : t('title'),
+          headerTitleStyle: { fontFamily: 'Tajawal_700Bold', fontSize: 18 },
           headerStyle: { backgroundColor: '#fff' },
           headerShadowVisible: false,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} className="ml-2 p-2">
+              <ChevronLeft size={24} color="#1e293b" />
+            </TouchableOpacity>
+          )
         }}
       />
 
@@ -269,7 +265,7 @@ export default function SearchScreen() {
               setPage(1);
               refetch();
             }}
-            tintColor="#10b981"
+            tintColor={TEAL}
           />
         }
         // ⚡ Performance

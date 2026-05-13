@@ -9,7 +9,9 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function WishlistScreen() {
-  const { t } = useTranslation('account');
+  const TEAL = "#0d9488";
+  const { t, i18n } = useTranslation('account');
+  const isRTL = i18n.language === 'ar';
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -19,9 +21,9 @@ export default function WishlistScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color="#10B981" />
-        <Text className="text-gray-500 mt-4">{t('wishlist')}...</Text>
+      <View className="flex-1 justify-center items-center bg-[#f8fafc]">
+        <ActivityIndicator size="large" color={TEAL} />
+        <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-500 mt-4">{t('wishlist')}...</Text>
       </View>
     );
   }
@@ -36,21 +38,24 @@ export default function WishlistScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-[#f8fafc]" style={{ paddingTop: insets.top }}>
       {wishlistItems.length === 0 ? (
         <View className="flex-1 justify-center items-center p-8">
-          <View className="w-20 h-20 bg-gray-100 rounded-full justify-center items-center mb-6">
-            <Heart size={32} color="#9CA3AF" />
+          <View className="w-24 h-24 bg-teal-50 rounded-full justify-center items-center mb-8">
+            <Heart size={48} color={TEAL} fill={TEAL + "20"} />
           </View>
-          <Text className="text-xl font-bold text-foreground mb-2 text-center">
-            {t('emptyWishlist')}
+          <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-2xl text-slate-900 mb-3 text-center">
+            {t('emptyWishlist', { defaultValue: 'قائمة الأمنيات فارغة' })}
           </Text>
-          <Text className="text-gray-500 text-center mb-8 leading-relaxed">
-            {t('emptyWishlistDesc')}
+          <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-500 text-center mb-10 leading-6 max-w-[280px]">
+            {t('emptyWishlistDesc', { defaultValue: 'ابدأ بإضافة المنتجات التي تعجبك لتجدها هنا لاحقاً' })}
           </Text>
           <Link href="/(tabs)/(home)" asChild>
-            <Pressable className="bg-brand-green px-8 py-3 rounded-full">
-              <Text className="text-white font-bold">{t('startShopping')}</Text>
+            <Pressable 
+              className="bg-teal-600 px-12 py-4 rounded-[32px] shadow-lg active:opacity-90"
+              style={{ shadowColor: TEAL, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 }}
+            >
+              <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-white text-base">{t('startShopping', { defaultValue: 'ابدأ التسوق' })}</Text>
             </Pressable>
           </Link>
         </View>
@@ -63,13 +68,18 @@ export default function WishlistScreen() {
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={() => (
-              <View className="py-4 mb-2 border-b border-gray-100 dark:border-slate-800 flex-row justify-between items-center">
-                <Text className="text-2xl font-bold text-foreground text-left">
-                  {t('myWishlist')}
+              <View 
+                className="py-6 mb-4 flex-row justify-between items-center"
+                style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}
+              >
+                {/* <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-2xl text-slate-900">
+                  {t('myWishlist', { defaultValue: 'قائمة أمنياتي' })}
                 </Text>
-                <Text className="text-gray-500 text-sm">
-                  {wishlistItems.length} {t('items')}
-                </Text>
+                <View className="bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
+                  <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-teal-600 text-xs">
+                    {wishlistItems.length} {t('items', { defaultValue: 'منتج' })}
+                  </Text>
+                </View> */}
               </View>
             )}
           />

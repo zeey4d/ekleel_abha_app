@@ -79,7 +79,7 @@ export default function BrandsScreen() {
     <Pressable
       key={letter}
       onPress={() => toggleLetter(letter)}
-      className={`w-10 h-10 rounded-lg items-center justify-center ${
+      className={`w-10 h-10 rounded-xl items-center justify-center ${
         selectedLetter === letter ? 'bg-black' : 'bg-slate-100'
       }`}
     >
@@ -97,7 +97,7 @@ export default function BrandsScreen() {
       className="flex-1 mb-4"
       style={{ maxWidth: '31%' }}
     >
-      <View style={{ aspectRatio: 1 }} className="bg-white rounded-xl border border-border items-center justify-center p-4">
+      <View style={{ aspectRatio: 1 }} className="bg-white rounded-3xl  items-center justify-center p-4">
         {item?.image ? (
           <Image
             source={{ uri: getImageUrl(item.image) }}
@@ -118,7 +118,7 @@ export default function BrandsScreen() {
   ), [router]);
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-[#f8fafc]">
       <Stack.Screen
         options={{
           headerShown: true,
@@ -164,7 +164,7 @@ export default function BrandsScreen() {
                       onPress={() => router.push(`brands/${item.id}` as any)}
                       className="mr-4 w-24"
                     >
-                      <View style={{ aspectRatio: 1 }} className="bg-white rounded-xl border border-border items-center justify-center p-4">
+                      <View style={{ aspectRatio: 1 }} className="bg-white rounded-3xl  items-center justify-center p-4">
                         {item.image ? (
                           <Image
                             source={{ uri: getImageUrl(item.image) }}

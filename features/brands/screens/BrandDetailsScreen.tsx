@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { View, Text, FlatList, Image, ActivityIndicator, Pressable, Dimensions } from 'react-native';
+import { View, Text, FlatList, Image, ActivityIndicator, Pressable, Dimensions, I18nManager } from 'react-native';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react-native';
@@ -21,9 +21,11 @@ export default function BrandDetailsScreen() {
     const { t } = useTranslation('brand_details');
     const flatListRef = useRef<FlatList>(null);
     
+    const TEAL = "#0d9488";
     const [currentSort, setCurrentSort] = useState('date_added_desc');
     const [page, setPage] = useState(1);
     const [allProducts, setAllProducts] = useState<any[]>([]);
+    const isRTL = I18nManager.isRTL;
     
     const { name: brandName } = useLocalizedEntityName(
         Number(id),
@@ -111,16 +113,19 @@ export default function BrandDetailsScreen() {
     }
 
     return (
-        <View className="flex-1 bg-background">
+        <View className="flex-1 bg-[#f8fafc]">
             <Stack.Screen 
                 options={{ 
                     title: brandName,
                     headerShown: true,
+                    headerTitleStyle: { fontFamily: 'Tajawal_700Bold', fontSize: 18 },
                     headerBackTitle: "", 
-                    headerTintColor: '#000',
+                    headerTintColor: '#1e293b',
+                    headerStyle: { backgroundColor: '#fff' },
+                    headerShadowVisible: false,
                     headerLeft: () => (
-                        <Pressable onPress={() => router.back()} >
-                            <ChevronLeft color="#000000ff" size={28} />
+                        <Pressable onPress={() => router.back()} className="ml-2 p-2">
+                            <ChevronLeft color="#1e293b" size={24} />
                         </Pressable>
                     ),
                 }} 
@@ -151,26 +156,43 @@ export default function BrandDetailsScreen() {
                         />
 
                         {/* Brand Header Info */}
-                        <View className="px-4 mt-4 mb-6">
-                            <View className="bg-white rounded-2xl border border-border p-6 mb-4">
-                                <View className="flex-row items-center">
+                        <View className="px-4 mt-2 mb-6">
+                            <View 
+                                className="bg-white rounded-[32px] border border-slate-50 p-6 shadow-sm"
+                                style={{
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 4 },
+                                    shadowOpacity: 0.05,
+                                    shadowRadius: 12,
+                                    elevation: 2
+                                }}
+                            >
+                                <View className="flex-row items-center" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                                     {brand.image ? (
-                                        <Image
-                                            source={{ uri: getImageUrl(brand.image) }}
-                                            style={{ width: 80, height: 80 }}
-                                            resizeMode="contain"
-                                            className="mr-4"
-                                        />
+                                        <View className="w-20 h-20 bg-slate-50 rounded-2xl items-center justify-center p-2 border border-slate-50">
+                                            <Image
+                                                source={{ uri: getImageUrl(brand.image) }}
+                                                style={{ width: '100%', height: '100%' }}
+                                                resizeMode="contain"
+                                            />
+                                        </View>
                                     ) : (
-                                        <View className="w-20 h-20 bg-slate-100 rounded-xl items-center justify-center mr-4">
-                                            <Text className="text-2xl font-bold text-slate-400">{brand.name.charAt(0)}</Text>
+                                        <View className="w-20 h-20 bg-teal-50 rounded-2xl items-center justify-center border border-teal-100">
+                                            <Text style={{ fontFamily: 'Tajawal_800ExtraBold', color: TEAL }} className="text-3xl">{brand.name.charAt(0)}</Text>
                                         </View>
                                     )}
-                                    <View className="flex-1">
-                                        <Text className="text-2xl font-bold text-foreground mb-1">{brand.name}</Text>
-                                        {(brand as any).description && (
-                                            <Text className="text-sm text-muted-foreground" numberOfLines={2}>
+                                    <View 
+                                        className="flex-1 mx-4"
+                                        style={{ alignItems: isRTL ? 'flex-end' : 'flex-start' }}
+                                    >
+                                        <Text style={{ fontFamily: 'Tajawal_800ExtraBold' }} className="text-2xl text-slate-900 mb-1">{brand.name}</Text>
+                                        {(brand as any).description ? (
+                                            <Text style={{ fontFamily: 'Tajawal_500Medium', textAlign: isRTL ? 'right' : 'left' }} className="text-sm text-slate-400" numberOfLines={2}>
                                                 {(brand as any).description}
+                                            </Text>
+                                        ) : (
+                                            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-teal-600 uppercase tracking-widest text-[10px]">
+                                                {t('Brand.officialStore', 'متجر رسمي')}
                                             </Text>
                                         )}
                                     </View>
@@ -192,17 +214,24 @@ export default function BrandDetailsScreen() {
 
                 ListEmptyComponent={
                     !isFetching ? (
-                        <View className="py-20 items-center">
-                            <Text className="text-lg font-semibold text-foreground">No products found</Text>
+                        <View className="py-24 items-center justify-center">
+                            <View className="w-20 h-20 bg-slate-50 rounded-full items-center justify-center mb-6">
+                                <Image source={require('@/assets/images/aka.png')} className="w-12 h-12 opacity-20" resizeMode="contain" />
+                            </View>
+                            <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-lg text-slate-800">
+                                {t('Products.empty', 'لا توجد منتجات حالياً')}
+                            </Text>
                         </View>
                     ) : null
                 }
                 ListFooterComponent={() => (
-                    <View className="py-6 items-center h-20 justify-center">
+                    <View className="py-10 items-center h-32 justify-center">
                         {isFetching && page > 1 ? (
-                            <ActivityIndicator size="small" />
+                            <ActivityIndicator size="small" color={TEAL} />
                         ) : pagination && page >= pagination.total_pages && allProducts.length > 0 ? (
-                            <Text className="text-slate-400 text-xs">لا توجد نتائج أخرى</Text>
+                            <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-300 text-xs">
+                                {t('Common.noMoreResults', 'لا توجد نتائج أخرى')}
+                            </Text>
                         ) : null}
                     </View>
                 )}
@@ -217,7 +246,7 @@ function BrandPageSkeleton() {
   const itemWidth = (width - 32 - 16) / 2;
 
   return (
-    <View className="flex-1 bg-background px-4 pt-6">
+    <View className="flex-1 bg-[#f8fafc] px-4 pt-6">
       <Stack.Screen options={{ headerShown: true, title: 'Loading...' }} />
       <Skeleton className="h-32 w-full rounded-2xl mb-6" />
       <View className="flex-row justify-between mb-6">

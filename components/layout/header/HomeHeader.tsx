@@ -9,11 +9,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 
-import { Search, Bell, Store, ChevronDown, MapPin } from 'lucide-react-native';
+import { Search, Bell, Store, ChevronDown, MapPin, MapPinned } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 // import { SearchBar } from '@/components/layout/header/SearchBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { I18nManager } from 'react-native';
+
+const TEAL = "#0d9488";
 
 interface HomeHeaderProps {
   scrollY?: SharedValue<number>;
@@ -37,7 +40,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
       Extrapolation.CLAMP
     );
     return {
-      backgroundColor: `rgba(44, 124, 123, ${opacity})`,
+      backgroundColor: `rgba(13, 148, 136, ${opacity})`,
       borderBottomWidth: interpolate(
         scrollY.value,
         [0, 150],
@@ -47,7 +50,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
       borderBottomColor: `rgba(0, 0, 0, ${interpolate(
         scrollY.value,
         [0, 150],
-        [0, 0.1],
+        [0, 0.05],
         Extrapolation.CLAMP
       )})`,
     };
@@ -94,12 +97,12 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
           onPress={() =>
             router.push('/(tabs)/(home)/(context)/location-selector' as any)
           }
-          style={styles.locationContent}
+          style={[styles.locationContent, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}
         >
-          <View style={styles.locationTextWrapper}>
-            <MapPin size={16} color="#FF3B30" />
-            <Text style={styles.locationTitle}>التوصيل إلى: </Text>
-            <Text style={styles.locationName} numberOfLines={1}>
+          <View style={[styles.locationTextWrapper, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>
+            <MapPinned size={16} color={TEAL} />
+            <Text style={[styles.locationTitle, { fontFamily: 'Tajawal_500Medium' }]}>{t('Header.deliverTo', { defaultValue: 'التوصيل إلى: ' })}</Text>
+            <Text style={[styles.locationName, { fontFamily: 'Tajawal_700Bold' }]} numberOfLines={1}>
               الرياض، حي النرجس...
             </Text>
             <ChevronDown size={14} color="#666" />
@@ -112,7 +115,7 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
         style={styles.row}
       >
                 {/* Icons (Right Side - RTL) */}
-        <View className=' mt-2' style={styles.iconsRow}>
+        <View className=' mt-2' style={[styles.iconsRow, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => router.push(`/(tabs)/(home)/(context)/brands` as any)}
@@ -136,21 +139,21 @@ export default function HomeHeader({ scrollY }: HomeHeaderProps) {
         {/* Search Box */}
         <View className='w-full mt-2' style={styles.searchWrapper}>
           {/* <SearchBar /> */}
-                <TouchableOpacity 
-        activeOpacity={0.9}
-        onPress={() => {
-          console.log('🔍 Opening Search Landing Page');
-          router.push("/(tabs)/(home)/(context)/(search)" as any);
-        }}
-        className="relative flex-row items-center  rounded-full px-4 h-10 border border-transparent"
-      >
-        <Search size={20} color="#64748b" />
-        
-        <Text className="flex-1 ml-2 text-base text-slate-400">
-          {t('Header.searchPlaceholder', { defaultValue: 'ابحث عن المنتجات...' })}
-        </Text>
-      </TouchableOpacity>
-
+          <TouchableOpacity 
+            activeOpacity={0.9}
+            onPress={() => {
+              console.log('🔍 Opening Search Landing Page');
+              router.push("/(tabs)/(home)/(context)/(search)" as any);
+            }}
+            className="relative flex-row items-center rounded-full px-4 h-10 border border-transparent"
+            style={{ flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }}
+          >
+            <Search size={20} color="#64748b" />
+            
+            <Text style={{ fontFamily: 'Tajawal_500Medium', textAlign: I18nManager.isRTL ? 'right' : 'left' }} className="flex-1 mx-2 text-base text-slate-400">
+              {t('Header.searchPlaceholder', { defaultValue: 'ابحث عن المنتجات...' })}
+            </Text>
+          </TouchableOpacity>
         </View>
 
       </Animated.View>
@@ -220,11 +223,9 @@ const styles = StyleSheet.create({
   locationTitle: {
     fontSize: 12,
     color: '#888',
-    fontFamily: 'System',
   },
   locationName: {
     fontSize: 13,
-    fontWeight: '600',
     color: '#333',
     maxWidth: 150,
   },

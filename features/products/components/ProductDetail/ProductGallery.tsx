@@ -16,9 +16,19 @@ export const ProductGallery = ({ images, mainImage }: ProductGalleryProps) => {
   if (!selectedImage) return null;
 
   return (
-    <View className="flex-col gap-4">
+    <View className="flex-col gap-6 bg-[#f8fafc] p-4 pb-0">
       {/* Main Image */}
-      <View style={{ aspectRatio: 1 }} className="w-full bg-white rounded-2xl border border-border p-4 items-center justify-center overflow-hidden">
+      <View 
+        style={{ 
+            aspectRatio: 1,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.05,
+            shadowRadius: 12,
+            elevation: 2
+        }} 
+        className="w-full bg-white rounded-[32px] border border-slate-50 p-6 items-center justify-center overflow-hidden"
+      >
         <Image
           source={{ uri: getImageUrl(selectedImage) }}
           className="w-full h-full"
@@ -31,15 +41,15 @@ export const ProductGallery = ({ images, mainImage }: ProductGalleryProps) => {
         <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false} 
-            contentContainerStyle={{ gap: 12, paddingHorizontal: 4 }}
+            contentContainerStyle={{ gap: 12, paddingHorizontal: 4, paddingBottom: 8 }}
         >
         {allImages.map((img, idx) => (
             <Pressable
             key={idx}
             onPress={() => setSelectedImage(img)}
             className={cn(
-                "w-20 h-20 rounded-lg border-2 bg-white overflow-hidden",
-                selectedImage === img ? "border-primary" : "border-border"
+                "w-20 h-20 rounded-2xl border-2 bg-white overflow-hidden shadow-sm",
+                selectedImage === img ? "border-teal-600" : "border-slate-50"
             )}
             >
             <Image 

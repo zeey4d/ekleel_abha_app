@@ -5,8 +5,8 @@ import {
   Pressable,
   ActivityIndicator,
   StyleSheet,
-  SafeAreaView,
   Linking,
+  I18nManager,
 } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -19,20 +19,26 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  Loader2,
   CheckCircle2,
   CreditCard,
 } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { cn } from '@/lib/utils';
 
-const GREEN = '#10b981';
+const TEAL = '#0d9488';
 const AMBER = '#f59e0b';
 
 type PaymentMethod = 'online' | 'cod';
 
 export default function PaymentScreen() {
   const router = useRouter();
+  const { t, i18n } = useTranslation('checkout');
+  const insets = useSafeAreaInsets();
+  const isRtl = i18n.language === 'ar' || I18nManager.isRTL;
+
   const params = useLocalSearchParams<{
     address_id: string;
     shipping_method: string;
@@ -48,10 +54,10 @@ export default function PaymentScreen() {
 
   if (isCartLoading || !cart) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={GREEN} />
-        <Text style={styles.loadingText}>جاري التحميل...</Text>
-      </SafeAreaView>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={TEAL} />
+        <Text style={styles.loadingText}>{t('Payment.processing', 'جاري التحميل...')}</Text>
+      </View>
     );
   }
 
@@ -71,14 +77,15 @@ export default function PaymentScreen() {
   // ── PayTabs online payment ──────────────────────────────────────
   const handleOnlinePayment = async () => {
     if (!address_id) {
-      Toast.show({ type: 'error', text1: 'بيانات الطلب ناقصة، عد للخطوة السابقة' });
+      Toast.show({ 
+        type: 'error', 
+        text1: t('Review.addressMissing', 'بيانات الطلب ناقصة، عد للخطوة السابقة') 
+      });
       return;
     }
 
     try {
-      // We use a deep-link as the return URL so the app can handle callback
       const returnUrl = 'ekleel://checkout/callback';
-
       const isPickup = shipping_method?.startsWith('Pickup from Branch');
 
       const payload = {
@@ -92,34 +99,25 @@ export default function PaymentScreen() {
       const response = await initiatePaytabs(payload).unwrap();
 
       if (response.redirect_url) {
-        // Persist tran_ref + order_id so callback screen can verify
         await AsyncStorage.setItem('paytabs_tran_ref', response.tran_ref);
         await AsyncStorage.setItem('paytabs_order_id', String(response.order_id));
 
-        // Open PayTabs payment page in browser
         const canOpen = await Linking.canOpenURL(response.redirect_url);
         if (canOpen) {
           await Linking.openURL(response.redirect_url);
         } else {
-          Toast.show({ type: 'error', text1: 'تعذر فتح صفحة الدفع' });
+          Toast.show({ 
+            type: 'error', 
+            text1: t('Payment.paymentFailed', 'تعذر فتح صفحة الدفع') 
+          });
         }
       } else {
         throw new Error('No redirect URL from PayTabs');
       }
     } catch (error: any) {
-      const rawMsg: string =
-        error?.data?.error || error?.data?.message || error?.message || '';
-
-      const isNetwork =
-        rawMsg.toLowerCase().includes('curl') ||
-        rawMsg.toLowerCase().includes('timed out') ||
-        rawMsg.toLowerCase().includes('connection') ||
-        rawMsg.toLowerCase().includes('network');
-
-      const userMsg = isNetwork
-        ? 'خدمة الدفع غير متاحة حالياً، يرجى المحاولة لاحقاً'
-        : rawMsg || 'فشل إتمام الدفع';
-
+      const rawMsg: string = error?.data?.error || error?.data?.message || error?.message || '';
+      const isNetwork = rawMsg.toLowerCase().includes('curl') || rawMsg.toLowerCase().includes('timed out') || rawMsg.toLowerCase().includes('connection') || rawMsg.toLowerCase().includes('network');
+      const userMsg = isNetwork ? t('Callback.verificationError', 'خدمة الدفع غير متاحة حالياً، يرجى المحاولة لاحقاً') : rawMsg || t('Payment.paymentFailed', 'فشل إتمام الدفع');
       Toast.show({ type: 'error', text1: userMsg });
     }
   };
@@ -133,7 +131,7 @@ export default function PaymentScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.root}>
+    <View style={styles.root}>
       <CheckoutSteps currentStep={2} />
 
       <ScrollView
@@ -143,11 +141,13 @@ export default function PaymentScreen() {
       >
         {/* Payment method selection */}
         <View style={styles.card}>
-          <View style={styles.cardHeader}>
+          <View style={[styles.cardHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
             <View style={styles.headerIcon}>
-              <CreditCard size={16} color={GREEN} />
+              <CreditCard size={16} color={TEAL} />
             </View>
-            <Text style={styles.cardTitle}>طريقة الدفع</Text>
+            <Text style={[styles.cardTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {t('Payment.selectPaymentMethod', 'طريقة الدفع')}
+            </Text>
           </View>
 
           <PaymentMethodCard
@@ -160,9 +160,9 @@ export default function PaymentScreen() {
         {selectedPayment === 'cod' && (
           <View style={styles.codBox}>
             <CheckCircle2 size={28} color={AMBER} />
-            <Text style={styles.codTitle}>الدفع عند الاستلام</Text>
+            <Text style={styles.codTitle}>{t('Payment.cod', 'الدفع عند الاستلام')}</Text>
             <Text style={styles.codDesc}>
-              ستقوم بدفع المبلغ نقداً عند استلام طلبك. يرجى التأكد من وجود المبلغ الكافي.
+              {t('Payment.codNoteDesc', 'ستقوم بدفع المبلغ نقداً عند استلام طلبك. يرجى التأكد من وجود المبلغ الكافي.')}
             </Text>
           </View>
         )}
@@ -172,24 +172,26 @@ export default function PaymentScreen() {
           cart={cart}
           shippingCost={shippingCostNum}
           shippingLabel={
-            shipping_method?.startsWith('Pickup') ? 'الاستلام من الفرع' : 'رسوم الشحن'
+            shipping_method?.startsWith('Pickup') 
+              ? t('Review.delivery', 'الاستلام من الفرع') 
+              : t('OrderSummary.shipping', 'رسوم الشحن')
           }
         />
 
         {/* Trust badge */}
-        <View style={styles.trustRow}>
+        <View style={[styles.trustRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
           <ShieldCheck size={14} color="#94a3b8" />
-          <Text style={styles.trustText}>طلبك محمي بضمان 100% – نضمن حقك في الاسترجاع</Text>
+          <Text style={[styles.trustText, { textAlign: isRtl ? 'right' : 'left' }]}>
+            {t('Payment.encryptionNote', 'طلبك محمي بضمان 100% – نضمن حقك في الاسترجاع')}
+          </Text>
         </View>
-
-        <View style={{ height: 100 }} />
       </ScrollView>
 
       {/* Bottom bar */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 24), flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
         {/* Back button */}
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <ChevronRight size={18} color="#64748b" />
+          {isRtl ? <ChevronRight size={20} color="#64748b" /> : <ChevronLeft size={20} color="#64748b" />}
         </Pressable>
 
         {/* Continue button */}
@@ -206,16 +208,18 @@ export default function PaymentScreen() {
           {isRequestingPayment ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <>
-              <ChevronLeft size={20} color="#fff" />
+            <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+              {isRtl ? <ChevronLeft size={20} color="#fff" style={{ transform: [{ rotate: '180deg' }] }} /> : <ChevronRight size={20} color="#fff" />}
               <Text style={styles.continueBtnText}>
-                {selectedPayment === 'cod' ? 'متابعة للمراجعة' : 'ادفع الآن عبر PayTabs'}
+                {selectedPayment === 'cod' 
+                  ? t('Payment.continueToReview', 'متابعة للمراجعة') 
+                  : t('Payment.payWith', { defaultValue: 'ادفع الآن عبر PayTabs' })}
               </Text>
-            </>
+            </View>
           )}
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -231,7 +235,7 @@ const styles = StyleSheet.create({
     gap: 12,
     backgroundColor: '#f8fafc',
   },
-  loadingText: { color: '#94a3b8', fontSize: 14 },
+  loadingText: { color: '#94a3b8', fontSize: 14, fontFamily: 'Tajawal_500Medium' },
   scroll: { flex: 1 },
   scrollContent: {
     padding: 16,
@@ -239,14 +243,13 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 24,
+    borderRadius: 32,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     padding: 16,
     gap: 14,
   },
   cardHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     paddingBottom: 12,
@@ -257,14 +260,15 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: '#d1fae5',
+    backgroundColor: '#ccfbf1',
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Tajawal_700Bold',
     color: '#1e293b',
+    flex: 1,
   },
   codBox: {
     backgroundColor: '#fffbeb',
@@ -276,45 +280,41 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   codTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontFamily: 'Tajawal_700Bold',
     color: '#92400e',
   },
   codDesc: {
-    fontSize: 13,
+    fontSize: 14,
+    fontFamily: 'Tajawal_500Medium',
     color: '#b45309',
     textAlign: 'center',
     lineHeight: 20,
   },
   trustRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    paddingHorizontal: 10,
   },
   trustText: {
-    fontSize: 11,
+    fontSize: 12,
+    fontFamily: 'Tajawal_500Medium',
     color: '#94a3b8',
-    textAlign: 'center',
     flex: 1,
   },
   bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
-    padding: 16,
-    paddingBottom: 24,
-    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingTop: 16,
     gap: 10,
   },
   backBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 14,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
     alignItems: 'center',
@@ -323,14 +323,12 @@ const styles = StyleSheet.create({
   },
   continueBtn: {
     flex: 1,
-    backgroundColor: GREEN,
-    borderRadius: 16,
-    paddingVertical: 14,
-    flexDirection: 'row',
+    backgroundColor: TEAL,
+    borderRadius: 32,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    shadowColor: GREEN,
+    shadowColor: TEAL,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -341,8 +339,8 @@ const styles = StyleSheet.create({
     shadowColor: AMBER,
   },
   continueBtnText: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 16,
+    fontFamily: 'Tajawal_700Bold',
     color: '#fff',
   },
 });

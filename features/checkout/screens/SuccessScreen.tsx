@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   Pressable,
+  I18nManager,
 } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -20,11 +20,17 @@ import {
   Coins,
   TrendingUp,
 } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const GREEN = '#10b981';
+const TEAL = '#0d9488';
 
 export default function SuccessScreen() {
   const router = useRouter();
+  const { t, i18n } = useTranslation('checkout');
+  const insets = useSafeAreaInsets();
+  const isRtl = i18n.language === 'ar' || I18nManager.isRTL;
+
   const params = useLocalSearchParams<{ order_id: string }>();
   const orderId = params.order_id;
 
@@ -60,41 +66,41 @@ export default function SuccessScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={GREEN} />
-      </SafeAreaView>
+      <View style={[styles.loadingContainer, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={TEAL} />
+      </View>
     );
   }
 
   if (!orderId || error) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <Package size={48} color="#94a3b8" />
-        <Text style={styles.errorTitle}>لم يتم العثور على الطلب</Text>
+      <View style={[styles.errorContainer, { paddingTop: insets.top }]}>
+        <Package size={60} color="#cbd5e1" />
+        <Text style={styles.errorTitle}>{t('Review.addressMissing', 'لم يتم العثور على الطلب')}</Text>
         <Pressable onPress={() => router.push('/')} style={styles.homeBtn}>
-          <Text style={styles.homeBtnText}>العودة للرئيسية</Text>
+          <Text style={styles.homeBtnText}>{t('Failed.returnToCart', 'العودة للرئيسية')}</Text>
         </Pressable>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.root}>
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Success Header */}
         <View style={styles.header}>
           <View style={styles.iconCircle}>
             <View style={styles.iconCircleInner}>
-              <CheckCircle2 size={40} color={GREEN} />
+              <CheckCircle2 size={44} color={TEAL} />
             </View>
           </View>
-          <Text style={styles.title}>شكرًا لتسوقك!</Text>
-          <Text style={styles.subtitle}>تم استلام طلبك بنجاح وهو قيد التجهيز الآن.</Text>
+          <Text style={styles.title}>{t('Success.title', 'شكرًا لتسوقك!')}</Text>
+          <Text style={styles.subtitle}>{t('Callback.pleaseWait', 'تم استلام طلبك بنجاح وهو قيد التجهيز الآن.')}</Text>
 
-          <View style={styles.orderBadge}>
+          <View style={[styles.orderBadge, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
             <Package size={14} color="#64748b" />
-            <Text style={styles.orderBadgeText}>
-              رقم الطلب: <Text style={styles.orderNumber}>#{order?.order_id ?? orderId}</Text>
+            <Text style={[styles.orderBadgeText, { textAlign: isRtl ? 'right' : 'left' }]}>
+              {t('Success.orderNumber', 'رقم الطلب')}: <Text style={styles.orderNumber}>#{order?.order_id ?? orderId}</Text>
             </Text>
           </View>
         </View>
@@ -102,25 +108,31 @@ export default function SuccessScreen() {
         {/* Loyalty Points */}
         {pointsData && pointsData.points_earned > 0 && (
           <View style={styles.loyaltyCard}>
-            <View style={styles.loyaltyHeader}>
+            <View style={[styles.loyaltyHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <View style={styles.loyaltyIcon}>
                 <Coins size={20} color="#fff" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.loyaltyTitle}>نقاط الولاء المكتسبة!</Text>
-                <Text style={styles.loyaltySubtitle}>لقد كسبت نقاطاً مع هذا الطلب</Text>
+                <Text style={[styles.loyaltyTitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                  {t('Payment.installment', 'نقاط الولاء المكتسبة!')}
+                </Text>
+                <Text style={[styles.loyaltySubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                  {t('Payment.tamaraDesc', 'لقد كسبت نقاطاً مع هذا الطلب')}
+                </Text>
               </View>
             </View>
 
-            <View style={styles.loyaltyRow}>
+            <View style={[styles.loyaltyRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
               <View>
-                <Text style={styles.loyaltyLabel}>النقاط من الطلب</Text>
-                <Text style={styles.loyaltyPoints}>+{pointsData.points_earned}</Text>
+                <Text style={[styles.loyaltyLabel, { textAlign: isRtl ? 'right' : 'left' }]}>
+                  {t('Review.items', { count: 0, defaultValue: 'النقاط من الطلب' })}
+                </Text>
+                <Text style={[styles.loyaltyPoints, { textAlign: isRtl ? 'right' : 'left' }]}>+{pointsData.points_earned}</Text>
               </View>
               {balance && (
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.loyaltyLabel}>الرصيد الإجمالي</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <View style={{ alignItems: isRtl ? 'flex-start' : 'flex-end' }}>
+                  <Text style={styles.loyaltyLabel}>{t('Success.total', 'الرصيد الإجمالي')}</Text>
+                  <View style={{ flexDirection: isRtl ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
                     <TrendingUp size={14} color="#fef3c7" />
                     <Text style={styles.loyaltyTotal}>{balance.balance}</Text>
                   </View>
@@ -129,21 +141,19 @@ export default function SuccessScreen() {
             </View>
           </View>
         )}
-
-        <View style={{ height: 40 }} />
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 24) }]}>
         <Pressable
           onPress={() => router.push('/(tabs)')}
           style={({ pressed }) => [styles.continueBtn, pressed && { opacity: 0.85 }]}
         >
           <ShoppingBag size={20} color="#fff" />
-          <Text style={styles.continueBtnText}>مواصلة التسوق</Text>
+          <Text style={styles.continueBtnText}>{t('Failed.returnToCart', 'مواصلة التسوق')}</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -167,18 +177,18 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Tajawal_700Bold',
     color: '#1e293b',
   },
   homeBtn: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
     backgroundColor: '#f1f5f9',
-    borderRadius: 12,
+    borderRadius: 20,
   },
   homeBtnText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Tajawal_700Bold',
     color: '#475569',
   },
   scrollContent: {
@@ -190,85 +200,85 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#d1fae5',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ccfbf1',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   iconCircleInner: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: '#a7f3d0',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#99f6e4',
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#064e3b',
-    marginBottom: 8,
+    fontSize: 28,
+    fontFamily: 'Tajawal_800ExtraBold',
+    color: '#134e4a',
+    marginBottom: 10,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
+    fontFamily: 'Tajawal_500Medium',
     color: '#475569',
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 20,
+    lineHeight: 24,
+    marginBottom: 24,
   },
   orderBadge: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     backgroundColor: '#f8fafc',
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    borderRadius: 20,
+    borderRadius: 24,
   },
   orderBadgeText: {
-    fontSize: 13,
+    fontSize: 14,
+    fontFamily: 'Tajawal_500Medium',
     color: '#64748b',
   },
   orderNumber: {
-    fontWeight: '700',
-    color: '#0f172a',
+    fontFamily: 'Tajawal_700Bold',
+    color: TEAL,
   },
   loyaltyCard: {
     backgroundColor: '#f59e0b',
-    borderRadius: 24,
+    borderRadius: 32,
     padding: 24,
     gap: 20,
   },
   loyaltyHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
   loyaltyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   loyaltyTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontFamily: 'Tajawal_700Bold',
     color: '#fff',
   },
   loyaltySubtitle: {
-    fontSize: 13,
+    fontSize: 14,
+    fontFamily: 'Tajawal_500Medium',
     color: '#fef3c7',
     marginTop: 2,
   },
   loyaltyRow: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     paddingTop: 16,
@@ -276,38 +286,43 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.2)',
   },
   loyaltyLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontFamily: 'Tajawal_700Bold',
     color: '#fef3c7',
     marginBottom: 4,
     textTransform: 'uppercase',
   },
   loyaltyPoints: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: 36,
+    fontFamily: 'Tajawal_800ExtraBold',
     color: '#fff',
   },
   loyaltyTotal: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 22,
+    fontFamily: 'Tajawal_700Bold',
     color: '#fff',
   },
   bottomBar: {
-    padding: 20,
-    paddingBottom: 30,
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
   continueBtn: {
-    backgroundColor: GREEN,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: TEAL,
+    borderRadius: 32,
+    paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
+    shadowColor: TEAL,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   continueBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontFamily: 'Tajawal_700Bold',
     color: '#fff',
   },
 });

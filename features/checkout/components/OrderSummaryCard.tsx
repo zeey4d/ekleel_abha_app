@@ -3,8 +3,9 @@ import { View, StyleSheet } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { ShoppingBag } from 'lucide-react-native';
 import type { CartState } from '@/store/types';
+import { I18nManager } from 'react-native';
 
-const GREEN = '#10b981';
+const TEAL = '#0d9488';
 
 interface Props {
   cart: CartState;
@@ -28,9 +29,9 @@ export function OrderSummaryCard({ cart, shippingCost, shippingLabel }: Props) {
   return (
     <View style={styles.card}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>
         <View style={styles.headerIcon}>
-          <ShoppingBag size={16} color={GREEN} />
+          <ShoppingBag size={16} color={TEAL} />
         </View>
         <Text style={styles.headerTitle}>ملخص الطلب</Text>
         <View style={styles.badge}>
@@ -80,8 +81,8 @@ function SummaryRow({
   valueStyle?: object;
 }) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
+    <View style={[styles.row, { flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row' }]}>
+      <Text style={[styles.rowLabel, { textAlign: I18nManager.isRTL ? 'right' : 'left' }]}>{label}</Text>
       <Text style={[styles.rowValue, valueStyle]}>{value}</Text>
     </View>
   );
@@ -90,10 +91,10 @@ function SummaryRow({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 32,
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    padding: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -101,34 +102,33 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     marginBottom: 12,
   },
   headerIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: '#d1fae5',
+    width: 32,
+    height: 32,
+    borderRadius: 12,
+    backgroundColor: '#ccfbf1',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 15,
+    fontFamily: 'Tajawal_700Bold',
     color: '#1e293b',
     flex: 1,
   },
   badge: {
     backgroundColor: '#f1f5f9',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 20,
   },
   badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontFamily: 'Tajawal_700Bold',
     color: '#64748b',
   },
   divider: {
@@ -137,43 +137,43 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   rows: {
-    gap: 8,
+    gap: 10,
   },
   row: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   rowLabel: {
-    fontSize: 13,
+    fontSize: 14,
+    fontFamily: 'Tajawal_500Medium',
     color: '#64748b',
   },
   rowValue: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 14,
+    fontFamily: 'Tajawal_700Bold',
     color: '#374151',
   },
   discountValue: {
     color: '#ef4444',
   },
   freeValue: {
-    color: GREEN,
-    fontWeight: '700',
+    color: TEAL,
+    fontFamily: 'Tajawal_700Bold',
   },
   totalRow: {
-    flexDirection: 'row',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
   },
   totalLabel: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontFamily: 'Tajawal_700Bold',
     color: '#1e293b',
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: '800',
-    color: GREEN,
+    fontFamily: 'Tajawal_700Bold',
+    color: TEAL,
   },
 });

@@ -5,6 +5,8 @@ import { router, Stack } from 'expo-router';
 import { ChevronLeft, CreditCard, Shield, Truck } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { Text } from '@/components/ui/text';
+import { I18nManager } from 'react-native';
+import { cn } from '@/lib/utils';
 
 interface PaymentCardProps {
     name: string;
@@ -13,7 +15,7 @@ interface PaymentCardProps {
 
 function PaymentCard({ name, logo }: PaymentCardProps) {
     return (
-        <View className="bg-white rounded-xl p-4 items-center justify-center h-20 shadow-sm border border-slate-100">
+        <View className="bg-white rounded-2xl p-4 items-center justify-center h-20 shadow-sm border border-slate-200/80">
             <Image
                 source={logo}
                 style={{ width: 120, height: 40 }}
@@ -31,11 +33,11 @@ interface PaymentSectionProps {
 
 function PaymentSection({ title, children }: PaymentSectionProps) {
     return (
-        <View className="mb-10">
-            <Text className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 text-start">
+        <View className="mb-8">
+            <Text className={cn("text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>
                 {title}
             </Text>
-            <View className="flex-row flex-wrap gap-4">
+            <View className={cn("flex-row flex-wrap gap-4", I18nManager.isRTL && "flex-row-reverse")}>
                 {children}
             </View>
         </View>
@@ -50,12 +52,12 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
     return (
-        <View className="bg-white rounded-2xl p-6 items-center border border-slate-100 mb-4">
-            <View className="w-14 h-14 rounded-full bg-yellow-500/10 items-center justify-center mb-4">
+        <View className="bg-white rounded-[32px] p-6 items-center border border-slate-200/80 shadow-sm mb-4">
+            <View className="w-14 h-14 rounded-2xl bg-teal-50 items-center justify-center mb-4">
                 {icon}
             </View>
-            <Text className="font-bold text-lg text-slate-900 mb-2 text-center">{title}</Text>
-            <Text className="text-sm text-slate-600 text-center">{description}</Text>
+            <Text className="font-bold text-lg text-slate-800 mb-2 text-center font-tajawal">{title}</Text>
+            <Text className="text-sm text-slate-500 text-center font-tajawal leading-relaxed">{description}</Text>
         </View>
     );
 }
@@ -82,44 +84,40 @@ export default function PaymentMethodsPage() {
 
     const features = [
         {
-            icon: <Shield size={28} color="#d4af37" />,
+            icon: <Shield size={28} className="text-teal-600" />,
             title: t('paymentMethods.features.secure.title'),
             description: t('paymentMethods.features.secure.description'),
         },
         {
-            icon: <CreditCard size={28} color="#d4af37" />,
+            icon: <CreditCard size={28} className="text-teal-600" />,
             title: t('paymentMethods.features.variety.title'),
             description: t('paymentMethods.features.variety.description'),
         },
         {
-            icon: <Truck size={28} color="#d4af37" />,
+            icon: <Truck size={28} className="text-teal-600" />,
             title: t('paymentMethods.features.cod.title'),
             description: t('paymentMethods.features.cod.description'),
         },
     ];
 
     return (
-        <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 40 }}>
-            <Stack.Screen options={{ title: t('paymentMethods.hero.title') ,            headerLeft: () => (
-                                          <Pressable onPress={() => router.back()} >
-                                              <ChevronLeft color="#000000ff" size={28} />
-                                          </Pressable>
-                                      ),}} />
+        <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 60 }}>
+            <Stack.Screen options={{ title: t('paymentMethods.hero.title') }} />
 
             {/* Hero Section */}
-            <View className="bg-foreground py-16 px-4 items-center relative overflow-hidden">
+            <View className="bg-teal-700 py-16 px-4 items-center relative overflow-hidden mb-4">
                 <Image 
                   source={require("@/assets/images/aka_g.png")} 
-                  style={{ width: 128, height: 128, marginBottom: 24 }} 
+                  style={{ width: 96, height: 96, marginBottom: 16 }} 
                   contentFit="contain" 
                 />
-                <View className="w-16 h-16 rounded-full bg-yellow-500/20 items-center justify-center mb-6">
-                    <CreditCard size={32} color="#d4af37" />
+                <View className="w-16 h-16 rounded-2xl bg-teal-600/50 items-center justify-center mb-6">
+                    <CreditCard size={32} color="#ccfbf1" />
                 </View>
-                <Text className="text-3xl font-bold mb-4 text-white text-center font-cairo">
+                <Text className="text-3xl font-bold mb-4 text-white text-center font-tajawal">
                     {t('paymentMethods.hero.title')}
                 </Text>
-                <Text className="text-lg text-white/80 text-center px-4">
+                <Text className="text-[15px] text-teal-100 text-center px-4 font-tajawal">
                     {t('paymentMethods.hero.subtitle')}
                 </Text>
             </View>
@@ -155,8 +153,8 @@ export default function PaymentMethodsPage() {
             </View>
 
             {/* Features Section */}
-            <View className="py-8 px-4 bg-white">
-                <Text className="text-2xl font-bold text-center mb-8 text-slate-900">
+            <View className="py-8 px-4">
+                <Text className="text-xl font-bold text-center mb-6 text-slate-800 font-tajawal">
                     {t('paymentMethods.whyChoose')}
                 </Text>
                 {features.map((feature, index) => (
@@ -165,16 +163,16 @@ export default function PaymentMethodsPage() {
             </View>
 
             {/* Info Section */}
-            <View className="py-8 px-4">
-                <View className="bg-yellow-500/5 rounded-2xl p-6 border border-yellow-500/20">
-                    <Text className="text-xl font-bold text-slate-900 mb-4 text-start">
+            <View className="py-4 px-4 mb-8">
+                <View className="bg-white rounded-[32px] p-8 border border-slate-200/80 shadow-sm">
+                    <Text className={cn("text-xl font-bold text-slate-800 mb-6 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>
                         {t('paymentMethods.info.title')}
                     </Text>
-                    <View className="gap-3">
+                    <View className="gap-4">
                         {[1, 2, 3, 4].map((i) => (
-                            <View key={i} className="flex-row items-start gap-2">
-                                <View className="w-1.5 h-1.5 rounded-full bg-yellow-600 mt-2" />
-                                <Text className="text-slate-600 flex-1 text-start">
+                            <View key={i} className={cn("flex-row items-start gap-3", I18nManager.isRTL && "flex-row-reverse")}>
+                                <View className="w-2 h-2 rounded-full bg-teal-500 mt-2" />
+                                <Text className={cn("text-slate-500 flex-1 font-tajawal leading-relaxed", I18nManager.isRTL ? "text-right" : "text-left")}>
                                     {t(`paymentMethods.info.point${i}`)}
                                 </Text>
                             </View>

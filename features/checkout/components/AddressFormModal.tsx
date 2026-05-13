@@ -14,8 +14,10 @@ import { Text } from '@/components/ui/text';
 import { X, Plus, MapPin } from 'lucide-react-native';
 import { useAddAddressMutation } from '@/store/features/addresses/addressesSlice';
 import Toast from 'react-native-toast-message';
+import { I18nManager } from 'react-native';
+import { cn } from '@/lib/utils';
 
-const GREEN = '#10b981';
+const TEAL = '#0d9488';
 
 interface Props {
   onAddressAdded: (id: number | string) => void;
@@ -81,10 +83,14 @@ export function AddressFormModal({ onAddressAdded }: Props) {
       {/* Trigger button */}
       <Pressable
         onPress={() => setVisible(true)}
-        style={({ pressed }) => [styles.trigger, pressed && { opacity: 0.8 }]}
+        className={cn(
+          "flex-row items-center gap-2 py-4 px-5 rounded-[24px] border-[1.5px] border-dashed border-teal-600 bg-teal-50 justify-center mb-2",
+          I18nManager.isRTL && "flex-row-reverse"
+        )}
+        style={({ pressed }) => [pressed && { opacity: 0.8 }]}
       >
-        <Plus size={16} color={GREEN} strokeWidth={2.5} />
-        <Text style={styles.triggerText}>إضافة عنوان جديد</Text>
+        <Plus size={18} color={TEAL} strokeWidth={2.5} />
+        <Text className="text-[14px] font-bold text-teal-600 font-tajawal">إضافة عنوان جديد</Text>
       </Pressable>
 
       {/* Modal */}
@@ -99,13 +105,13 @@ export function AddressFormModal({ onAddressAdded }: Props) {
           style={styles.modalContainer}
         >
           {/* Header */}
-          <View style={styles.modalHeader}>
-            <Pressable onPress={() => setVisible(false)} style={styles.closeBtn}>
+          <View className={cn("flex-row items-center px-4 pt-5 pb-4 bg-white border-b border-slate-100 gap-3", I18nManager.isRTL && "flex-row-reverse")}>
+            <Pressable onPress={() => setVisible(false)} className="w-10 h-10 rounded-full bg-slate-50 items-center justify-center">
               <X size={20} color="#374151" />
             </Pressable>
-            <Text style={styles.modalTitle}>إضافة عنوان جديد</Text>
-            <View style={styles.headerIcon}>
-              <MapPin size={18} color={GREEN} />
+            <Text className="flex-1 text-[18px] font-bold text-slate-800 text-center font-tajawal">إضافة عنوان جديد</Text>
+            <View className="w-10 h-10 rounded-full bg-teal-50 items-center justify-center">
+              <MapPin size={20} color={TEAL} />
             </View>
           </View>
 
@@ -116,20 +122,20 @@ export function AddressFormModal({ onAddressAdded }: Props) {
             showsVerticalScrollIndicator={false}
           >
             {/* Fields */}
-            <View style={styles.row}>
+            <View className={cn("flex-row gap-3", I18nManager.isRTL && "flex-row-reverse")}>
               <Field
                 label="الاسم الأول *"
                 value={form.firstname}
                 onChange={set('firstname')}
                 placeholder="مثال: محمد"
-                style={styles.halfField}
+                className="flex-1"
               />
               <Field
                 label="الاسم الأخير"
                 value={form.lastname}
                 onChange={set('lastname')}
                 placeholder="مثال: العمري"
-                style={styles.halfField}
+                className="flex-1"
               />
             </View>
 
@@ -163,8 +169,8 @@ export function AddressFormModal({ onAddressAdded }: Props) {
             <Pressable
               onPress={handleSubmit}
               disabled={isLoading}
+              className="bg-teal-600 rounded-[24px] py-4 items-center mt-4 shadow-sm"
               style={({ pressed }) => [
-                styles.submitBtn,
                 pressed && { opacity: 0.85 },
                 isLoading && { opacity: 0.6 },
               ]}
@@ -172,7 +178,7 @@ export function AddressFormModal({ onAddressAdded }: Props) {
               {isLoading ? (
                 <ActivityIndicator color="#fff" size="small" />
               ) : (
-                <Text style={styles.submitText}>حفظ العنوان</Text>
+                <Text className="text-[16px] font-bold text-white font-tajawal">حفظ العنوان</Text>
               )}
             </Pressable>
           </ScrollView>
@@ -188,18 +194,18 @@ function Field({
   onChange,
   placeholder,
   keyboardType,
-  style,
+  className,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
   keyboardType?: 'default' | 'phone-pad';
-  style?: object;
+  className?: string;
 }) {
   return (
-    <View style={[styles.fieldWrapper, style]}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+    <View className={cn("gap-2", className)}>
+      <Text className={cn("text-[14px] font-bold text-slate-700 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{label}</Text>
       <TextInput
         style={styles.input}
         value={value}
@@ -207,115 +213,32 @@ function Field({
         placeholder={placeholder}
         placeholderTextColor="#94a3b8"
         keyboardType={keyboardType || 'default'}
-        textAlign="right"
+        textAlign={I18nManager.isRTL ? "right" : "left"}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  trigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: GREEN,
-    borderStyle: 'dashed',
-    backgroundColor: '#f0fdf4',
-    justifyContent: 'center',
-  },
-  triggerText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: GREEN,
-  },
   modalContainer: {
     flex: 1,
     backgroundColor: '#f8fafc',
   },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-    gap: 12,
-  },
-  closeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#f1f5f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalTitle: {
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1e293b',
-    textAlign: 'center',
-  },
-  headerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#d1fae5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   scroll: { flex: 1 },
   scrollContent: {
     padding: 16,
-    gap: 12,
+    gap: 16,
     paddingBottom: 40,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  halfField: {
-    flex: 1,
-  },
-  fieldWrapper: {
-    gap: 6,
-  },
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#374151',
   },
   input: {
     backgroundColor: '#fff',
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
-  },
-  submitBtn: {
-    backgroundColor: GREEN,
     borderRadius: 16,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-    shadowColor: GREEN,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  submitText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'Tajawal_500Medium',
+    color: '#1e293b',
   },
 });

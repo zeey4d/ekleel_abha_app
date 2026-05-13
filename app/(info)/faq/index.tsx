@@ -5,6 +5,7 @@ import { HelpCircle, ChevronDown, ShoppingCart, Truck, CreditCard, RotateCcw, Ma
 import { Text } from '@/components/ui/text';
 import { router, Stack } from 'expo-router';
 import { cn } from '@/lib/utils';
+import { I18nManager } from 'react-native';
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android') {
@@ -22,25 +23,24 @@ interface FAQItemProps {
 
 function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
     return (
-        <View className="border border-border rounded-xl mb-3 overflow-hidden bg-white">
+        <View className="border border-slate-200/80 rounded-2xl mb-3 overflow-hidden bg-white shadow-sm">
             <Pressable
                 onPress={onToggle}
-                className="flex-row items-center justify-between p-4 bg-background"
+                className={cn("flex-row items-center justify-between p-4 bg-white active:bg-slate-50", I18nManager.isRTL && "flex-row-reverse")}
             >
-                <Text className="font-medium text-foreground flex-1 text-start pr-4">{question}</Text>
+                <Text className={cn("font-bold text-slate-800 flex-1 font-tajawal", I18nManager.isRTL ? "text-right pl-4" : "text-left pr-4")}>{question}</Text>
                 <ChevronDown
                     size={20}
                     className={cn(
-                        "text-yellow-500 transition-transform",
+                        "text-teal-600 transition-transform",
                         isOpen && "transform rotate-180"
                     )}
-                    color="#d4af37"
                 />
             </Pressable>
             {isOpen && (
-                <View className="px-4 pb-4 pt-0 bg-slate-50">
-                    <View className="h-[1px] bg-slate-100 mb-3 w-full" />
-                    <Text className="text-muted-foreground leading-relaxed text-start">
+                <View className="px-4 pb-4 pt-0 bg-slate-50 border-t border-slate-100">
+                    <View className="h-3 w-full" />
+                    <Text className={cn("text-slate-500 leading-relaxed font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>
                         {answer}
                     </Text>
                 </View>
@@ -59,12 +59,12 @@ interface FAQCategoryProps {
 
 function FAQCategory({ icon, title, items, openIndex, onToggle }: FAQCategoryProps) {
     return (
-        <View className="mb-8">
-            <View className="flex-row items-center gap-3 mb-4">
-                <View className="w-10 h-10 rounded-full bg-yellow-500/10 items-center justify-center">
+        <View className="mb-6 bg-white p-5 rounded-[32px] border border-slate-200/80 shadow-sm">
+            <View className={cn("flex-row items-center gap-3 mb-5", I18nManager.isRTL && "flex-row-reverse")}>
+                <View className="w-10 h-10 rounded-2xl bg-teal-50 items-center justify-center">
                     {icon}
                 </View>
-                <Text className="text-xl font-bold text-foreground">{title}</Text>
+                <Text className={cn("text-lg font-bold text-slate-800 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{title}</Text>
             </View>
             <View>
                 {items.map((item, index) => (
@@ -141,27 +141,23 @@ export default function FAQPage() {
     ];
 
     return (
-        <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 40 }}>
-            <Stack.Screen options={{ title: t('faq.hero.title'),             headerLeft: () => (
-                              <Pressable onPress={() => router.back()} >
-                                  <ChevronLeft color="#000000ff" size={28} />
-                              </Pressable>
-                          ),}} />
+        <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 60 }}>
+            <Stack.Screen options={{ title: t('faq.hero.title') }} />
             
             {/* Hero Section */}
-            <View className="bg-foreground py-16 px-4 items-center relative overflow-hidden">
+            <View className="bg-teal-700 py-16 px-4 items-center relative overflow-hidden mb-4">
                 <Image 
                   source={require("@/assets/images/aka_g.png")} 
-                  className="w-32 h-32 mb-6" 
+                  className="w-24 h-24 mb-4" 
                   resizeMode="contain" 
                 />
-                <View className="w-16 h-16 rounded-full bg-yellow-500/20 items-center justify-center mb-6">
-                    <HelpCircle size={32} color="#d4af37" />
+                <View className="w-16 h-16 rounded-2xl bg-teal-600/50 items-center justify-center mb-6">
+                    <HelpCircle size={32} color="#ccfbf1" />
                 </View>
-                <Text className="text-3xl font-bold mb-4 text-white text-center font-cairo">
+                <Text className="text-3xl font-bold mb-4 text-white text-center font-tajawal">
                     {t('faq.hero.title')}
                 </Text>
-                <Text className="text-lg text-white/80 text-center px-4">
+                <Text className="text-[15px] text-teal-100 text-center px-4 font-tajawal">
                     {t('faq.hero.subtitle')}
                 </Text>
             </View>
@@ -181,26 +177,26 @@ export default function FAQPage() {
             </View>
 
             {/* Contact Section */}
-            <View className="py-12 px-4 bg-white items-center">
-                <View className="w-14 h-14 rounded-full bg-yellow-500/10 items-center justify-center mb-4">
-                    <Mail size={24} color="#d4af37" />
+            <View className="py-8 px-4 bg-white mx-4 rounded-[32px] border border-slate-200/80 shadow-sm items-center mt-4 mb-8">
+                <View className="w-14 h-14 rounded-2xl bg-teal-50 items-center justify-center mb-4">
+                    <Mail size={24} className="text-teal-600" />
                 </View>
-                <Text className="text-2xl font-bold text-foreground mb-4 text-center">
+                <Text className="text-xl font-bold text-slate-800 mb-3 text-center font-tajawal">
                     {t('faq.contact.title')}
                 </Text>
-                <Text className="text-muted-foreground mb-6 text-center px-4">
+                <Text className="text-sm text-slate-500 mb-6 text-center px-2 font-tajawal">
                     {t('faq.contact.description')}
                 </Text>
 
                 <View className="gap-3 w-full">
                      {/* Buttons - reusing styles */}
-                     <Pressable className="bg-yellow-600 rounded-full py-3 px-6 items-center flex-row justify-center gap-2">
+                     <Pressable className={cn("bg-teal-600 rounded-full py-4 px-6 items-center flex-row justify-center gap-2 shadow-sm active:bg-teal-700 active:scale-[0.98] transition-all", I18nManager.isRTL && "flex-row-reverse")}>
                          <Mail size={18} color="white"/>
-                         <Text className="text-white font-bold">{t('faq.contact.emailButton')}</Text>
+                         <Text className="text-white font-bold font-tajawal text-[15px]">{t('faq.contact.emailButton')}</Text>
                      </Pressable>
-                     <Pressable className="bg-white border border-border rounded-full py-3 px-6 items-center flex-row justify-center gap-2">
-                         <Phone size={18} color="black"/>
-                         <Text className="text-foreground font-bold">{t('faq.contact.callButton')}</Text>
+                     <Pressable className={cn("bg-white border border-slate-200 rounded-full py-4 px-6 items-center flex-row justify-center gap-2 active:bg-slate-50", I18nManager.isRTL && "flex-row-reverse")}>
+                         <Phone size={18} className="text-slate-700"/>
+                         <Text className="text-slate-700 font-bold font-tajawal text-[15px]">{t('faq.contact.callButton')}</Text>
                      </Pressable>
                 </View>
             </View>

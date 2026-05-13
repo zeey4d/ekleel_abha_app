@@ -134,7 +134,7 @@ export default function HomeScreen() {
   // ── Loading state ──────────────────────────
   if (isLoading) {
     return (
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-[#f8fafc]">
         <HomePageSkeleton />
       </View>
     );
@@ -143,11 +143,11 @@ export default function HomeScreen() {
   // ── Error state ────────────────────────────
   if (error || !data) {
     return (
-      <View className="flex-1 justify-center items-center bg-background px-4">
-        <Text className="text-xl font-bold text-foreground mb-2">
+      <View className="flex-1 justify-center items-center bg-[#f8fafc] px-4">
+        <Text style={{ fontFamily: 'Tajawal_700Bold' }} className="text-xl text-slate-800 mb-2">
           {t('title')}
         </Text>
-        <Text className="text-gray-500 mb-4">
+        <Text style={{ fontFamily: 'Tajawal_500Medium' }} className="text-slate-500 mb-4 text-center">
           {t('error', { defaultValue: 'حدث خطأ أثناء تحميل البيانات' })}
         </Text>
       </View>
@@ -156,11 +156,11 @@ export default function HomeScreen() {
 
   // ── Main content ───────────────────────────
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-[#f8fafc]">
       <HomeHeader scrollY={scrollY} />
 
       <Animated.ScrollView
-        className="flex-1 bg-background"
+        className="flex-1 bg-[#f8fafc]"
         entering={FadeIn.duration(800)}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
@@ -185,7 +185,7 @@ export default function HomeScreen() {
           {hero.length > 0 && <HeroPromoBanners banners={hero} />}
 
           {/* ── Top Selling Products ──────── */}
-          <View className="py-5">
+          <View className="py-2">
             <TopSellingProducts products={data.top_selling_products ?? []} />
           </View>
 
@@ -218,60 +218,64 @@ export default function HomeScreen() {
 
 export function HomePageSkeleton() {
   const { width } = Dimensions.get('window');
-  // Container padding is 4 (px-1 -> 4px horizontal padding, but let's say total horizontal space is ~8px. Actually `px-1` is 4px total padding if 2px each side. Let's use 16px as standard).
-  // Assuming full width minus minimal padding.
-  const twoColWidth = (width - 24) / 2; // 2 items with some spacing
-  const threeColWidth = (width - 48) / 3;
+  const twoColWidth = (width - 48) / 2;
+  const threeColWidth = (width - 64) / 3;
 
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      className="flex-1 bg-white"
+      className="flex-1 bg-[#f8fafc]"
     >
-      <View className="space-y-2 pb-2">
+      <View className="space-y-4 pb-8">
         {/* Hero Skeleton */}
-        <View className="w-full h-[400px] bg-slate-100 relative">
-          <View className="absolute bottom-20 left-4 space-y-4">
-            <Skeleton className="h-12 w-64" />
-            <Skeleton className="h-4 w-48" />
+        <View className="w-full h-[450px] bg-slate-100 relative">
+          <View className="absolute bottom-20 left-6 space-y-4">
+            <Skeleton className="h-12 w-64 rounded-2xl" />
+            <Skeleton className="h-4 w-48 rounded-lg" />
             <Skeleton className="h-12 w-32 rounded-full" />
           </View>
         </View>
 
-        <View className="px-1 space-y-4">
-          {/* Trust Badges Skeleton */}
-          <View className="flex-row flex-wrap justify-between">
-            {Array.from({ length: 4 }, (_, i) => (
-              <Skeleton key={i} style={{ width: twoColWidth, marginBottom: 16 }} className="h-24 rounded-xl" />
-            ))}
-          </View>
-
+        <View className="px-4 space-y-8">
           {/* Categories Skeleton */}
-          <View className="space-y-6">
-            <View className="flex-row justify-between">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-20" />
+          <View className="space-y-4">
+            <View className="flex-row justify-between items-center px-1">
+              <Skeleton className="h-8 w-32 rounded-xl" />
+              <Skeleton className="h-4 w-16 rounded-lg" />
             </View>
-            <View className="flex-row flex-wrap justify-between">
-              {Array.from({ length: 6 }, (_, i) => (
-                <Skeleton key={i} style={{ width: threeColWidth, aspectRatio: 1, marginBottom: 24 }} className="rounded-full" />
+            <View className="flex-row justify-between">
+              {Array.from({ length: 4 }, (_, i) => (
+                <View key={i} className="items-center space-y-2">
+                  <Skeleton style={{ width: 64, height: 64 }} className="rounded-full" />
+                  <Skeleton className="h-3 w-16 rounded-lg" />
+                </View>
               ))}
             </View>
           </View>
 
-          {/* Deals Skeleton */}
-          <Skeleton className="h-96 w-full rounded-3xl" />
-
-          {/* Products Grid Skeleton */}
-          <View className="flex-row flex-wrap justify-between">
-            {Array.from({ length: 4 }, (_, i) => (
-              <View key={i} style={{ width: twoColWidth, marginBottom: 24 }} className="space-y-3">
-                <Skeleton style={{ aspectRatio: 4 / 3 }} className="rounded-xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </View>
-            ))}
+          {/* Featured Section Skeleton */}
+          <View className="space-y-4">
+            <View className="flex-row justify-between items-center px-1">
+              <Skeleton className="h-8 w-48 rounded-xl" />
+              <Skeleton className="h-4 w-16 rounded-lg" />
+            </View>
+            <View className="flex-row justify-between">
+              {Array.from({ length: 2 }, (_, i) => (
+                <View key={i} style={{ width: twoColWidth }} className="space-y-3 bg-white p-4 rounded-[32px] border border-slate-50 shadow-sm">
+                  <Skeleton style={{ aspectRatio: 1 }} className="rounded-2xl w-full" />
+                  <Skeleton className="h-4 w-3/4 rounded-lg" />
+                  <Skeleton className="h-4 w-1/2 rounded-lg" />
+                  <View className="flex-row justify-between items-center pt-2">
+                    <Skeleton className="h-6 w-16 rounded-lg" />
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                  </View>
+                </View>
+              ))}
+            </View>
           </View>
+
+          {/* Banner Skeleton */}
+          <Skeleton className="h-48 w-full rounded-[32px]" />
         </View>
       </View>
     </ScrollView>

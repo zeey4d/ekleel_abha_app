@@ -34,7 +34,7 @@
 @layer base {
   :root {
     /* === Backgrounds === */
-    --background: 0 0% 100%;
+    --background: 210 40% 98%;
     --foreground: 180 10% 10%;
 
     /* === Cards & Popovers === */

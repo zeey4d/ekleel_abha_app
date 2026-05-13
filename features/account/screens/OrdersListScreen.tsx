@@ -8,6 +8,8 @@ import { getImageUrl } from '@/lib/image-utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card'; // Assume compatibility or basic View
 import { Badge } from '@/components/ui/badge'; // Assume compatibility or basic View with style
+import { I18nManager } from 'react-native';
+import { cn } from '@/lib/utils';
 
 const OrderStatusBadge = ({ status }: { status?: string }) => {
     if (!status) return <View className="bg-gray-200 px-2 py-1 rounded"><Text className="text-xs text-gray-700 font-cairo">Unknown</Text></View>;
@@ -29,8 +31,8 @@ const OrderStatusBadge = ({ status }: { status?: string }) => {
     }
 
     return (
-        <View className={`${bgClass} px-2 py-1 rounded mr-2`}>
-            <Text className={`${textClass} text-xs font-bold capitalize font-cairo`}>{status}</Text>
+        <View className={cn(`${bgClass} px-3 py-1.5 rounded-full mr-2`, I18nManager.isRTL && "mr-0 ml-2")}>
+            <Text className={`${textClass} text-[11px] font-bold uppercase tracking-widest font-tajawal`}>{status}</Text>
         </View>
     );
 };
@@ -68,68 +70,69 @@ export default function OrdersList() {
 
     if (isLoading) {
         return (
-            <View className="flex-1 justify-center items-center p-8">
-                <Loader2 size={32} className="animate-spin text-primary" />
+            <View className="flex-1 justify-center items-center bg-slate-50 p-8">
+                <Loader2 size={32} className="animate-spin text-teal-600" />
             </View>
         );
     }
 
     return (
-        <View className="flex-1 bg-background p-4">
+        <View className="flex-1 bg-slate-50 p-4">
              <Stack.Screen 
                 options={{ 
                     headerShown: true,
                     title: t('orders'),
                     headerBackTitle: "", 
-                    headerTintColor: '#000',
+                    headerTintColor: '#0f172a',
+                    headerTitleStyle: { fontFamily: 'Tajawal_700Bold', fontSize: 18 },
                     headerLeft: () => (
-                        <Pressable onPress={() => router.back()} >
-                            <ChevronLeft color="#000000ff" size={28} />
+                        <Pressable onPress={() => router.back()} className="px-2" >
+                            <ChevronLeft color="#0f172a" size={28} style={I18nManager.isRTL ? { transform: [{ rotate: '180deg' }] } : {}} />
                         </Pressable>
                     ),
                 }} 
             />
-            <Text className="text-2xl font-bold mb-6 font-cairo">{t('orders')}</Text>
 
             <FlatList
                 data={orders}
                 keyExtractor={(item) => (item?.id || Math.random()).toString()}
-                contentContainerStyle={{ gap: 16, paddingBottom: 20 }}
+                contentContainerStyle={{ gap: 16, paddingBottom: 100, paddingTop: 10 }}
+                showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
-                    <Card className="flex-1 justify-center items-center py-16">
-                         <View className="bg-muted w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                            <Package size={32} className="text-muted-foreground" color="gray" />
+                    <View className="flex-1 justify-center items-center py-16 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800/80 mt-4 shadow-sm">
+                         <View className="bg-slate-100 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mb-6">
+                            <Package size={40} className="text-slate-400" color="#94a3b8" />
                         </View>
-                        <Text className="text-lg font-medium text-foreground mb-4 font-cairo">{t('noOrders')}</Text>
-                        <Button onPress={() => router.push('/(tabs)/(home)/(context)/products')} className="bg-primary">
-                             <Text className="text-white font-cairo">{tShared('startShopping') || "Start Shopping"}</Text>
-                        </Button>
-                    </Card>
+                        <Text className="text-lg font-bold text-slate-800 dark:text-white mb-6 font-tajawal text-center">{t('noOrders')}</Text>
+                        <Pressable onPress={() => router.push('/(tabs)/(home)/(context)/products')} className="bg-teal-600 px-8 py-3.5 rounded-full active:scale-95 transition-all shadow-sm">
+                             <Text className="text-white font-bold font-tajawal">{tShared('startShopping') || "Start Shopping"}</Text>
+                        </Pressable>
+                    </View>
                 }
                 renderItem={({ item: order }) => (
-                    <Card className="overflow-hidden">
+                    <View className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800/80 overflow-hidden shadow-sm">
                         {/* Header */}
-                        <View className="bg-muted/30 p-4 flex-row items-center justify-between border-b border-border/50">
-                            <View className="flex-1">
-                                <Text className="text-xs text-muted-foreground uppercase tracking-wider font-cairo">{t('orderId')}</Text>
-                                <Text className="font-bold font-mono">#{order.order_id || order.id}</Text>
+                        <View className={cn("bg-slate-50/50 dark:bg-slate-800/30 p-5 flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800/50", I18nManager.isRTL && "flex-row-reverse")}>
+                            <View className={cn("flex-1", I18nManager.isRTL && "items-end")}>
+                                <Text className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-tajawal mb-1">{t('orderId')}</Text>
+                                <Text className="font-bold font-mono text-slate-800 dark:text-slate-200">#{order.order_id || order.id}</Text>
                             </View>
-                            <View className="flex-1">
-                                <Text className="text-xs text-muted-foreground uppercase tracking-wider font-cairo">{t('date')}</Text>
-                                <Text className="text-sm font-cairo">{new Date(order.date_added).toLocaleDateString()}</Text>
+                            <View className={cn("flex-1", I18nManager.isRTL ? "items-start" : "items-center")}>
+                                <Text className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-tajawal mb-1">{t('date')}</Text>
+                                <Text className="text-sm font-bold text-slate-800 dark:text-slate-200 font-tajawal">{new Date(order.date_added).toLocaleDateString()}</Text>
                             </View>
-                             <View className="flex-1 items-end">
-                                <Text className="text-xs text-muted-foreground uppercase tracking-wider font-cairo">{t('total')}</Text>
-                                <Text className="font-bold text-primary font-cairo">{Number(order.total).toFixed(2)} SAR</Text>
+                             <View className={cn("flex-1", I18nManager.isRTL ? "items-start" : "items-end")}>
+                                <Text className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-tajawal mb-1">{t('total')}</Text>
+                                <Text className="font-bold text-teal-600 font-tajawal">{Number(order.total).toFixed(2)} SAR</Text>
                             </View>
                         </View>
 
                         {/* Content */}
-                        <View className="p-4">
-                            <View className="flex-row items-center justify-between mb-4">
-                                <View className="flex-row -space-x-2">
+                        <View className="p-5">
+                            <View className={cn("flex-row items-center justify-between mb-5", I18nManager.isRTL && "flex-row-reverse")}>
+                                <View className={cn("flex-row -space-x-3", I18nManager.isRTL && "flex-row-reverse space-x-reverse")}>
                                      {(order.products || []).slice(0, 3).map((product, idx) => (
-                                        <View key={idx} className="w-10 h-10 rounded-full border-2 border-background bg-white overflow-hidden z-10">
+                                        <View key={idx} className="w-12 h-12 rounded-full border-4 border-white dark:border-slate-900 bg-slate-100 overflow-hidden z-10 shadow-sm">
                                              <Image
                                                 source={{ uri: getImageUrl(product.image) }}
                                                 className="w-full h-full"
@@ -138,8 +141,8 @@ export default function OrdersList() {
                                         </View>
                                     ))}
                                     {(order.products?.length || 0) > 3 && (
-                                        <View className="w-10 h-10 rounded-full border-2 border-background bg-muted flex items-center justify-center z-0">
-                                            <Text className="text-xs font-medium text-muted-foreground">
+                                        <View className="w-12 h-12 rounded-full border-4 border-white dark:border-slate-900 bg-slate-100 flex items-center justify-center z-0 shadow-sm">
+                                            <Text className="text-xs font-bold text-slate-500 font-tajawal">
                                                 +{(order.products?.length || 0) - 3}
                                             </Text>
                                         </View>
@@ -148,26 +151,26 @@ export default function OrdersList() {
                                 <OrderStatusBadge status={order.status} />
                             </View>
 
-                            <View className="flex-row gap-2">
-                                <Button 
+                            <View className={cn("flex-row gap-3", I18nManager.isRTL && "flex-row-reverse")}>
+                                <Pressable 
                                     onPress={() => router.push(`/(tabs)/(account)/account/orders/${order.id}` as any)} 
-                                    className="flex-1 flex-row items-center justify-center bg-secondary"
+                                    className="flex-1 flex-row items-center justify-center bg-slate-100 dark:bg-slate-800 py-3.5 rounded-2xl active:bg-slate-200 dark:active:bg-slate-700 transition-colors"
                                 >
-                                    <Eye size={16} color="black" className="mr-2" />
-                                    <Text className="font-cairo">{t('viewOrder')}</Text>
-                                </Button>
+                                    <Eye size={18} className="text-slate-600 dark:text-slate-300 mr-2" style={I18nManager.isRTL ? { marginRight: 0, marginLeft: 8 } : {}} />
+                                    <Text className="font-bold text-slate-700 dark:text-slate-200 font-tajawal text-[13px]">{t('viewOrder')}</Text>
+                                </Pressable>
 
                                 {(order.status_id === 1 || order.status === 'Pending') && (
-                                     <Button 
+                                     <Pressable 
                                         onPress={() => handleCancel(order.id || 0)}
-                                        className="bg-red-50 flex-row items-center justify-center px-4"
+                                        className="bg-red-50 dark:bg-red-900/10 flex-row items-center justify-center px-5 rounded-2xl active:bg-red-100 dark:active:bg-red-900/20"
                                     >
-                                        {isCancelling ? <Loader2 size={16} className="animate-spin text-red-500" /> : <Ban size={16} color="#ef4444" />}
-                                    </Button>
+                                        {isCancelling ? <Loader2 size={18} className="animate-spin text-red-500" /> : <Ban size={18} color="#ef4444" />}
+                                    </Pressable>
                                 )}
                             </View>
                         </View>
-                    </Card>
+                    </View>
                 )}
             />
         </View>

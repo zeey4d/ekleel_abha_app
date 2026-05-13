@@ -59,19 +59,19 @@ export default function CategoriesListScreen() {
                     {/* Text Details */}
                     <View className="flex-1 justify-center">
                         <Text 
-                            className="text-[18px] font-bold text-slate-800 font-cairo" 
+                            className="text-[18px] font-bold text-slate-800 font-tajawal" 
                             style={{ textAlign: isRTL ? 'right' : 'left' }}
                         >
                             {name}
                         </Text>
                         {hasChildren ? (
                             <View className="flex-row items-center mt-1" style={isRtlStyle ? { flexDirection: 'row-reverse' } : undefined}>
-                                <Text className="text-[13px] text-slate-500 font-medium font-cairo">
+                                <Text className="text-[13px] text-slate-500 font-medium font-tajawal">
                                     {item.children.length} {t('subCategories', 'أقسام فرعية')}
                                 </Text>
                             </View>
                         ) : (
-                            <Text className="text-[13px] text-slate-400 font-medium mt-1 font-cairo" style={{ textAlign: isRTL ? 'right' : 'left' }}>
+                            <Text className="text-[13px] text-slate-400 font-medium mt-1 font-tajawal" style={{ textAlign: isRTL ? 'right' : 'left' }}>
                                 {t('noSubcategories', 'لا يوجد أقسام فرعية')}
                             </Text>
                         )}
@@ -105,7 +105,7 @@ export default function CategoriesListScreen() {
                                         elevation: 1,
                                     }}
                                 >
-                                    <Text className="text-[13px] text-slate-600 font-bold font-cairo">{childName}</Text>
+                                    <Text className="text-[13px] text-slate-600 font-bold font-tajawal">{childName}</Text>
                                 </Pressable>
                              );
                          })}
@@ -114,7 +114,7 @@ export default function CategoriesListScreen() {
                                 onPress={() => router.push(`categories/${item.id}` as any)}
                                 className="px-3 py-2 justify-center"
                              >
-                                 <Text className="text-[13px] text-primary font-bold font-cairo" style={{ color: '#10b981' }}>
+                                 <Text className="text-[13px] text-primary font-bold font-tajawal" style={{ color: '#10b981' }}>
                                      {isRTL ? `+${item.children.length - 4} المزيد` : `+${item.children.length - 4} More`}
                                  </Text>
                              </Pressable>
@@ -132,7 +132,7 @@ export default function CategoriesListScreen() {
                     headerShown: true,
                     title: t('Header.title', 'الأقسام'),
                     headerTitleStyle: { 
-                        fontFamily: 'Cairo-Bold',
+                        fontFamily: 'Tajawal_700Bold',
                         fontWeight: 'bold',
                         fontSize: 18,
                         color: '#0f172a'
@@ -158,7 +158,7 @@ export default function CategoriesListScreen() {
             {isLoading ? (
                 <View className="flex-1 items-center justify-center">
                     <ActivityIndicator size="large" color="#10b981" />
-                    <Text className="text-slate-500 mt-4 font-bold font-cairo">
+                    <Text className="text-slate-500 mt-4 font-bold font-tajawal">
                         {t('loading', 'جاري التحميل...')}
                     </Text>
                 </View>
@@ -174,10 +174,10 @@ export default function CategoriesListScreen() {
                             <View className="w-24 h-24 bg-white rounded-full items-center justify-center mb-6 shadow-sm border border-slate-100">
                                 <Layers size={40} color="#cbd5e1" />
                             </View>
-                            <Text className="text-lg font-bold text-slate-700 text-center mb-2 font-cairo">
+                            <Text className="text-lg font-bold text-slate-700 text-center mb-2 font-tajawal">
                                 {t('noCategoriesTitle', 'لا توجد أقسام حالياً')}
                             </Text>
-                            <Text className="text-sm text-slate-500 text-center font-cairo leading-6">
+                            <Text className="text-sm text-slate-500 text-center font-tajawal leading-6">
                                 {t('noCategoriesDesc', 'لم يتم إضافة أي أقسام حتى الآن، يرجى العودة لاحقاً للحصول على المزيد من التحديثات.')}
                             </Text>
                         </Animated.View>

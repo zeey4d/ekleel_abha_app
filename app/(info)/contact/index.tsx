@@ -14,15 +14,17 @@ import {
 import { useGetSiteSettingsQuery } from "@/store/features/settings/settingsSlice";
 import { useTranslation } from "react-i18next";
 import { Link, router, Stack } from "expo-router";
+import { I18nManager } from "react-native";
+import { cn } from "@/lib/utils";
 
 // Temporary Card components if not available in project ui
 const Card = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <View className={`bg-white rounded-xl border border-border ${className}`}>{children}</View>
+    <View className={cn("bg-white rounded-[32px] border border-slate-200/80 shadow-sm", className)}>{children}</View>
 );
-const CardHeader = ({ children, className }: any) => <View className={`p-4 border-b border-border ${className}`}>{children}</View>;
-const CardContent = ({ children, className }: any) => <View className={`p-4 ${className}`}>{children}</View>;
-const CardTitle = ({ children, className }: any) => <Text className={`text-lg font-bold ${className}`}>{children}</Text>;
-const CardDescription = ({ children }: any) => <Text className="text-sm text-muted-foreground">{children}</Text>;
+const CardHeader = ({ children, className }: any) => <View className={cn("p-6 border-b border-slate-100", className)}>{children}</View>;
+const CardContent = ({ children, className }: any) => <View className={cn("p-6", className)}>{children}</View>;
+const CardTitle = ({ children, className }: any) => <Text className={cn("text-xl font-bold font-tajawal text-slate-800", className)}>{children}</Text>;
+const CardDescription = ({ children }: any) => <Text className="text-sm text-slate-500 font-tajawal mt-1">{children}</Text>;
 
 export default function ContactPage() {
   const { t } = useTranslation('info');
@@ -67,81 +69,80 @@ export default function ContactPage() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 40 }}>
-       <Stack.Screen options={{ title: t('contact.pageTitle') 
-        ,
-                    headerLeft: () => (
-                                      <Pressable onPress={() => router.back()} >
-                                          <ChevronLeft color="#000000ff" size={28} />
-                                      </Pressable>
-                                  ),
-       }} />
+    <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ paddingBottom: 60 }}>
+       <Stack.Screen options={{ title: t('contact.pageTitle') }} />
 
       {/* Hero Section */}
-      <View className="bg-foreground py-16 px-4 items-center relative overflow-hidden">
+      <View className="bg-teal-700 py-16 px-4 items-center relative overflow-hidden mb-6">
         <Image 
           source={require("@/assets/images/aka_g.png")} 
-          className="w-32 h-32 mb-6" 
+          className="w-24 h-24 mb-4" 
           resizeMode="contain" 
         />
-        <View className="w-16 h-16 rounded-full bg-yellow-500/20 items-center justify-center mb-6">
-          <Headphones size={32} color="#d4af37" />
+        <View className="w-16 h-16 rounded-2xl bg-teal-600/50 items-center justify-center mb-6">
+          <Headphones size={32} color="#ccfbf1" />
         </View>
-        <Text className="text-3xl font-bold mb-4 text-white text-center font-cairo">
+        <Text className="text-2xl font-bold mb-2 text-white text-center font-tajawal">
           {t("contact.pageTitle")}
         </Text>
-        <Text className="text-lg text-white/80 text-center">
+        <Text className="text-[15px] text-teal-100 text-center font-tajawal">
           {t("contact.pageDescription")}
         </Text>
       </View>
 
       {/* Quick Contact Options */}
-      <View className="py-8 px-4">
-        <Text className="text-2xl font-bold text-center mb-8 text-foreground">
+      <View className="py-4 px-4">
+        <Text className="text-xl font-bold text-center mb-6 text-slate-800 font-tajawal">
             {t("contact.quickContactTitle")}
         </Text>
         <View className="gap-4">
             {/* Phone */}
             <Pressable 
                 onPress={() => Linking.openURL(`tel:${phoneHref}`)}
-                className="bg-white p-6 rounded-2xl border border-border items-center active:bg-slate-50"
+                className="bg-white p-5 rounded-[32px] border border-slate-200/80 items-center shadow-sm active:bg-slate-50 flex-row"
             >
-                <View className="w-12 h-12 rounded-full bg-yellow-500/10 items-center justify-center mb-4">
-                    <Phone size={24} color="#d4af37" />
+                <View className={cn("w-12 h-12 rounded-2xl bg-teal-50 items-center justify-center", I18nManager.isRTL ? "ml-4" : "mr-4")}>
+                    <Phone size={24} className="text-teal-600" />
                 </View>
-                <Text className="font-semibold text-foreground mb-1">{t("contact.phone")}</Text>
-                <Text className="text-sm text-muted-foreground">{phoneValue}</Text>
+                <View className="flex-1">
+                    <Text className={cn("font-bold text-slate-800 mb-1 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.phone")}</Text>
+                    <Text className={cn("text-sm text-slate-500 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{phoneValue}</Text>
+                </View>
             </Pressable>
 
             {/* WhatsApp */}
             <Pressable 
                 onPress={() => Linking.openURL(`https://wa.me/${whatsappNumber}`)}
-                className="bg-white p-6 rounded-2xl border border-border items-center active:bg-slate-50"
+                className="bg-white p-5 rounded-[32px] border border-slate-200/80 items-center shadow-sm active:bg-slate-50 flex-row"
             >
-                <View className="w-12 h-12 rounded-full bg-green-500/10 items-center justify-center mb-4">
-                    <MessageCircle size={24} color="#22c55e" />
+                <View className={cn("w-12 h-12 rounded-2xl bg-green-50 items-center justify-center", I18nManager.isRTL ? "ml-4" : "mr-4")}>
+                    <MessageCircle size={24} color="#16a34a" />
                 </View>
-                <Text className="font-semibold text-foreground mb-1">{t("contact.whatsapp")}</Text>
-                <Text className="text-sm text-muted-foreground">{t("contact.whatsappDesc")}</Text>
+                <View className="flex-1">
+                    <Text className={cn("font-bold text-slate-800 mb-1 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.whatsapp")}</Text>
+                    <Text className={cn("text-sm text-slate-500 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.whatsappDesc")}</Text>
+                </View>
             </Pressable>
 
             {/* Email */}
             <Pressable 
                 onPress={() => Linking.openURL(`mailto:${emailValue}`)}
-                className="bg-white p-6 rounded-2xl border border-border items-center active:bg-slate-50"
+                className="bg-white p-5 rounded-[32px] border border-slate-200/80 items-center shadow-sm active:bg-slate-50 flex-row"
             >
-                 <View className="w-12 h-12 rounded-full bg-yellow-500/10 items-center justify-center mb-4">
-                    <Mail size={24} color="#d4af37" />
+                 <View className={cn("w-12 h-12 rounded-2xl bg-teal-50 items-center justify-center", I18nManager.isRTL ? "ml-4" : "mr-4")}>
+                    <Mail size={24} className="text-teal-600" />
                 </View>
-                <Text className="font-semibold text-foreground mb-1">{t("contact.email")}</Text>
-                <Text className="text-sm text-muted-foreground">{emailValue}</Text>
+                <View className="flex-1">
+                    <Text className={cn("font-bold text-slate-800 mb-1 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.email")}</Text>
+                    <Text className={cn("text-sm text-slate-500 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{emailValue}</Text>
+                </View>
             </Pressable>
         </View>
       </View>
 
       {/* Helpful Links */}
-      <View className="py-8 bg-white px-4">
-         <Text className="text-xl font-bold text-center mb-6 text-foreground">
+      <View className="py-6 bg-white px-4 mx-4 rounded-[32px] border border-slate-200/80 shadow-sm mt-4">
+         <Text className="text-lg font-bold text-center mb-5 text-slate-800 font-tajawal">
             {t("contact.mayHelpYou")}
          </Text>
          <View className="flex-row flex-wrap justify-center gap-3">
@@ -149,9 +150,9 @@ export default function ContactPage() {
                  const Icon = link.icon;
                  return (
                     <Link key={index} href={link.href as any} asChild>
-                        <Pressable className="flex-row items-center gap-2 px-5 py-3 bg-slate-50 rounded-full border border-border">
-                            <Icon size={16} className="text-foreground" />
-                            <Text className="text-sm font-medium">{link.label}</Text>
+                        <Pressable className={cn("flex-row items-center gap-2 px-5 py-3 bg-slate-50 rounded-2xl border border-slate-100", I18nManager.isRTL && "flex-row-reverse")}>
+                            <Icon size={16} className="text-slate-600" />
+                            <Text className="text-sm font-bold text-slate-700 font-tajawal">{link.label}</Text>
                         </Pressable>
                     </Link>
                  )
@@ -160,97 +161,103 @@ export default function ContactPage() {
       </View>
 
       {/* Contact Form */}
-      <View className="py-8 px-4">
+      <View className="py-6 px-4">
         <Card>
             <CardHeader>
-                <CardTitle>{t("contact.formTitle")}</CardTitle>
-                <CardDescription>{t("contact.formDescription")}</CardDescription>
+                <CardTitle className={I18nManager.isRTL ? "text-right" : "text-left"}>{t("contact.formTitle")}</CardTitle>
+                <CardDescription className={I18nManager.isRTL ? "text-right" : "text-left"}>{t("contact.formDescription")}</CardDescription>
             </CardHeader>
             <CardContent>
-                <View className="gap-4">
+                <View className="gap-5">
                     <View className="gap-2">
-                        <Text className="text-sm font-medium">{t("contact.nameLabel")}</Text>
+                        <Text className={cn("text-sm font-bold text-slate-700 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.nameLabel")}</Text>
                         <Controller
                             control={control}
                             name="name"
                             render={({ field: { onChange, value } }) => (
-                                <Input 
+                                <TextInput 
+                                    className={cn("border border-slate-200 rounded-2xl p-4 bg-slate-50 font-tajawal text-slate-800", I18nManager.isRTL ? "text-right" : "text-left")}
                                     placeholder={t("contact.namePlaceholder")}
                                     value={value}
                                     onChangeText={onChange}
+                                    placeholderTextColor="#94a3b8"
                                 />
                             )}
                         />
-                         {errors.name && <Text className="text-red-500 text-xs">{errors.name.message}</Text>}
+                         {errors.name && <Text className="text-red-500 text-xs font-tajawal">{errors.name.message}</Text>}
                     </View>
 
                     <View className="gap-2">
-                        <Text className="text-sm font-medium">{t("contact.emailLabel")}</Text>
+                        <Text className={cn("text-sm font-bold text-slate-700 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.emailLabel")}</Text>
                         <Controller
                             control={control}
                             name="email"
                             render={({ field: { onChange, value } }) => (
-                                <Input 
+                                <TextInput 
+                                    className={cn("border border-slate-200 rounded-2xl p-4 bg-slate-50 font-tajawal text-slate-800", I18nManager.isRTL ? "text-right" : "text-left")}
                                     placeholder={t("contact.emailPlaceholder")}
                                     value={value}
                                     onChangeText={onChange}
                                     keyboardType="email-address"
+                                    placeholderTextColor="#94a3b8"
                                 />
                             )}
                         />
-                        {errors.email && <Text className="text-red-500 text-xs">{errors.email.message}</Text>}
+                        {errors.email && <Text className="text-red-500 text-xs font-tajawal">{errors.email.message}</Text>}
                     </View>
 
                     <View className="gap-2">
-                        <Text className="text-sm font-medium">{t("contact.subjectLabel")}</Text>
+                        <Text className={cn("text-sm font-bold text-slate-700 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.subjectLabel")}</Text>
                         <Controller
                             control={control}
                             name="subject"
                             render={({ field: { onChange, value } }) => (
-                                <Input 
+                                <TextInput 
+                                    className={cn("border border-slate-200 rounded-2xl p-4 bg-slate-50 font-tajawal text-slate-800", I18nManager.isRTL ? "text-right" : "text-left")}
                                     placeholder={t("contact.subjectPlaceholder")}
                                     value={value}
                                     onChangeText={onChange}
+                                    placeholderTextColor="#94a3b8"
                                 />
                             )}
                         />
-                         {errors.subject && <Text className="text-red-500 text-xs">{errors.subject.message}</Text>}
+                         {errors.subject && <Text className="text-red-500 text-xs font-tajawal">{errors.subject.message}</Text>}
                     </View>
 
                     <View className="gap-2">
-                        <Text className="text-sm font-medium">{t("contact.messageLabel")}</Text>
+                        <Text className={cn("text-sm font-bold text-slate-700 font-tajawal", I18nManager.isRTL ? "text-right" : "text-left")}>{t("contact.messageLabel")}</Text>
                         <Controller
                             control={control}
                             name="message"
                             render={({ field: { onChange, value } }) => (
                                 <TextInput 
-                                    className="min-h-[140px] border border-input rounded-xl p-3 text-start bg-background text-foreground"
+                                    className={cn("min-h-[140px] border border-slate-200 rounded-2xl p-4 bg-slate-50 font-tajawal text-slate-800", I18nManager.isRTL ? "text-right" : "text-left")}
                                     placeholder={t("contact.messagePlaceholder")}
                                     value={value}
                                     onChangeText={onChange}
                                     multiline
                                     textAlignVertical="top"
-                                    placeholderTextColor="#9ca3af"
+                                    placeholderTextColor="#94a3b8"
                                 />
                             )}
                         />
-                         {errors.message && <Text className="text-red-500 text-xs">{errors.message.message}</Text>}
+                         {errors.message && <Text className="text-red-500 text-xs font-tajawal">{errors.message.message}</Text>}
                     </View>
 
-                    <Button 
+                    <Pressable 
                         onPress={handleSubmit(onSubmit)} 
                         disabled={isSubmitting}
-                        className="bg-yellow-600 h-12"
+                        className="bg-teal-600 mt-4 py-4 rounded-full flex-row justify-center items-center active:bg-teal-700 active:scale-[0.98] transition-all shadow-sm"
                     >
                         {isSubmitting ? (
-                             <Text className="text-white">{t("contact.sending")}</Text>
+                             <Text className="text-white font-bold font-tajawal">{t("contact.sending")}</Text>
                         ) : (
-                            <View className="flex-row items-center gap-2">
-                                <Send size={16} color="white" />
-                                <Text className="text-white font-bold">{t("contact.sendButton")}</Text>
+                            <View className={cn("flex-row items-center", I18nManager.isRTL && "flex-row-reverse")}>
+                                <Send size={18} color="white" className={I18nManager.isRTL ? "ml-2" : "mr-2"} style={I18nManager.isRTL ? { transform: [{ rotate: '180deg' }] } : {}} />
+                                <Text className="text-white font-bold font-tajawal text-[15px]">{t("contact.sendButton")}</Text>
                             </View>
                         )}
-                    </Button>
+                    </Pressable>
                 </View>
             </CardContent>
         </Card>

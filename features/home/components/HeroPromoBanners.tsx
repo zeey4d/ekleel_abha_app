@@ -80,7 +80,7 @@ const BannerCarousel = ({ banners }: { banners: Banner[] }) => {
             >
               <Image
                 source={{ uri: getImageUrl(item.image) }}
-                style={{ flex: 1, borderRadius: 12 }}
+                style={{ flex: 1, borderRadius: 32 }}
                 contentFit="cover"
                 transition={300}
               />
@@ -99,8 +99,11 @@ const BannerCarousel = ({ banners }: { banners: Banner[] }) => {
                 height: 8,
                 borderRadius: 4,
                 width: idx === activeIndex ? 24 : 8,
-                backgroundColor: idx === activeIndex ? '#ffffffff' : 'rgba(255, 255, 255, 0.7)',
-                boxShadow: idx === activeIndex ? '0px 1px 1.41px rgba(0, 0, 0, 0.2)' : undefined,
+                backgroundColor: idx === activeIndex ? '#0d9488' : 'rgba(255, 255, 255, 0.7)',
+                shadowColor: '#0d9488',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: idx === activeIndex ? 0.3 : 0,
+                shadowRadius: 2,
                 elevation: idx === activeIndex ? 2 : 0,
               }}
             />
@@ -138,9 +141,9 @@ export const HeroPromoBanners = ({ banners }: HeroPromoBannersProps) => {
               style={{
                 width: '100%',
                 aspectRatio: 2.8,
-                borderRadius: 12,
+                borderRadius: 32,
                 overflow: 'hidden',
-                backgroundColor: '#f1f5f9',
+                backgroundColor: '#f8fafc',
                 marginHorizontal: 16,
                 alignSelf: 'center',
                 maxWidth: width - 32,

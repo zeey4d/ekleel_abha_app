@@ -43,8 +43,11 @@ module.exports = {
         },
       },
       fontFamily: {
-        lato: ['Lato_400Regular'],
-        cairo: ['Cairo_400Regular'],
+        // lato: ['Lato_400Regular'],
+        // cairo: ['Cairo_400Regular'],
+        tajawal: ['Tajawal_400Regular'],
+        sans: ['Tajawal_400Regular'],
+        serif: ['Tajawal_400Regular'],
       },
       borderRadius: {
         lg: 'var(--radius)',

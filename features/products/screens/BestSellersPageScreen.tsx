@@ -55,7 +55,7 @@ export default function BestSellersScreen() {
   if (isLoading) return <BestSellersSkeleton />;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-background">
       <Stack.Screen
         options={{
           headerShown: true,
